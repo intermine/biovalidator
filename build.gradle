@@ -12,4 +12,12 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+
+}
+
+task myJavadocs(type: Javadoc) {
+    source = sourceSets.main.allJava
 }
