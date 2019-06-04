@@ -1,4 +1,4 @@
-package org.intermine.biovalidator.api;
+package org.intermine.biovalidator.api.strategy;
 
 /*
  * Copyright (C) 2002-2019 FlyMine
@@ -11,15 +11,10 @@ package org.intermine.biovalidator.api;
  */
 
 /**
+ *
  * @author deepak
  */
-public class ValidationFailureException extends Exception
+public interface ValidatorStrictnessPolicy
 {
-    /**
-     * Construct a ValidationFailue Exception with a message as the cause.
-     * @param msg the reason for failure.
-     */
-    public ValidationFailureException(String msg) {
-        super(msg);
-    }
+
 }

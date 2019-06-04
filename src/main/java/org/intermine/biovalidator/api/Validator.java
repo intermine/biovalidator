@@ -1,8 +1,24 @@
 package org.intermine.biovalidator.api;
 
+/*
+ * Copyright (C) 2002-2019 FlyMine
+ *
+ * This code may be freely distributed and modified under the
+ * terms of the GNU Lesser General Public Licence.  This should
+ * be distributed with the code.  See the LICENSE file for more
+ * information or http://www.gnu.org/copyleft/lesser.html.
+ *
+ */
 
+import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
+import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
+
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
+/**
+ * @author deepak
+ */
 public interface Validator
 {
     /**
@@ -10,7 +26,7 @@ public interface Validator
      * @return A detailed result of the validation
      * @throws ValidationFailureException if validator failed to validate a given file.
      */
-    ValidationResult validate() throws ValidationFailureException;
+    @Nonnull ValidationResult validate() throws ValidationFailureException;
 
     /**
      * Validates a file and pass the result to a consumer

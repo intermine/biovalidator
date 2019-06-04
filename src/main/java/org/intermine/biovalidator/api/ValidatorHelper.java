@@ -1,7 +1,16 @@
 package org.intermine.biovalidator.api;
 
+/*
+ * Copyright (C) 2002-2019 FlyMine
+ *
+ * This code may be freely distributed and modified under the
+ * terms of the GNU Lesser General Public Licence.  This should
+ * be distributed with the code.  See the LICENSE file for more
+ * information or http://www.gnu.org/copyleft/lesser.html.
+ *
+ */
+
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Provides helper methods create validator.
@@ -22,17 +31,14 @@ public final class ValidatorHelper
      * @param file file to be validated
      * @param fileType type of biological file
      * @param isStrict setting on how strict validator should be
-     * @param seqType type of sequence, only applicable for file format which
-     *                support multiple types such as FATSA support DNA, RNA, PROTEIN.
      * @return result of validation
      * @throws ValidationFailureException if validation fails
      */
     public static ValidationResult validate(@Nonnull String file,
-                                            @Nonnull Type fileType,
-                                            @Nullable SequenceType seqType,
+                                            @Nonnull ValidatorBuilder.Type fileType,
                                             boolean isStrict)
                                             throws ValidationFailureException {
-        return ValidatorBuilder.build().validate();
+        return ValidatorBuilder.withFile(file, fileType).build().validate();
     }
 
     /**
@@ -43,7 +49,7 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFastaDna(@Nonnull String file)
                                                     throws ValidationFailureException {
-        return validate(file, Type.FASTA, SequenceType.DNA, false);
+        return validate(file, ValidatorBuilder.Type.FASTA_DNA, false);
     }
 
     /**
@@ -54,7 +60,7 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFastaRna(@Nonnull String file)
             throws ValidationFailureException {
-        return validate(file, Type.FASTA, SequenceType.DNA, false);
+        return validate(file, ValidatorBuilder.Type.FASTA_RNA, false);
     }
 
     /**
@@ -65,22 +71,8 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFastaProtein(@Nonnull String file)
             throws ValidationFailureException {
-        return validate(file, Type.FASTA, SequenceType.DNA, false);
+        return validate(file, ValidatorBuilder.Type.FASTA_PROTEIN, false);
     }
 
-    public enum Type
-    {
-        /**
-         * Represents a type for FASTA
-         */
-        FASTA
-    }
-
-    public enum SequenceType {
-        /**
-         * sequence type
-         */
-        DNA, RNA, PROTEIN
-    }
 }
 

@@ -10,16 +10,10 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
+
 /**
  * @author deepak
  */
-public class ValidationFailureException extends Exception
-{
-    /**
-     * Construct a ValidationFailue Exception with a message as the cause.
-     * @param msg the reason for failure.
-     */
-    public ValidationFailureException(String msg) {
-        super(msg);
-    }
-}
+public class DefaultValidatorStrictnessPolicy implements ValidatorStrictnessPolicy
+{ }
