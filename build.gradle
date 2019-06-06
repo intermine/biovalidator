@@ -1,6 +1,8 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id 'com.gradle.build-scan' version '1.16'
+    
 }
 
 version '1.0-SNAPSHOT'
@@ -34,4 +36,9 @@ checkstyle {
 }
 checkstyleMain {
     source ='src/main/java'
+}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
 }
