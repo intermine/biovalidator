@@ -30,7 +30,7 @@ public interface SequenceValidator
      * @param result validation result where validation error can be added
      * @return return boolean indicating failure or success
      */
-    boolean validate(@Nonnull String sequence, int seqLineNo, @Nonnull ValidationResult result);
+    boolean validate(@Nonnull String sequence, long seqLineNo, @Nonnull ValidationResult result);
 
     /**
      * Test whether a sequence is valid or not

@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractValidator implements Validator
 {
-    protected DefaultValidationResult defaultValidationResult;
+    protected ValidationResult validationResult;
     protected ValidationResultStrategy validationResultStrategy;
     protected ValidatorStrictnessPolicy validatorStrictnessPolicy;
     protected File file;
@@ -36,7 +36,7 @@ public abstract class AbstractValidator implements Validator
      */
     public AbstractValidator() {
         this.validationResultStrategy = new DefaultValidationResultStrategy();
-        this.defaultValidationResult = new DefaultValidationResult();
+        this.validationResult = new DefaultValidationResult();
     }
 
     @Override

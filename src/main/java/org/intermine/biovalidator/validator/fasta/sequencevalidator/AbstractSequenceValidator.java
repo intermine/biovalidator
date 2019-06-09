@@ -35,12 +35,12 @@ public abstract class AbstractSequenceValidator implements SequenceValidator
     }
 
     @Override
-    public boolean validate(@Nonnull String seq, int lineNo,
+    public boolean validate(@Nonnull String seq, long lineNo,
                             @Nonnull ValidationResult validationResult) {
         for (int i = 0; i < seq.length(); i++) {
             if (!isValidLetter(seq.charAt(i))) {
                 String msg = "Invalid letter " + seq.charAt(i)
-                        + " at line number + " + lineNo + ":" + (i + 1);
+                        + " at line number " + lineNo + ", column " + (i + 1);
                 validationResult.getErrorMessages().add(new ErrorMessage(msg));
                 return false;
             }

@@ -10,8 +10,9 @@ package org.intermine.biovalidator.validator.fasta;
  *
  */
 
-/**
- * @author deepak
- */
-public class FastaRnaValidator
-{ }
+public enum SequenceType {
+    /**
+     * Represents file validator types supported by builder
+     */
+    DNA, RNA, PROTEIN, ALL
+}

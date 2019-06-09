@@ -23,6 +23,7 @@ public class DefaultValidationResult implements ValidationResult
      */
     private List<Message> errorMessages;
     private List<Message> warningMessages;
+    private boolean isValid;
 
     /**
      * Default DefaultValidationResult Constructor
@@ -30,6 +31,7 @@ public class DefaultValidationResult implements ValidationResult
     public DefaultValidationResult() {
         this.errorMessages = new ArrayList<>();
         this.warningMessages = new ArrayList<>();
+        this.isValid = true;
     }
 
     @Override
@@ -51,6 +53,20 @@ public class DefaultValidationResult implements ValidationResult
     @Override
     public List<Message> getWarningMessages() {
         return warningMessages;
+    }
+
+    @Override
+    public boolean isValid() {
+        return isValid;
+    }
+
+    /**
+     * Sets validation result is valid or not.
+     *
+     * @param valid either true or false
+     */
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 
     /**

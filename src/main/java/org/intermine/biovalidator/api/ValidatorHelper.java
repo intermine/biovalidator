@@ -13,6 +13,7 @@ package org.intermine.biovalidator.api;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
 
 import javax.annotation.Nonnull;
+import java.io.FileNotFoundException;
 
 /**
  * Provides helper methods create validator.
@@ -37,9 +38,9 @@ public final class ValidatorHelper
      * @throws ValidationFailureException if validation fails
      */
     public static ValidationResult validate(@Nonnull String file,
-                                                   @Nonnull SequenceType fileType,
-                                                   boolean isStrict)
-                                            throws ValidationFailureException {
+                                            @Nonnull SequenceType fileType,
+                                            boolean isStrict)
+            throws ValidationFailureException {
         return ValidatorBuilder.withFile(file, fileType).build().validate();
     }
 
@@ -50,7 +51,7 @@ public final class ValidatorHelper
      * @throws ValidationFailureException if validation fails
      */
     public static ValidationResult validateFastaDna(@Nonnull String file)
-                                                    throws ValidationFailureException {
+            throws ValidationFailureException {
         return validate(file, SequenceType.DNA, false);
     }
 

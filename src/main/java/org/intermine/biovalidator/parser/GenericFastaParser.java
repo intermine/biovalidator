@@ -15,7 +15,7 @@ import org.intermine.biovalidator.api.ParsingException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStreamReader;
 
 /**
  * @author deepak
@@ -28,7 +28,7 @@ public class GenericFastaParser implements Parser<String>
      * Construct fasta parser with input source
      * @param reader input source
      */
-    public GenericFastaParser(Reader reader) {
+    public GenericFastaParser(InputStreamReader reader) {
         this.br = new BufferedReader(reader);
     }
 
@@ -40,11 +40,7 @@ public class GenericFastaParser implements Parser<String>
     @Override
     public String parseNext() throws ParsingException {
         try {
-            String line = br.readLine();
-            if (line != null && line.charAt(0) == '>') {
-                return br.readLine(); //skip header
-            }
-            return line;
+            return br.readLine();
         } catch (IOException e) {
             throw new ParsingException(e.getMessage());
         }

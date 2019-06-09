@@ -29,7 +29,6 @@ public interface ValidationResult
      */
     int totalError();
 
-
     /**
      * Return list of validation messages.
      *
@@ -43,4 +42,10 @@ public interface ValidationResult
      * @return Value of warning messages.
      */
     List<Message> getWarningMessages();
+
+    /**
+     * Return whether validator has valid result or not
+     * @return test result
+     */
+    boolean isValid();
 }

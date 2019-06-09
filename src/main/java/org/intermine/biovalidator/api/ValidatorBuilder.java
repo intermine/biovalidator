@@ -12,11 +12,13 @@ package org.intermine.biovalidator.api;
 
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
-import org.intermine.biovalidator.validator.fasta.FastaDnaValidator;
+import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 /**
  * Builder class to instantiate a Validator with customization
@@ -62,9 +64,18 @@ public final class ValidatorBuilder
      */
     public static ValidatorBuilder withFile(@Nonnull File filename, @Nonnull SequenceType type)
                                                 throws IllegalArgumentException {
+        FileReader reader;
+        try {
+            reader = new FileReader(filename);
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("file not found");
+        }
         switch (type) {
             case DNA:
-                return ofType(new FastaDnaValidator(filename));
+            case RNA:
+                return ofType(new FastaValidator(reader, SequenceType.DNA));
+            case PROTEIN:
+                return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
             default:
                 throw new IllegalArgumentException("invalid file type");
         }
