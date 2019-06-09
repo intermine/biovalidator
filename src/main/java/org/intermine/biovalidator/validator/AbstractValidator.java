@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator;
  *
  */
 
+import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.DefaultValidationResultStrategy;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractValidator implements Validator
 {
-    protected ValidationResult validationResult;
+    protected DefaultValidationResult defaultValidationResult;
     protected ValidationResultStrategy validationResultStrategy;
     protected ValidatorStrictnessPolicy validatorStrictnessPolicy;
     protected File file;
@@ -35,7 +36,7 @@ public abstract class AbstractValidator implements Validator
      */
     public AbstractValidator() {
         this.validationResultStrategy = new DefaultValidationResultStrategy();
-        this.validationResult = new ValidationResult();
+        this.defaultValidationResult = new DefaultValidationResult();
     }
 
     @Override

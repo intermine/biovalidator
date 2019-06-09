@@ -10,6 +10,8 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import org.intermine.biovalidator.validator.fasta.SequenceType;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -35,8 +37,8 @@ public final class ValidatorHelper
      * @throws ValidationFailureException if validation fails
      */
     public static ValidationResult validate(@Nonnull String file,
-                                            @Nonnull ValidatorBuilder.Type fileType,
-                                            boolean isStrict)
+                                                   @Nonnull SequenceType fileType,
+                                                   boolean isStrict)
                                             throws ValidationFailureException {
         return ValidatorBuilder.withFile(file, fileType).build().validate();
     }
@@ -49,7 +51,7 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFastaDna(@Nonnull String file)
                                                     throws ValidationFailureException {
-        return validate(file, ValidatorBuilder.Type.FASTA_DNA, false);
+        return validate(file, SequenceType.DNA, false);
     }
 
     /**
@@ -60,7 +62,7 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFastaRna(@Nonnull String file)
             throws ValidationFailureException {
-        return validate(file, ValidatorBuilder.Type.FASTA_RNA, false);
+        return validate(file, SequenceType.RNA, false);
     }
 
     /**
@@ -71,7 +73,7 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFastaProtein(@Nonnull String file)
             throws ValidationFailureException {
-        return validate(file, ValidatorBuilder.Type.FASTA_PROTEIN, false);
+        return validate(file, SequenceType.PROTEIN, false);
     }
 
 }

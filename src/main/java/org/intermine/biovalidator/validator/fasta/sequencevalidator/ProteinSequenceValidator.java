@@ -1,4 +1,4 @@
-package org.intermine.biovalidator.api;
+package org.intermine.biovalidator.validator.fasta.sequencevalidator;
 
 /*
  * Copyright (C) 2002-2019 FlyMine
@@ -10,18 +10,12 @@ package org.intermine.biovalidator.api;
  *
  */
 
-/**
- * @author deepak
- */
-public class ErrorMessage extends Message
+public final class ProteinSequenceValidator extends AbstractSequenceValidator
 {
     /**
-     * Construct a message with given string
-     *
-     * @param message message string
+     * Initialize with valid sequence letters
      */
-    public ErrorMessage(String message) {
-        super(message);
+    public ProteinSequenceValidator() {
+        super("ARNDCQEGHILKMFFPSTWYVBZX*-");
     }
 }
-

@@ -13,6 +13,7 @@ package org.intermine.biovalidator.api;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
 import org.intermine.biovalidator.validator.fasta.FastaDnaValidator;
+import org.intermine.biovalidator.validator.fasta.SequenceType;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -59,10 +60,10 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      * @throws IllegalArgumentException if type not found
      */
-    public static ValidatorBuilder withFile(@Nonnull File filename, @Nonnull Type type)
+    public static ValidatorBuilder withFile(@Nonnull File filename, @Nonnull SequenceType type)
                                                 throws IllegalArgumentException {
         switch (type) {
-            case FASTA_DNA:
+            case DNA:
                 return ofType(new FastaDnaValidator(filename));
             default:
                 throw new IllegalArgumentException("invalid file type");
@@ -76,7 +77,7 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      * @throws IllegalArgumentException if type not found
      */
-    public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull Type type)
+    public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull SequenceType type)
                                                 throws IllegalArgumentException {
         return withFile(new File(file), type);
     }
@@ -124,13 +125,5 @@ public final class ValidatorBuilder
     public ValidatorBuilder disableErrors() {
         this.validationResultStrategy.disableWarnings();
         return this;
-    }
-
-    public enum Type
-    {
-        /**
-         * Represents file validator types supported by builder
-         */
-        FASTA_DNA, FASTA_RNA, FASTA_PROTEIN
     }
 }

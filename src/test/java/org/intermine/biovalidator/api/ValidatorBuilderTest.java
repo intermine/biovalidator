@@ -1,6 +1,7 @@
 package org.intermine.biovalidator.api;
 
 import org.intermine.biovalidator.validator.fasta.FastaDnaValidator;
+import org.intermine.biovalidator.validator.fasta.SequenceType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ public class ValidatorBuilderTest {
 
     @Test
     public void testValidatorBuilderCreationWithFile() throws ValidationFailureException {
-        ValidationResult result = ValidatorBuilder.withFile(filename, ValidatorBuilder.Type.FASTA_DNA)
+        ValidationResult result = ValidatorBuilder.withFile(filename, SequenceType.DNA)
                 .build().validate();
         Assert.assertNotNull(result);
     }
@@ -23,7 +24,7 @@ public class ValidatorBuilderTest {
 
     @Test
     public void testValidatorBuilderWithCustomization() throws ValidationFailureException {
-        ValidatorBuilder.withFile(filename, ValidatorBuilder.Type.FASTA_DNA)
+        ValidatorBuilder.withFile(filename, SequenceType.DNA)
                 .enableWarnings()
                 .disableErrors()
                 .stopAtFirstError()

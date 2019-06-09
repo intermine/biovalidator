@@ -10,78 +10,37 @@ package org.intermine.biovalidator.api;
  *
  */
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author deepak
  */
-public class ValidationResult
+public interface ValidationResult
 {
-    /**
-     * list of validation messages
-     */
-    private List<Message> errorMessages;
-    private List<Message> warningMessages;
-
-    /**
-     * Default ValidationResult Constructor
-     */
-    public ValidationResult() {
-        this.errorMessages = new ArrayList<>();
-        this.warningMessages = new ArrayList<>();
-    }
-
     /**
      * Return total number of warnings found
      * @return total warnings
      */
-    public int totalWarnings() {
-        return warningMessages.size();
-    }
+    int totalWarnings();
 
     /**
      * Return total number of errors found
      * @return total errors
      */
-    public int totalError() {
-        return errorMessages.size();
-    }
+    int totalError();
 
 
     /**
-     * Gets list of validation messages.
+     * Return list of validation messages.
      *
      * @return Value of list of validation messages.
      */
-    public List<Message> getErrorMessages() {
-        return errorMessages;
-    }
+    List<Message> getErrorMessages();
 
     /**
-     * Sets new list of validation messages.
+     * Return list of warning messages.
      *
-     * @param errorMessages New value of list of validation messages.
+     * @return Value of warning messages.
      */
-    public void setErrorMessages(List<Message> errorMessages) {
-        this.errorMessages = errorMessages;
-    }
-
-    /**
-     * Gets warningMessages.
-     *
-     * @return Value of warningMessages.
-     */
-    public List<Message> getWarningMessages() {
-        return warningMessages;
-    }
-
-    /**
-     * Sets new warningMessages.
-     *
-     * @param warningMessages New value of warningMessages.
-     */
-    public void setWarningMessages(List<Message> warningMessages) {
-        this.warningMessages = warningMessages;
-    }
+    List<Message> getWarningMessages();
 }

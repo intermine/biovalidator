@@ -12,6 +12,7 @@ package org.intermine.biovalidator.validator.fasta;
 
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ValidationFailureException;
+import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.validator.AbstractValidator;
 
@@ -60,7 +61,7 @@ public class FastaDnaValidator extends AbstractValidator
         } catch (ParsingException e) {
             throw new ValidationFailureException(e.getMessage());
         }*/
-        return validationResult;
+        return defaultValidationResult;
     }
 
     private void validateSequence(String sequence) {

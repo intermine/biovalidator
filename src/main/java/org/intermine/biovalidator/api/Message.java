@@ -16,16 +16,13 @@ package org.intermine.biovalidator.api;
 public abstract class Message
 {
     private String message;
-    private int code;
-
 
     /**
-     * Gets code.
-     *
-     * @return Value of code.
+     * Construct a message with given string
+     * @param message message string
      */
-    public int getCode() {
-        return code;
+    public Message(String message) {
+        this.message = message;
     }
 
     /**
@@ -35,15 +32,6 @@ public abstract class Message
      */
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    /**
-     * Sets new code.
-     *
-     * @param code New value of code.
-     */
-    public void setCode(int code) {
-        this.code = code;
     }
 
     /**

@@ -14,4 +14,13 @@ package org.intermine.biovalidator.api;
  * @author deepak
  */
 public class WarningMessage extends Message
-{ }
+{
+    /**
+     * Construct a message with given string
+     *
+     * @param message message string
+     */
+    public WarningMessage(String message) {
+        super(message);
+    }
+}
