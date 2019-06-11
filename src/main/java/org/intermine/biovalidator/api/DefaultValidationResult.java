@@ -10,6 +10,9 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +27,14 @@ public class DefaultValidationResult implements ValidationResult
     private List<Message> errorMessages;
     private List<Message> warningMessages;
     private boolean isValid;
+    private ValidationResultStrategy resultStrategy;
 
     /**
      * Default DefaultValidationResult Constructor
+     * @param resultStrategy strategy for validation result
      */
-    public DefaultValidationResult() {
+    public DefaultValidationResult(ValidationResultStrategy resultStrategy) {
+        this.resultStrategy = resultStrategy;
         this.errorMessages = new ArrayList<>();
         this.warningMessages = new ArrayList<>();
         this.isValid = true;
@@ -60,12 +66,27 @@ public class DefaultValidationResult implements ValidationResult
         return isValid;
     }
 
+    @Override
+    public void addError(@Nonnull ErrorMessage errorMessage) {
+        this.isValid = false;
+        if (resultStrategy.isErrorEnabled()) {
+            this.errorMessages.add(errorMessage);
+        }
+    }
+
+    @Override
+    public void addWarning(@Nonnull WarningMessage warningMessage) {
+        if (resultStrategy.isErrorEnabled()) {
+            this.warningMessages.add(warningMessage);
+        }
+    }
+
     /**
      * Sets validation result is valid or not.
      *
      * @param valid either true or false
      */
-    public void setValid(boolean valid) {
+    public void setIsValid(boolean valid) {
         isValid = valid;
     }
 

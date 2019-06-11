@@ -23,5 +23,14 @@ public class ErrorMessage extends Message
     public ErrorMessage(String message) {
         super(message);
     }
+
+    /**
+     * createa an error message from string
+     * @param msg error message
+     * @return instance of error message
+     */
+    public static ErrorMessage of(String msg) {
+        return new ErrorMessage(msg);
+    }
 }
 

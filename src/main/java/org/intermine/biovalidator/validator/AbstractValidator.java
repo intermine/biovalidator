@@ -36,7 +36,7 @@ public abstract class AbstractValidator implements Validator
      */
     public AbstractValidator() {
         this.validationResultStrategy = new DefaultValidationResultStrategy();
-        this.validationResult = new DefaultValidationResult();
+        this.validationResult = new DefaultValidationResult(validationResultStrategy);
     }
 
     @Override

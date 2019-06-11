@@ -23,4 +23,13 @@ public class WarningMessage extends Message
     public WarningMessage(String message) {
         super(message);
     }
+
+    /**
+     * createa an error message from string
+     * @param msg error message
+     * @return instance of error message
+     */
+    public static WarningMessage of(String msg) {
+        return new WarningMessage(msg);
+    }
 }

@@ -11,6 +11,8 @@ package org.intermine.biovalidator.api;
  */
 
 /**
+ * Represents an immutable Message that can be created by validator whenever
+ * validator finds an invalid data.
  * @author deepak
  */
 public abstract class Message
@@ -22,15 +24,6 @@ public abstract class Message
      * @param message message string
      */
     public Message(String message) {
-        this.message = message;
-    }
-
-    /**
-     * Sets new message.
-     *
-     * @param message New value of message.
-     */
-    public void setMessage(String message) {
         this.message = message;
     }
 

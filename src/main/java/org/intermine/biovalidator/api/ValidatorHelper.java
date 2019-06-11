@@ -13,7 +13,6 @@ package org.intermine.biovalidator.api;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
 
 import javax.annotation.Nonnull;
-import java.io.FileNotFoundException;
 
 /**
  * Provides helper methods create validator.

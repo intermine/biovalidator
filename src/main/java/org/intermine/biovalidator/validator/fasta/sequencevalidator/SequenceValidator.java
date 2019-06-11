@@ -22,7 +22,8 @@ public interface SequenceValidator
 {
     /**
      * Test whether a sequence is valid or not.
-     * Returns a boolean and can optionally add validation error to ValidationResult
+     * Returns the length of the sequence it validates and can optionally add
+     * errors or warning to ValidationResult if there is any validation error
      * @param sequence sequence that is to be validated
      * @param seqLineNo line number of the sequence inside the source data,
      *                  it can be used to reference the line number of the
@@ -30,7 +31,7 @@ public interface SequenceValidator
      * @param result validation result where validation error can be added
      * @return return boolean indicating failure or success
      */
-    boolean validate(@Nonnull String sequence, long seqLineNo, @Nonnull ValidationResult result);
+    int validate(@Nonnull String sequence, long seqLineNo, @Nonnull ValidationResult result);
 
     /**
      * Test whether a sequence is valid or not

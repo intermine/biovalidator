@@ -11,6 +11,7 @@ package org.intermine.biovalidator.validator.fasta;
  */
 
 import org.intermine.biovalidator.api.DefaultValidationResult;
+import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.api.ValidationFailureException;
@@ -24,9 +25,12 @@ import org.intermine.biovalidator.validator.fasta.sequencevalidator.SequenceVali
 
 import javax.annotation.Nonnull;
 import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FastaValidator extends AbstractValidator
 {
+    private static final String INVALID_SEQUENCE_START_MSG = "First line must be a header line";
     private Parser<String> parser;
     private SequenceValidator sequenceValidator;
     private InputStreamReader inputStreamReader;
@@ -44,27 +48,54 @@ public class FastaValidator extends AbstractValidator
     @Nonnull
     @Override
     public ValidationResult validate() throws ValidationFailureException {
+        Set<String> uniqueSequenceIds = new HashSet<>();
+        DefaultValidationResult defaultValidationResult =
+                (DefaultValidationResult) validationResult;
         try {
             this.parser = new GenericFastaParser(inputStreamReader);
             String line;
-            long lines = 0, chars = 0;
-            long log = 0;
+            String currentHeader = "";
+            long linesCount = 0;
             do {
                 line = parser.parseNext();
-                lines++;
-                if (line != null && !line.startsWith(">")) {
-                    boolean isValid = sequenceValidator.validate(line, lines, validationResult);
-                    if (!isValid) {
-                        System.out.println("Total Lines Read : " + lines + " " + isValid);
-                        ((DefaultValidationResult) validationResult).setValid(false);
+                linesCount++;
+                if (line != null) {
+                    if (line.startsWith(">")) { //header
+                        String sequenceId = line; //line.substring(0, line.lastIndexOf('|'));
+                        if (uniqueSequenceIds.contains(sequenceId)) {
+                            defaultValidationResult.addError(
+                                    ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
+                        } else {
+                            uniqueSequenceIds.add(sequenceId);
+                            currentHeader = line;
+                        }
+                    } else { //validate sequence
+                        if (linesCount < 2) {
+                            defaultValidationResult.addError(
+                                    ErrorMessage.of(INVALID_SEQUENCE_START_MSG));
+                        }
+                        long seqLengthCount = 0;
+                        while (line != null && !line.startsWith(">")) {
+                            seqLengthCount +=  sequenceValidator.validate(line,
+                                    linesCount, validationResult);
+                            line = parser.parseNext();
+                            linesCount++;
+                        }
+                        if (seqLengthCount < 1) { //empty record
+                            String msg = "Record '" + currentHeader + "' has empty sequence";
+                            validationResult.addError(ErrorMessage.of(msg));
+                        }
+                    }
+
+                    if (!validationResult.isValid()
+                            && validationResultStrategy.shouldStopAtFirstError()) {
                         return validationResult;
                     }
                 }
             } while (line != null);
-            System.out.print(log);
-            System.out.println("Total Lines Read : " + lines);
+            //System.out.println("Total Lines Read : " + linesCount);
         } catch (ParsingException e) {
-            e.printStackTrace();
+            throw new ValidationFailureException(e.getMessage());
         }
         return validationResult;
     }

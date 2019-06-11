@@ -17,37 +17,60 @@ import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
  */
 public class DefaultValidationResultStrategy implements ValidationResultStrategy
 {
-    private boolean enableWarning;
+    private boolean isWarningEnabled;
 
-    private boolean enableError;
+    private boolean isErrorEnabled;
 
     private boolean constructDetailedMessage;
 
     private boolean stopAtFirstError;
 
+    /**
+     * Create a default strategy with both error and warnings enabled
+     */
+    public DefaultValidationResultStrategy() {
+        enableErrors();
+        enableWarnings();
+    }
+
     @Override
     public void enableWarnings() {
-        this.enableError = true;
+        this.isErrorEnabled = true;
     }
 
     @Override
     public void disableWarnings() {
-        this.enableError = false;
+        this.isErrorEnabled = false;
     }
 
     @Override
     public void enableErrors() {
-        this.enableError = true;
+        this.isErrorEnabled = true;
     }
 
     @Override
     public void disableErrors() {
-        this.enableError = false;
+        this.isErrorEnabled = false;
     }
 
     @Override
     public void stopAtFirstError() {
         this.stopAtFirstError = true;
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return isErrorEnabled;
+    }
+
+    @Override
+    public boolean isWarningWnabled() {
+        return isWarningEnabled;
+    }
+
+    @Override
+    public boolean shouldStopAtFirstError() {
+        return stopAtFirstError;
     }
 
     /**

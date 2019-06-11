@@ -48,4 +48,16 @@ public interface ValidationResult
      * @return test result
      */
     boolean isValid();
+
+    /**
+     * Add a error message
+     * @param errorMessage message
+     */
+    void addError(ErrorMessage errorMessage);
+
+    /**
+     * Add a warning message
+     * @param warningMessage message
+     */
+    void addWarning(WarningMessage warningMessage);
 }

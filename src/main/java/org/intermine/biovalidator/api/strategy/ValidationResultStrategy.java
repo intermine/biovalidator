@@ -40,4 +40,22 @@ public interface ValidationResultStrategy
      * Indicate validator to stop as soon as an error occurred
      */
     void stopAtFirstError();
+
+    /**
+     * Returns whether error is enabled or not
+     * @return error enabled state
+     */
+    boolean isErrorEnabled();
+
+    /**
+     * Returns whether warning enabled or not
+     * @return warning enabled state
+     */
+    boolean isWarningWnabled();
+
+    /**
+     * Retunrs whether validator should stop at first error or not
+     * @return should stop at first error or not
+     */
+    boolean shouldStopAtFirstError();
 }
