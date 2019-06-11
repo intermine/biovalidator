@@ -24,15 +24,17 @@ public final class NucleicAcidSequenceValidator extends AbstractSequenceValidato
 
     /**
      * Construct a NucleicAcid SequenceValidator by storing all valid letters
-     * in HashSet to get O(1) look-up cost, but the implementation will suffer
+     * in HashSet to get constant look-up cost, but the implementation will suffer
      * from Java's Autoboxing-Unboxing while look-up.
      */
     public NucleicAcidSequenceValidator() {
         String validLetters = "ACGTNUKSYMWRVBHD";
         Set<Character> seqSet = new HashSet<>();
         for (char c: validLetters.toCharArray()) {
-            seqSet.add(c);
+            seqSet.add(Character.toUpperCase(c));
+            seqSet.add(Character.toLowerCase(c));
         }
+        seqSet.add('-');
         this.validSequenceLetters = Collections.unmodifiableSet(seqSet);
     }
 

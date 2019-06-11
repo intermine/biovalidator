@@ -19,7 +19,6 @@ import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.parser.GenericFastaParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.GenericSequenceValidator;
-import org.intermine.biovalidator.validator.fasta.sequencevalidator.NucleicAcidSequenceValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.NucleicAcidSequenceValidatorWithArray;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.ProteinSequenceValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.SequenceValidator;

@@ -23,7 +23,8 @@ public final class NucleicAcidSequenceValidatorWithArray extends AbstractSequenc
      * Construct a NucleicAcid SequenceValidator by storing all valid letters
      * in raw array of the english alphabet size, as all valid NucleicAcid
      * letters as valid english alphabet except '-'. This implementation will
-     * have O(1) look-up time complexity without Autoboxing-Unboxing overhead.
+     * have constant look-up time complexity without Autoboxing-Unboxing overhead
+     * as compared to the class NucleicAcidSequenceValidator
      * <p>
      *     Currently this implementation is used for validating NucleicAcid sequences
      * </p>
@@ -45,7 +46,7 @@ public final class NucleicAcidSequenceValidatorWithArray extends AbstractSequenc
         if (indx >= 0 && indx < CONTAINER_SIZE) {
             return validSequenceLetters[indx];
         }
-        return (c == '-');
+        return (c == '-') || Character.isWhitespace(c);
     }
 
     private int getAlphabetIndex(char c) {

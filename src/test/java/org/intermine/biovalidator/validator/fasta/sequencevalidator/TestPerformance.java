@@ -28,7 +28,7 @@ public class TestPerformance {
     public void testPerformance() throws FileNotFoundException, ValidationFailureException {
         long start = System.nanoTime();
 
-        ValidationResult result = ValidatorHelper.validateFastaDna(rna);
+        ValidationResult result = ValidatorHelper.validateFastaProtein(rna);
         if (result.isValid()) {
             System.out.println("Valid File");
             result.getWarningMessages().forEach(System.out::println);
@@ -47,6 +47,27 @@ public class TestPerformance {
         new FastaValidator(input, SequenceType.DNA)
                 .validate(result -> {
                     assertTrue(result.isValid());
+                });
+    }
+
+    //@Test
+    public void testThis() {
+
+    }
+
+    //@Test
+    public void testEmptyFile() throws ValidationFailureException {
+        String emptyData = "                    " +
+                "";
+        InputStreamReader input = new InputStreamReader( new ByteArrayInputStream(emptyData.getBytes()));
+        new FastaValidator(input, SequenceType.DNA)
+                .validate(result -> {
+                    if (result.isValid()) {
+                        System.out.println("Valid");
+                    } else {
+                        System.out.println("Invalid");
+                        result.getErrorMessages().forEach(System.out::println);
+                    }
                 });
     }
 
