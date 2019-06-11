@@ -5,6 +5,7 @@ import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.ValidatorHelper;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -24,8 +25,8 @@ public class TestPerformance {
 
 
     @Test
-    //@Ignore
-    public void testPerformance() throws FileNotFoundException, ValidationFailureException {
+    @Ignore
+    public void testPerformance() throws ValidationFailureException {
         long start = System.nanoTime();
 
         ValidationResult result = ValidatorHelper.validateFastaProtein(rna);
@@ -45,9 +46,7 @@ public class TestPerformance {
     public void testDNASequence() throws ValidationFailureException {
         InputStreamReader input = new InputStreamReader( new ByteArrayInputStream(data.getBytes()));
         new FastaValidator(input, SequenceType.DNA)
-                .validate(result -> {
-                    assertTrue(result.isValid());
-                });
+                .validate(result -> assertTrue(result.isValid()));
     }
 
     //@Test
