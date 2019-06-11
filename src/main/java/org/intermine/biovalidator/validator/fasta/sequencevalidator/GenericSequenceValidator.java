@@ -10,43 +10,13 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
  *
  */
 
-import org.intermine.biovalidator.api.ErrorMessage;
-import org.intermine.biovalidator.api.ValidationResult;
-import org.intermine.biovalidator.api.WarningMessage;
-
-import javax.annotation.Nonnull;
-
 /**
  * A generic sequence validator to test whether a sequence
  * is following IUPAC codes or not.
  * @author deepak
  */
-public class GenericSequenceValidator implements SequenceValidator
+public class GenericSequenceValidator extends AbstractSequenceValidator
 {
-    @Override
-    public int validate(@Nonnull String sequence,
-                            long seqLineNo,
-                            @Nonnull ValidationResult result) {
-        for (int i = 0; i < sequence.length(); i++) {
-            if (!isValidLetter(sequence.charAt(i))) {
-                String msg = "Invalid letter '" + sequence.charAt(i)
-                        + "' at line " + seqLineNo + " and col " + (i + 1);
-                result.addError(ErrorMessage.of(msg));
-                return (i + 1);
-            }
-        }
-        if (sequence.length() > 80) {
-            result.addWarning(WarningMessage.of("number of sequence length exceed 80 at line "
-                    + seqLineNo));
-        }
-        return sequence.length();
-    }
-
-    @Override
-    public boolean isValid(@Nonnull String sequence) {
-        return false;
-    }
-
     @Override
     public boolean isValidLetter(char c) {
         return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')

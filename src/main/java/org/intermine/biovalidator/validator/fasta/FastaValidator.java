@@ -20,6 +20,7 @@ import org.intermine.biovalidator.parser.GenericFastaParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.GenericSequenceValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.NucleicAcidSequenceValidator;
+import org.intermine.biovalidator.validator.fasta.sequencevalidator.NucleicAcidSequenceValidatorWithArray;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.ProteinSequenceValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.SequenceValidator;
 
@@ -73,7 +74,8 @@ public class FastaValidator extends AbstractValidator
                             uniqueSequenceIds.add(sequenceId);
                             currentHeader = line;
                         }
-                    } else { //validate sequence
+                    }
+                    else { //validate sequence
                         if (linesCount < 2) {
                             defaultValidationResult.addError(
                                     ErrorMessage.of(INVALID_SEQUENCE_START_MSG));
@@ -82,6 +84,12 @@ public class FastaValidator extends AbstractValidator
                         while (line != null && !line.startsWith(">")) {
                             seqLengthCount +=  sequenceValidator.validate(line,
                                     linesCount, validationResult);
+
+                            if (!validationResult.isValid()
+                                    && validationResultStrategy.shouldStopAtFirstError()) {
+                                return validationResult;
+                            }
+
                             line = parser.parseNext();
                             linesCount++;
                         }
@@ -89,11 +97,6 @@ public class FastaValidator extends AbstractValidator
                             String msg = "Record '" + currentHeader + "' has empty sequence";
                             validationResult.addError(ErrorMessage.of(msg));
                         }
-                    }
-
-                    if (!validationResult.isValid()
-                            && validationResultStrategy.shouldStopAtFirstError()) {
-                        return validationResult;
                     }
                 }
             } while (line != null);
@@ -107,7 +110,7 @@ public class FastaValidator extends AbstractValidator
         switch (sequenceType) {
             case DNA:
             case RNA:
-                return new NucleicAcidSequenceValidator();
+                return new NucleicAcidSequenceValidatorWithArray();
             case PROTEIN:
                 return new ProteinSequenceValidator();
             case ALL:

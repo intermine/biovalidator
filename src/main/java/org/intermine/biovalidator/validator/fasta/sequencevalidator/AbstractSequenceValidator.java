@@ -12,11 +12,9 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
 
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.ValidationResult;
+import org.intermine.biovalidator.api.WarningMessage;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This class provides a skeletal implementation of SequenceValidator
@@ -25,32 +23,22 @@ import java.util.Set;
  */
 public abstract class AbstractSequenceValidator implements SequenceValidator
 {
-    private Set<Character> validSequenceLetters;
-
-    /**
-     * Initialize with valid sequence letters
-     * @param validLetters valid sequences
-     */
-    AbstractSequenceValidator(String validLetters) {
-        Set<Character> validLettersSet = new HashSet<>();
-        for (char c: validLetters.toCharArray()) {
-            validLettersSet.add(c);
-        }
-        this.validSequenceLetters = Collections.unmodifiableSet(validLettersSet);
-    }
-
     @Override
-    public int validate(@Nonnull String seq, long lineNo,
+    public int validate(@Nonnull String sequence, long seqLineNo,
                             @Nonnull ValidationResult validationResult) {
-        for (int i = 0; i < seq.length(); i++) {
-            if (!isValidLetter(seq.charAt(i))) {
-                String msg = "Invalid letter " + seq.charAt(i)
-                        + " at line number " + lineNo + ", column " + (i + 1);
-                validationResult.getErrorMessages().add(new ErrorMessage(msg));
+        for (int i = 0; i < sequence.length(); i++) {
+            if (!isValidLetter(sequence.charAt(i))) {
+                String msg = "Invalid letter " + sequence.charAt(i)
+                        + " at line number " + seqLineNo + ", column " + (i + 1);
+                validationResult.addError(ErrorMessage.of(msg));
                 return (i + 1);
             }
         }
-        return seq.length();
+        if (sequence.length() > 80) {
+            validationResult.addWarning(WarningMessage.of("number of sequence length "
+                    + "exceed 80 at line " + seqLineNo));
+        }
+        return sequence.length();
     }
 
     @Override
@@ -61,11 +49,5 @@ public abstract class AbstractSequenceValidator implements SequenceValidator
             }
         }
         return true;
-    }
-
-    @Override
-    public boolean isValidLetter(char c) {
-        return validSequenceLetters.contains(c)
-                || validSequenceLetters.contains(Character.toUpperCase(c));
     }
 }

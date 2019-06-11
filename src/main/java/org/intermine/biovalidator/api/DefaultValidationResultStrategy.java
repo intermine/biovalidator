@@ -26,11 +26,14 @@ public class DefaultValidationResultStrategy implements ValidationResultStrategy
     private boolean stopAtFirstError;
 
     /**
-     * Create a default strategy with both error and warnings enabled
+     * Create a default strategy with both error and warnings enabled.
+     * By default stopAtFirstError() is enabled as a default behaviour
+     * so that Validation will be stop as soon as validator encounter first error
      */
     public DefaultValidationResultStrategy() {
         enableErrors();
         enableWarnings();
+        stopAtFirstError();
     }
 
     @Override

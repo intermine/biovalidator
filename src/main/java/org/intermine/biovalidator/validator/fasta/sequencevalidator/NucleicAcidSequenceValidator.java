@@ -10,16 +10,34 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
  *
  */
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Sequence validator for Nucleotide sequence
  * @author deepak
  */
 public final class NucleicAcidSequenceValidator extends AbstractSequenceValidator
 {
+    private Set<Character> validSequenceLetters;
+
     /**
-     * Initialize with valid sequence letters
+     * Construct a NucleicAcid SequenceValidator by storing all valid letters
+     * in HashSet to get O(1) look-up cost, but the implementation will suffer
+     * from Java's Autoboxing-Unboxing while look-up.
      */
     public NucleicAcidSequenceValidator() {
-        super("ACGTNUKSYMWRBDHV-");
+        String validLetters = "ACGTNUKSYMWRVBHD";
+        Set<Character> seqSet = new HashSet<>();
+        for (char c: validLetters.toCharArray()) {
+            seqSet.add(c);
+        }
+        this.validSequenceLetters = Collections.unmodifiableSet(seqSet);
+    }
+
+    @Override
+    public boolean isValidLetter(char c) {
+        return validSequenceLetters.contains(c);
     }
 }
