@@ -10,12 +10,10 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
  *
  */
 
+/**
+ * A sequence validator for Amino-Acid sequences
+ * @author deepak
+ */
 public final class ProteinSequenceValidator extends GenericSequenceValidator
 {
-   /* *//**
-     * Initialize with valid sequence letters
-     *//*
-    public ProteinSequenceValidator() {
-        super("ARNDCQEGHILKMFFPSTWYVBZX*-");
-    }*/
 }

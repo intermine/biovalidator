@@ -18,6 +18,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class provides a skeletal implementation of SequenceValidator
+ * which other implementation can use the common features
+ * @author deepak
+ */
 public abstract class AbstractSequenceValidator implements SequenceValidator
 {
     private Set<Character> validSequenceLetters;

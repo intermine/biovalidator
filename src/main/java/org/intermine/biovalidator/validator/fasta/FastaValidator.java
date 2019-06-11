@@ -28,6 +28,10 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Fasta Validator
+ * @author deepak
+ */
 public class FastaValidator extends AbstractValidator
 {
     private static final String INVALID_SEQUENCE_START_MSG = "First line must be a header line";
@@ -93,7 +97,6 @@ public class FastaValidator extends AbstractValidator
                     }
                 }
             } while (line != null);
-            //System.out.println("Total Lines Read : " + linesCount);
         } catch (ParsingException e) {
             throw new ValidationFailureException(e.getMessage());
         }

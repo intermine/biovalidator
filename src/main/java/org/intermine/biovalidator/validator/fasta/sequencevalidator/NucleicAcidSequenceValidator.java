@@ -10,6 +10,10 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
  *
  */
 
+/**
+ * Sequence validator for Nucleotide sequence
+ * @author deepak
+ */
 public final class NucleicAcidSequenceValidator extends AbstractSequenceValidator
 {
     /**
