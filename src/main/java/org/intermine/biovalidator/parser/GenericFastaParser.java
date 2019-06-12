@@ -45,4 +45,16 @@ public class GenericFastaParser implements Parser<String>
             throw new ParsingException(e.getMessage());
         }
     }
+
+    @Override
+    public void close() throws IOException {
+        if (br == null) {
+            return;
+        }
+        try {
+            br.close();
+        } finally {
+            br = null;
+        }
+    }
 }

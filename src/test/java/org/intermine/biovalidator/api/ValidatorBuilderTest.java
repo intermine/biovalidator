@@ -1,6 +1,4 @@
 package org.intermine.biovalidator.api;
-
-import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,17 +7,17 @@ import java.io.FileNotFoundException;
 
 public class ValidatorBuilderTest {
 
-    private String filename = "/home/deepak/Desktop/intro";
+    private String filename = "src/test/resources/fasta/valid/dna_sample.fa";
 
     @Test
     public void testValidatorBuilderCreationWithFile() throws ValidationFailureException {
         ValidationResult result = ValidatorBuilder.withFile(filename, SequenceType.DNA)
                 .build().validate();
-        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isValid());
     }
 
     @Test
-    public void testValidatorBuilderCreationWithType() throws FileNotFoundException {
+    public void testValidatorBuilderCreationWithType() {
         //Validator result = ValidatorBuilder.ofType(new FastaValidator(filename, SequenceType.ALL)).enableWarnings().build();
         //Assert.assertNotNull(result);
     }

@@ -5,8 +5,6 @@ import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.ValidatorHelper;
 import org.junit.Test;
 
-import java.io.InputStream;
-
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 

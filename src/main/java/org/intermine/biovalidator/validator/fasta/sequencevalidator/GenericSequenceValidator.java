@@ -19,7 +19,7 @@ public class GenericSequenceValidator extends AbstractSequenceValidator
 {
     @Override
     public boolean isValidLetter(char c) {
-        return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
-               || Character.isWhitespace(c) || (c == '-') || (c == '*') || (c == '.'));
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+                || (c == '-') || (c == '*') || (c == '.') || Character.isWhitespace(c);
     }
 }

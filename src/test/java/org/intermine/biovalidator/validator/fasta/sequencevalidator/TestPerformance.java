@@ -9,7 +9,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +38,7 @@ public class TestPerformance {
             result.getWarningMessages().forEach(System.out::println);
         }
         long timeTaken = System.nanoTime() - start;
+        assertTrue(result.isValid());
         System.out.println("Time Taken : " + TimeUnit.MILLISECONDS.convert((timeTaken), TimeUnit.NANOSECONDS));
     }
 

@@ -8,16 +8,23 @@ import java.io.FileNotFoundException;
 
 public class ValidatorHelperTest {
 
-    private String filename = "/home/deepak/Desktop/intro";
+    private String filename = "src/test/resources/fasta/valid/dna_sample.fa";
 
     @Test
-    public void testValidatorHelper() throws ValidationFailureException, FileNotFoundException {
+    public void testValidatorHelper() throws ValidationFailureException {
         ValidationResult result = ValidatorHelper.validate(filename, SequenceType.DNA, false);
-        Assert.assertNotNull(result);
+        if (!result.isValid()) {
+            result.getErrorMessages().forEach(System.out::println);
+        }
+        Assert.assertTrue(result.isValid());
     }
 
     @Test
-    public void testValidatorHelperWithDirectValidatorType() throws ValidationFailureException, FileNotFoundException {
-        Assert.assertNotNull(ValidatorHelper.validateFastaDna(filename));
+    public void testValidatorHelperWithDirectValidatorType() throws ValidationFailureException {
+        ValidationResult result = ValidatorHelper.validateFastaDna(filename);
+        if (!result.isValid()) {
+            result.getErrorMessages().forEach(System.out::println);
+        }
+        Assert.assertTrue(result.isValid());
     }
 }

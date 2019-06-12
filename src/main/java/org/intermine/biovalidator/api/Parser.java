@@ -10,11 +10,13 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import java.io.IOException;
+
 /**
  * @param <T> type of result returned by the parse's parseNext() method
  * @author deepak
  */
-public interface Parser<T>
+public interface Parser<T> extends AutoCloseable
 {
     /**
      *
@@ -22,4 +24,10 @@ public interface Parser<T>
      * @throws ParsingException if parser is not able to parse data from the file
      */
     T parseNext() throws ParsingException;
+
+    /**
+     * Close the resources associated with Parser
+     * @throws IOException if closing resource fails
+     */
+    @Override void close() throws IOException;
 }

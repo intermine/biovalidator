@@ -10,10 +10,12 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import java.io.IOException;
+
 /**
  * @author deepak
  */
-public class ParsingException extends Exception
+public class ParsingException extends IOException
 {
     /**
      * @param msg parsing failure message.

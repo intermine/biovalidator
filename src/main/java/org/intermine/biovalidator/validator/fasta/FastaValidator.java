@@ -13,7 +13,6 @@ package org.intermine.biovalidator.validator.fasta;
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
-import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.parser.GenericFastaParser;
@@ -24,6 +23,7 @@ import org.intermine.biovalidator.validator.fasta.sequencevalidator.ProteinSeque
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.SequenceValidator;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,8 +34,7 @@ import java.util.Set;
  */
 public class FastaValidator extends AbstractValidator
 {
-    private static final String INVALID_SEQUENCE_START_MSG = "First line must be a header line";
-    private Parser<String> parser;
+    private static final String FIRST_HEADER_MISSING_MSG = "First line must be a header line";
     private SequenceValidator sequenceValidator;
     private InputStreamReader inputStreamReader;
 
@@ -55,54 +54,72 @@ public class FastaValidator extends AbstractValidator
         Set<String> uniqueSequenceIds = new HashSet<>();
         DefaultValidationResult defaultValidationResult =
                 (DefaultValidationResult) validationResult;
-        try {
-            this.parser = new GenericFastaParser(inputStreamReader);
+        try (Parser<String> parser = new GenericFastaParser(inputStreamReader)) {
             String line;
-            String currentHeader = "";
+            String lastHeaderLine = "";
+            long seqLengthCount = 0;
             long linesCount = 0;
             do {
                 line = parser.parseNext();
                 linesCount++;
                 if (line != null) {
                     if (line.startsWith(">")) { //header
-                        String sequenceId = line; //line.substring(0, line.lastIndexOf('|'));
+
+                        if (uniqueSequenceIds.size() > 1 && seqLengthCount < 1) { //empty record
+                            String msg = "Record '" + lastHeaderLine + "' has empty sequence"
+                                         + " at line " + (linesCount - 1);
+                            validationResult.addError(ErrorMessage.of(msg));
+                        }
+
+                        String sequenceId = extractSequenceIdFromHeader(line);
                         if (uniqueSequenceIds.contains(sequenceId)) {
                             defaultValidationResult.addError(
                                     ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
                         } else {
                             uniqueSequenceIds.add(sequenceId);
-                            currentHeader = line;
                         }
+                        seqLengthCount = 0;
+                        lastHeaderLine = line;
                     }
                     else { //validate sequence
+                        line = line.trim();
                         if (linesCount < 2) {
-                            defaultValidationResult.addError(
-                                    ErrorMessage.of(INVALID_SEQUENCE_START_MSG));
+                            ErrorMessage errorMessage = ErrorMessage.of(FIRST_HEADER_MISSING_MSG);
+                            defaultValidationResult.addError(errorMessage);
                         }
-                        long seqLengthCount = 0;
-                        while (line != null && !line.startsWith(">")) {
-                            seqLengthCount +=  sequenceValidator.validate(line,
-                                    linesCount, validationResult);
-
-                            if (!validationResult.isValid()
-                                    && validationResultStrategy.shouldStopAtFirstError()) {
-                                return validationResult;
-                            }
-
-                            line = parser.parseNext();
-                            linesCount++;
-                        }
-                        if (seqLengthCount < 1) { //empty record
-                            String msg = "Record '" + currentHeader + "' has empty sequence";
-                            validationResult.addError(ErrorMessage.of(msg));
-                        }
+                        seqLengthCount +=  sequenceValidator.validate(
+                                line, linesCount, validationResult);
+                    }
+                    if (!validationResult.isValid()
+                            && validationResultStrategy.shouldStopAtFirstError()) {
+                        return validationResult;
                     }
                 }
             } while (line != null);
-        } catch (ParsingException e) {
+
+            if (seqLengthCount <= 0) {
+                String msg = "Record '" + lastHeaderLine + "' has empty sequence"
+                             + " at line " + linesCount;
+                validationResult.addError(ErrorMessage.of(msg));
+            }
+            if (linesCount < 1) {
+                defaultValidationResult.addError(ErrorMessage.of("File is empty"));
+            }
+        } catch (IOException e) {
             throw new ValidationFailureException(e.getMessage());
         }
         return validationResult;
+    }
+
+    private String extractSequenceIdFromHeader(String headerLine) {
+        int firstSpaceIndex = -1;
+        for (int i = 0; i < headerLine.length(); i++) {
+            if (Character.isWhitespace(headerLine.charAt(i))) {
+                firstSpaceIndex = i;
+                break;
+            }
+        }
+        return firstSpaceIndex != -1 ? headerLine.substring(0, firstSpaceIndex + 1): headerLine;
     }
 
     private SequenceValidator getSequenceValidatorFromType(SequenceType sequenceType) {
