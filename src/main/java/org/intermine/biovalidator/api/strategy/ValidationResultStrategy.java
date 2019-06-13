@@ -51,7 +51,7 @@ public interface ValidationResultStrategy
      * Returns whether warning enabled or not
      * @return warning enabled state
      */
-    boolean isWarningWnabled();
+    boolean isWarningEnabled();
 
     /**
      * Retunrs whether validator should stop at first error or not

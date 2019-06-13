@@ -4,8 +4,6 @@ import org.intermine.biovalidator.validator.fasta.SequenceType;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-
 public class ValidatorHelperTest {
 
     private String filename = "src/test/resources/fasta/valid/dna_sample.fa";

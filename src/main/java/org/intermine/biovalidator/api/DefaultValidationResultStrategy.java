@@ -67,7 +67,7 @@ public class DefaultValidationResultStrategy implements ValidationResultStrategy
     }
 
     @Override
-    public boolean isWarningWnabled() {
+    public boolean isWarningEnabled() {
         return isWarningEnabled;
     }
 

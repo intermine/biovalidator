@@ -14,6 +14,7 @@ import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,12 +54,12 @@ public class DefaultValidationResult implements ValidationResult
 
     @Override
     public List<Message> getErrorMessages() {
-        return errorMessages;
+        return Collections.unmodifiableList(errorMessages);
     }
 
     @Override
     public List<Message> getWarningMessages() {
-        return warningMessages;
+        return Collections.unmodifiableList(warningMessages);
     }
 
     @Override

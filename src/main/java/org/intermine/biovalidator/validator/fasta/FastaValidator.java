@@ -65,7 +65,7 @@ public class FastaValidator extends AbstractValidator
                 if (line != null) {
                     if (line.startsWith(">")) { //header
 
-                        if (uniqueSequenceIds.size() > 1 && seqLengthCount < 1) { //empty record
+                        if (uniqueSequenceIds.size() >= 1 && seqLengthCount < 1) { //empty record
                             String msg = "Record '" + lastHeaderLine + "' has empty sequence"
                                          + " at line " + (linesCount - 1);
                             validationResult.addError(ErrorMessage.of(msg));

@@ -28,7 +28,7 @@ public class TestPerformance {
     public void testPerformance() throws ValidationFailureException {
         long start = System.nanoTime();
 
-        ValidationResult result = ValidatorHelper.validateFastaProtein(rna);
+        ValidationResult result = ValidatorHelper.validateFastaDna(rna);
         if (result.isValid()) {
             System.out.println("Valid File");
             result.getWarningMessages().forEach(System.out::println);
@@ -36,6 +36,7 @@ public class TestPerformance {
             System.out.println("Invalid file");
             result.getErrorMessages().forEach(System.out::println);
             result.getWarningMessages().forEach(System.out::println);
+            System.out.println(result.getErrorMessages().size());
         }
         long timeTaken = System.nanoTime() - start;
         assertTrue(result.isValid());

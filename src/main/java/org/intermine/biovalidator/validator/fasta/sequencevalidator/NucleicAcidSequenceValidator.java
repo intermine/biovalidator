@@ -35,6 +35,8 @@ public final class NucleicAcidSequenceValidator extends AbstractSequenceValidato
             seqSet.add(Character.toLowerCase(c));
         }
         seqSet.add('-');
+        seqSet.add(' ');
+        seqSet.add('\t');
         this.validSequenceLetters = Collections.unmodifiableSet(seqSet);
     }
 
