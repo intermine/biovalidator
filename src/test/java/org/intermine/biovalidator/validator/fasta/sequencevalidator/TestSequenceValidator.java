@@ -8,16 +8,36 @@ import static org.junit.Assert.assertFalse;
 
 public class TestSequenceValidator {
 
-    private SequenceValidator nucleicValidator;
+    private SequenceValidator simpleNucleicValidator;
     private SequenceValidator proteinValidator;
+    private SequenceValidator genericSequenceValidator;
+    private SequenceValidator nucleicValidator;
 
     @Before
     public void setup() {
-        nucleicValidator = new NucleicAcidSequenceValidatorWithArray();
+        simpleNucleicValidator = new NucleicAcidSequenceValidatorWithArray();
         proteinValidator = new ProteinSequenceValidator();
+        genericSequenceValidator = new GenericSequenceValidator();
+        nucleicValidator = new NucleicAcidSequenceValidator();
     }
+
     @Test
-    public void testDnaSequenceValidator() {
+    public void testSimpleNucleicSequenceValidator() {
+        assertTrue(simpleNucleicValidator.isValid("ACTACGAGTAC"));
+        assertTrue(simpleNucleicValidator.isValid("ATWD-"));
+        assertTrue(simpleNucleicValidator.isValid("actg"));
+
+        assertFalse(simpleNucleicValidator.isValid("EWKDIwjgNKAWOE"));
+        assertTrue(simpleNucleicValidator.isValid(""));
+
+        assertTrue(simpleNucleicValidator.isValid("actgtactgatcga"));
+        assertFalse(simpleNucleicValidator.isValid("actgtactgzzoootcga"));
+
+        assertTrue(simpleNucleicValidator.isValid("A                   T"));
+    }
+
+    @Test
+    public void testNucleicSequenceValidator() {
         assertTrue(nucleicValidator.isValid("ACTACGAGTAC"));
         assertTrue(nucleicValidator.isValid("ATWD-"));
         assertTrue(nucleicValidator.isValid("actg"));
@@ -33,34 +53,42 @@ public class TestSequenceValidator {
 
     @Test
     public void testRnaSequences() {
-        assertTrue(nucleicValidator.isValid("ACTACGAGTAC"));
-        assertTrue(nucleicValidator.isValid("ACTACGAGTAC      Uuattgc"));
-        assertFalse(nucleicValidator.isValid("763721673"));
-        assertFalse(nucleicValidator.isValid("ATGCZZZZZZ"));
+        assertTrue(simpleNucleicValidator.isValid("ACTACGAGTAC"));
+        assertTrue(simpleNucleicValidator.isValid("ACTACGAGTAC      Uuattgc"));
+        assertFalse(simpleNucleicValidator.isValid("763721673"));
+        assertFalse(simpleNucleicValidator.isValid("ATGCZZZZZZ"));
     }
 
     @Test
     public void testInvalidNucleicCodes() {
-        assertFalse(nucleicValidator.isValid("E"));
-        assertFalse(nucleicValidator.isValid("F"));
-        assertFalse(nucleicValidator.isValid("I"));
-        assertFalse(nucleicValidator.isValid("J"));
-        assertFalse(nucleicValidator.isValid("L"));
-        assertFalse(nucleicValidator.isValid("O"));
-        assertFalse(nucleicValidator.isValid("p"));
-        assertFalse(nucleicValidator.isValid("Q"));
-        assertFalse(nucleicValidator.isValid("x"));
-        assertFalse(nucleicValidator.isValid("Z"));
-        assertFalse(nucleicValidator.isValid("**^"));
+        assertFalse(simpleNucleicValidator.isValid("E"));
+        assertFalse(simpleNucleicValidator.isValid("F"));
+        assertFalse(simpleNucleicValidator.isValid("I"));
+        assertFalse(simpleNucleicValidator.isValid("J"));
+        assertFalse(simpleNucleicValidator.isValid("L"));
+        assertFalse(simpleNucleicValidator.isValid("O"));
+        assertFalse(simpleNucleicValidator.isValid("p"));
+        assertFalse(simpleNucleicValidator.isValid("Q"));
+        assertFalse(simpleNucleicValidator.isValid("x"));
+        assertFalse(simpleNucleicValidator.isValid("Z"));
+        assertFalse(simpleNucleicValidator.isValid("**^"));
     }
 
     @Test
     public void testProteinSequences() {
-
+        String proteinSeq = "MDDHFKRSRLSQEESSKSDLLCCPLPHTRDGAENVLCEPVTSGPVDVVVLAYSLDWTSLWEQQDQQEEQE";
+        assertTrue(proteinValidator.isValid(proteinSeq));
+        assertTrue(proteinValidator.isValid("skfkajd**-"));
+        assertTrue(proteinValidator.isValid("           ZZZLKADIL"));
+        assertFalse(proteinValidator.isValid("!@__"));
     }
 
     @Test
     public void testGenericSequenceValidator() {
-
+        assertTrue(genericSequenceValidator.isValid("ACGTZAYIA"));
+        assertTrue(genericSequenceValidator.isValid("        T"));
+        assertTrue(genericSequenceValidator.isValid("*-."));
+        assertFalse(genericSequenceValidator.isValid("!"));
+        assertFalse(genericSequenceValidator.isValid(";"));
     }
 }

@@ -63,15 +63,25 @@ public class FastaValidator extends AbstractValidator
                 line = parser.parseNext();
                 linesCount++;
                 if (line != null) {
-                    if (line.startsWith(">")) { //header
+                    if (linesCount == 1 && !line.startsWith(">")) {
+                        String msg = "File is not recognized as valid Fasta format";
+                        validationResult.addError(ErrorMessage.of(msg));
+                    }
+                    else if (line.startsWith(">")) { //header TODO refactor move to a new method
 
-                        if (uniqueSequenceIds.size() >= 1 && seqLengthCount < 1) { //empty record
+                        //check whether last record had empty sequence or not
+                        if (uniqueSequenceIds.size() >= 1 && seqLengthCount < 1) {
                             String msg = "Record '" + lastHeaderLine + "' has empty sequence"
                                          + " at line " + (linesCount - 1);
                             validationResult.addError(ErrorMessage.of(msg));
                         }
 
                         String sequenceId = extractSequenceIdFromHeader(line);
+                        /*if (StringUtils.isBlank(sequenceId)) {// TODO do we need to check blank
+                            String msg = "Header at line " + linesCount + " has empty sequence-id";
+                            validationResult.addError(ErrorMessage.of(msg));
+                        }
+                        else */
                         if (uniqueSequenceIds.contains(sequenceId)) {
                             defaultValidationResult.addError(
                                     ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
@@ -97,13 +107,16 @@ public class FastaValidator extends AbstractValidator
                 }
             } while (line != null);
 
+            if (linesCount <= 1) {
+                defaultValidationResult.addError(ErrorMessage.of("File is empty"));
+                return validationResult;
+            }
+
+            // check whether last record has empty sequence or not
             if (seqLengthCount <= 0) {
                 String msg = "Record '" + lastHeaderLine + "' has empty sequence"
                              + " at line " + linesCount;
                 validationResult.addError(ErrorMessage.of(msg));
-            }
-            if (linesCount < 1) {
-                defaultValidationResult.addError(ErrorMessage.of("File is empty"));
             }
         } catch (IOException e) {
             throw new ValidationFailureException(e.getMessage());

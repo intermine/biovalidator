@@ -76,5 +76,16 @@ public final class ValidatorHelper
         return validate(file, SequenceType.PROTEIN, false);
     }
 
+    /**
+     * Validates a fasta file for any type of sequence
+     * @param file file to be validated
+     * @return result of validation
+     * @throws ValidationFailureException if validation fails
+     */
+    public static ValidationResult validateFasta(@Nonnull String file)
+            throws ValidationFailureException {
+        return validate(file, SequenceType.ALL, false);
+    }
+
 }
 

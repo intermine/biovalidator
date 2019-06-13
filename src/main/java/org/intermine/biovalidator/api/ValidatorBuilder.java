@@ -76,6 +76,8 @@ public final class ValidatorBuilder
                 return ofType(new FastaValidator(reader, SequenceType.DNA));
             case PROTEIN:
                 return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
+            case ALL:
+                return ofType(new FastaValidator(reader, SequenceType.ALL));
             default:
                 throw new IllegalArgumentException("invalid file type");
         }
