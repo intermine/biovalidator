@@ -3,17 +3,11 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.ValidatorHelper;
-import org.intermine.biovalidator.validator.fasta.FastaValidator;
-import org.intermine.biovalidator.validator.fasta.SequenceType;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.TestCase.assertTrue;
-
+@Ignore
 public class TestPerformance {
 
     private String filename = "/home/deepak/Documents/FASTA_FILES/protein.fa";
@@ -22,13 +16,12 @@ public class TestPerformance {
     private String invalidDna = "/home/deepak/Documents/FASTA_FILES/dna/hs_ref_GRCh38.p12_chr2.fa";
     private String rna = "/home/deepak/Documents/FASTA_FILES/dna/rna.fa";
 
-
     @Test
-    @Ignore
     public void testPerformance() throws ValidationFailureException {
         long start = System.nanoTime();
+        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
-        ValidationResult result = ValidatorHelper.validateFastaDna(rna);
+        ValidationResult result = ValidatorHelper.validateFastaDna(invalidDna);
         if (result.isValid()) {
             System.out.println("Valid File");
             result.getWarningMessages().forEach(System.out::println);
@@ -39,44 +32,10 @@ public class TestPerformance {
             System.out.println(result.getErrorMessages().size());
         }
         long timeTaken = System.nanoTime() - start;
-        assertTrue(result.isValid());
-        System.out.println("Time Taken : " + TimeUnit.MILLISECONDS.convert((timeTaken), TimeUnit.NANOSECONDS));
+        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+
+        System.out.println("Time Taken : " +
+                TimeUnit.MILLISECONDS.convert((timeTaken), TimeUnit.NANOSECONDS));
+        System.out.print("Memory Used : " + (afterUsedMem-beforeUsedMem));
     }
-
-    //@Test
-    public void testDNASequence() throws ValidationFailureException {
-        InputStreamReader input = new InputStreamReader( new ByteArrayInputStream(data.getBytes()));
-        new FastaValidator(input, SequenceType.DNA)
-                .validate(result -> assertTrue(result.isValid()));
-    }
-
-    //@Test
-    public void testThis() {
-
-    }
-
-    //@Test
-    public void testEmptyFile() throws ValidationFailureException {
-        String emptyData = "                    " +
-                "";
-        InputStreamReader input = new InputStreamReader( new ByteArrayInputStream(emptyData.getBytes()));
-        new FastaValidator(input, SequenceType.DNA)
-                .validate(result -> {
-                    if (result.isValid()) {
-                        System.out.println("Valid");
-                    } else {
-                        System.out.println("Invalid");
-                        result.getErrorMessages().forEach(System.out::println);
-                    }
-                });
-    }
-
-    private String data = ">AB000263 |acc=AB000263|descr=Homo sapiens mRNA for prepro cortistatin like peptide, complete cds.|len=368\n" +
-            "ACAAGATGCCATTGTCCCCCGGCCTCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCCCTGCC\n" +
-            "CCTGGAGGGTGGCCCCACCGGCCGAGACAGCGAGCATATGCAGGAAGCGGCAGGAATAAGGAAAAGCAGC\n" +
-            "CTCCTGACTTTCCTCGCTTGGTGGTTTGAGTGGACCTCCCAGGCCAGTGCCGGGCCCCTCATAGGAGAGG\n" +
-            "AAGCTCGGGAGGTGGCCAGGCGGCAGGAAGGCGCACCCCCCCAGCAATCCGCGCGCCGGGACAGAATGCC\n" +
-            "CTGCAGGAACTTCTTCTGGAAGACCTTCTCCTCCTGCAAATAAAACCTCACCCATGAATGCTCACGCAAG\n" +
-            "TTTAATTACAGACCTGAA";
-
 }

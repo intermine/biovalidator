@@ -18,6 +18,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
+    // https://mvnrepository.com/artifact/info.picocli/picocli-shell-jline3
+    compile group: 'info.picocli', name: 'picocli-shell-jline3', version: '4.0.0-beta-1b'
 }
 
 task myJavadocs(type: Javadoc) {
@@ -46,4 +48,13 @@ jar {
     manifest {
         attributes 'Main-Class': 'org.intermine.biovalidator.CommandLineRunner'
     }
+}
+
+task createFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'org.intermine.biovalidator.CommandLineRunner'
+    }
+    baseName = 'valid'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }

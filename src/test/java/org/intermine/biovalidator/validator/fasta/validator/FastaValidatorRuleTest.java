@@ -1,6 +1,6 @@
 package org.intermine.biovalidator.validator.fasta.validator;
 
-import org.intermine.biovalidator.api.Message;
+import org.intermine.biovalidator.BaseValidatorTest;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.Validator;
@@ -15,13 +15,12 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-public class FastaValidatorRuleTest {
+public class FastaValidatorRuleTest extends BaseValidatorTest {
 
     /* 1. Test Invalid File Format */
     @Test
@@ -130,32 +129,8 @@ public class FastaValidatorRuleTest {
         assertEquals("Record '>' has empty sequence at line 2", errors.get(0));
     }
 
-    private List<String> getErrorsListFromValidationResult(ValidationResult result) {
-        return result.getErrorMessages()
-                .stream()
-                .map(Message::getMessage)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> getWarningsListFromValidationResult(ValidationResult result) {
-        return result.getWarningMessages()
-                .stream()
-                .map(Message::getMessage)
-                .collect(Collectors.toList());
-    }
-
-    private InputStreamReader createInMemoryInputStream(String data) {
-        InputStream is = new ByteArrayInputStream(data.getBytes());
-        return new InputStreamReader(is);
-    }
-
     @Test
     public void testValidateWholeFileWithStopAtFirstError() {
 
-    }
-
-
-    private String path(String filename) {
-        return "src/test/resources/fasta/" + filename;
     }
 }

@@ -76,7 +76,8 @@ public class TestSequenceValidator {
 
     @Test
     public void testProteinSequences() {
-        String proteinSeq = "MDDHFKRSRLSQEESSKSDLLCCPLPHTRDGAENVLCEPVTSGPVDVVVLAYSLDWTSLWEQQDQQEEQE";
+        String proteinSeq =
+                "MDDHFKRSRLSQEESSKSDLLCCPLPHTRDGAENVLCEPVTSGPVDVVVLAYSLDWTSLWEQQDQQEEQE";
         assertTrue(proteinValidator.isValid(proteinSeq));
         assertTrue(proteinValidator.isValid("skfkajd**-"));
         assertTrue(proteinValidator.isValid("           ZZZLKADIL"));

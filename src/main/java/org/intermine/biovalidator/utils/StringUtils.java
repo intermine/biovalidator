@@ -28,4 +28,13 @@ public final class StringUtils
         }
         return str.trim().isEmpty();
     }
+
+    /**
+     * Test whether string is non-null and non-empty or not
+     * @param str to be tested
+     * @return either true or false
+     */
+    public static boolean nonNullNonEpty(String str) {
+        return !isBlank(str);
+    }
 }
