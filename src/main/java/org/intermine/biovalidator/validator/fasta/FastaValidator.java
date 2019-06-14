@@ -77,11 +77,6 @@ public class FastaValidator extends AbstractValidator
                         }
 
                         String sequenceId = extractSequenceIdFromHeader(line);
-                        /*if (StringUtils.isBlank(sequenceId)) {// TODO do we need to check blank
-                            String msg = "Header at line " + linesCount + " has empty sequence-id";
-                            validationResult.addError(ErrorMessage.of(msg));
-                        }
-                        else */
                         if (uniqueSequenceIds.contains(sequenceId)) {
                             defaultValidationResult.addError(
                                     ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
