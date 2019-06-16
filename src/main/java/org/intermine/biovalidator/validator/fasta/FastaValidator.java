@@ -15,7 +15,7 @@ import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
-import org.intermine.biovalidator.parser.GenericFastaParser;
+import org.intermine.biovalidator.parser.GenericLineByLineParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.GenericSequenceValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.NucleicAcidSequenceValidatorWithArray;
@@ -29,7 +29,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Fasta Validator
+ * A validator for validating Fasta file format.
+ *
+ *<b>Default strategy for Fasta validator :</b>
+ * 1. Validator will stop as soon as it encounter first error
+ * 2.
+ *
+ *<b>Rules :</b>
+ * 1. First Line must start with '>'
+ * 2. Allow multiple sequences in a file
+ * 4. Strict checking for Nucleic-Acid and Amino-Acid sequences
+ * 5. Sequences letters must follow 'IUB/IUPAC'
+ * 6. Warning on exceeding 80 letters in a line
+ * 7. Empty files will be considered invalid
+ * 8. whitespaces and empty-lines are allowed and ignored
+ * 9. Each header must be unique
+ * 10. Rules for Nucleotide sequences:
+ *
  * @author deepak
  */
 public class FastaValidator extends AbstractValidator
@@ -48,13 +64,21 @@ public class FastaValidator extends AbstractValidator
         this.sequenceValidator = getSequenceValidatorFromType(sequenceType);
     }
 
+    /**
+     * Construct a Fasta validator with an input source and default Sequence type
+     * @param inputStreamReader input source
+     */
+    public FastaValidator(InputStreamReader inputStreamReader) {
+        this(inputStreamReader, SequenceType.ALL);
+    }
+
     @Nonnull
     @Override
     public ValidationResult validate() throws ValidationFailureException {
         Set<String> uniqueSequenceIds = new HashSet<>();
         DefaultValidationResult defaultValidationResult =
                 (DefaultValidationResult) validationResult;
-        try (Parser<String> parser = new GenericFastaParser(inputStreamReader)) {
+        try (Parser<String> parser = new GenericLineByLineParser(inputStreamReader)) {
             String line;
             String lastHeaderLine = "";
             long seqLengthCount = 0;
@@ -86,7 +110,7 @@ public class FastaValidator extends AbstractValidator
                         seqLengthCount = 0;
                         lastHeaderLine = line;
                     }
-                    else { //validate sequence
+                    else { //validateFasta sequence
                         line = line.trim();
                         if (linesCount < 2) {
                             ErrorMessage errorMessage = ErrorMessage.of(FIRST_HEADER_MISSING_MSG);

@@ -39,7 +39,12 @@ public interface ValidationResultStrategy
     /**
      * Indicate validator to stop as soon as an error occurred
      */
-    void stopAtFirstError();
+    void enableStopAtFirstError();
+
+    /**
+     * Indicate validator to stop as soon as an error occurred
+     */
+    void disableStopAtFirstError();
 
     /**
      * Returns whether error is enabled or not

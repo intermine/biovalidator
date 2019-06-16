@@ -11,7 +11,7 @@ package org.intermine.biovalidator.api;
  */
 
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
-import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
+import org.intermine.biovalidator.validator.ValidatorType;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
 
@@ -28,11 +28,9 @@ public final class ValidatorBuilder
 {
     private Validator validator;
     private ValidationResultStrategy validationResultStrategy;
-    private ValidatorStrictnessPolicy strictnessPolicy;
 
     private ValidatorBuilder() {
         this.validationResultStrategy = new DefaultValidationResultStrategy();
-        this.strictnessPolicy = new DefaultValidatorStrictnessPolicy();
     }
     /**
      * Builds a validator implementation
@@ -40,12 +38,11 @@ public final class ValidatorBuilder
      */
     public Validator build() {
         this.validator.applyValidationResultStrategy(validationResultStrategy);
-        this.validator.applyValidatorStrictnessPolicy(strictnessPolicy);
         return validator;
     }
 
     /**
-     * contruct a ValidatorBuilder with validator instance
+     * Construct a ValidatorBuilder with validator instance
      * @param validator instance of validator
      * @return ValidatorBuilder
      */
@@ -62,7 +59,8 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      * @throws IllegalArgumentException if type not found
      */
-    public static ValidatorBuilder withFile(@Nonnull File filename, @Nonnull SequenceType type)
+    public static ValidatorBuilder withFile(@Nonnull File filename,
+                                            @Nonnull ValidatorType type)
                                                 throws IllegalArgumentException {
         FileReader reader;
         try {
@@ -71,15 +69,16 @@ public final class ValidatorBuilder
             throw new IllegalArgumentException("file not found");
         }
         switch (type) {
-            case DNA:
-            case RNA:
-                return ofType(new FastaValidator(reader, SequenceType.DNA));
-            case PROTEIN:
-                return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
-            case ALL:
+            case FASTA:
                 return ofType(new FastaValidator(reader, SequenceType.ALL));
+            case FASTA_DNA:
+                return ofType(new FastaValidator(reader, SequenceType.DNA));
+            case FASTA_RNA:
+                return ofType(new FastaValidator(reader, SequenceType.RNA));
+            case FASTA_PROTEIN:
+                return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
             default:
-                throw new IllegalArgumentException("invalid file type");
+                throw new IllegalArgumentException("invalid validator type");
         }
     }
 
@@ -90,17 +89,39 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      * @throws IllegalArgumentException if type not found
      */
-    public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull SequenceType type)
+    public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull ValidatorType type)
                                                 throws IllegalArgumentException {
         return withFile(new File(file), type);
+    }
+
+    /**
+     * A factory method to construct validator with a file based on the validator-type
+     * argument as string
+     * @param file file to be validated
+     * @param validatorType string representation of ValidatorType
+     * @return ValidatorBuilder
+     * @throws IllegalArgumentException if type not found
+     */
+    public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull String validatorType)
+            throws IllegalArgumentException {
+        return withFile(new File(file), ValidatorType.of(validatorType));
     }
 
     /**
      * set the validator to stop validating as soon as it identifies first error
      * @return ValidatorBuilder
      */
-    public ValidatorBuilder stopAtFirstError() {
-        this.validationResultStrategy.stopAtFirstError();
+    public ValidatorBuilder enableStopAtFirstError() {
+        this.validationResultStrategy.enableStopAtFirstError();
+        return this;
+    }
+
+    /**
+     * Disable stop at first error
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder disableStopAtFirstError() {
+        this.validationResultStrategy.disableStopAtFirstError();
         return this;
     }
 
@@ -136,7 +157,16 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      */
     public ValidatorBuilder disableErrors() {
-        this.validationResultStrategy.disableWarnings();
+        this.validationResultStrategy.disableErrors();
+        return this;
+    }
+
+    /**
+     * Enable strict validation
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder enableStrictValidation() {
+        this.validator.applyStrictValidation();
         return this;
     }
 }

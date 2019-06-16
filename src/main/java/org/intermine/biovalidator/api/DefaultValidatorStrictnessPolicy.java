@@ -10,10 +10,8 @@ package org.intermine.biovalidator.api;
  *
  */
 
-import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
-
 /**
  * @author deepak
  */
-public class DefaultValidatorStrictnessPolicy implements ValidatorStrictnessPolicy
+public class DefaultValidatorStrictnessPolicy
 { }

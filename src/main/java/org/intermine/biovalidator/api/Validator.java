@@ -11,7 +11,6 @@ package org.intermine.biovalidator.api;
  */
 
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
-import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -24,7 +23,7 @@ public interface Validator
     /**
      * Validates a file
      * @return A detailed result of the validation
-     * @throws ValidationFailureException if validator failed to validate a given file.
+     * @throws ValidationFailureException if validator failed to validateFasta a given file.
      */
     @Nonnull ValidationResult validate() throws ValidationFailureException;
 
@@ -42,8 +41,7 @@ public interface Validator
     void applyValidationResultStrategy(ValidationResultStrategy validationResultStrategy);
 
     /**
-     * Apply setting on how strict validator will be
-     * @param strictnessPolicy strictness policy
+     * apply strict validation
      */
-    void applyValidatorStrictnessPolicy(ValidatorStrictnessPolicy strictnessPolicy);
+    void applyStrictValidation();
 }

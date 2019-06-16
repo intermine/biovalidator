@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 /**
  * @author deepak
  */
-public class GenericFastaParser implements Parser<String>
+public class GenericLineByLineParser implements Parser<String>
 {
     private BufferedReader br;
 
@@ -28,7 +28,7 @@ public class GenericFastaParser implements Parser<String>
      * Construct fasta parser with input source
      * @param reader input source
      */
-    public GenericFastaParser(InputStreamReader reader) {
+    public GenericLineByLineParser(InputStreamReader reader) {
         this.br = new BufferedReader(reader);
     }
 

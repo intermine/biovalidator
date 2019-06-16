@@ -77,7 +77,7 @@ public class DefaultValidationResult implements ValidationResult
 
     @Override
     public void addWarning(@Nonnull WarningMessage warningMessage) {
-        if (resultStrategy.isErrorEnabled()) {
+        if (resultStrategy.isWarningEnabled()) {
             this.warningMessages.add(warningMessage);
         }
     }

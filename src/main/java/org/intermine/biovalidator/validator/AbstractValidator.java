@@ -16,9 +16,7 @@ import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.Validator;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
-import org.intermine.biovalidator.api.strategy.ValidatorStrictnessPolicy;
 
-import java.io.File;
 import java.util.function.Consumer;
 
 /**
@@ -28,13 +26,12 @@ public abstract class AbstractValidator implements Validator
 {
     protected ValidationResult validationResult;
     protected ValidationResultStrategy validationResultStrategy;
-    protected ValidatorStrictnessPolicy validatorStrictnessPolicy;
-    protected File file;
+    protected boolean isStrict;
 
     /**
      * Construct validator with implementation
      */
-    public AbstractValidator() {
+    protected AbstractValidator() {
         this.validationResultStrategy = new DefaultValidationResultStrategy();
         this.validationResult = new DefaultValidationResult(validationResultStrategy);
     }
@@ -42,17 +39,16 @@ public abstract class AbstractValidator implements Validator
     @Override
     public void applyValidationResultStrategy(ValidationResultStrategy validationResultStrategy) {
         this.validationResultStrategy = validationResultStrategy;
-
-    }
-
-    @Override
-    public void applyValidatorStrictnessPolicy(ValidatorStrictnessPolicy strictnessPolicy) {
-        this.validatorStrictnessPolicy = strictnessPolicy;
     }
 
     @Override
     public void validate(Consumer<ValidationResult> resultConsumer)
                                             throws ValidationFailureException {
         resultConsumer.accept(validate());
+    }
+
+    @Override
+    public void applyStrictValidation() {
+        isStrict = true;
     }
 }

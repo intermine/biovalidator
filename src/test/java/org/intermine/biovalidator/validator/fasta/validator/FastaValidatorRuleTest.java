@@ -4,9 +4,12 @@ import org.intermine.biovalidator.BaseValidatorTest;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.Validator;
+import org.intermine.biovalidator.api.ValidatorBuilder;
 import org.intermine.biovalidator.api.ValidatorHelper;
+import org.intermine.biovalidator.validator.ValidatorType;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -56,21 +59,21 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
 
     @Test
     public void testBinaryFileUnrecognizedWithFasta() throws ValidationFailureException {
-        String file = "/home/deepak/Documents/Run.class"; //"valid/multi_seq.fa"
-        ValidationResult result = ValidatorHelper.validateFasta(file);
+        String filename = "invalid/binary/biovalidator.jar"; //"valid/multi_seq.fa"
+        ValidationResult result = ValidatorHelper.validateFasta(path(filename));
         assertFalse(result.isValid());
         List<String> errors = getErrorsListFromValidationResult(result);
         assertEquals("File is not recognized as valid Fasta format", errors.get(0));
     }
 
-    /* 2. Multiple Fasta Sequence Record in a single file */
+    //2. Multiple Fasta Sequence Record in a single file
     @Test
     public void testMultiSeqeunceFastaFile() throws ValidationFailureException {
         boolean isValid = ValidatorHelper.validateFasta(path("valid/multi_seq.fa")).isValid();
         assertTrue(isValid);
     }
 
-    /* 3. Check file contains IUB/IUPAC codes */
+    //3. Check file contains IUB/IUPAC codes */
     @Test
     public void testValidFastaDNASequence() throws ValidationFailureException {
         String filename = "valid/dna/dna_hs_ref_GRCh38.p12_chr9.fa";
@@ -130,6 +133,21 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
     }
 
     @Test
+    public void testRecordWithEmptySequence() throws ValidationFailureException {
+        String filename = "invalid/record_with_empty_seq.fa";
+        ValidatorBuilder.withFile(path(filename), ValidatorType.FASTA)
+                .disableStopAtFirstError()
+                .build()
+                .validate(result -> {
+                    assertFalse(result.isValid());
+                    List<String> errors = getErrorsListFromValidationResult(result);
+                    assertEquals("Record '>seq6' has empty sequence at line 9", errors.get(0));
+                    assertEquals("Record '>seq9;' has empty sequence at line 22", errors.get(1));
+                });
+    }
+
+    @Test
+    @Ignore
     public void testValidateWholeFileWithStopAtFirstError() {
 
     }

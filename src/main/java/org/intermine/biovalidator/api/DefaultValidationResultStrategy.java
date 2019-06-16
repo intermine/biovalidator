@@ -27,23 +27,23 @@ public class DefaultValidationResultStrategy implements ValidationResultStrategy
 
     /**
      * Create a default strategy with both error and warnings enabled.
-     * By default stopAtFirstError() is enabled as a default behaviour
+     * By default enableStopAtFirstError() is enabled as a default behaviour
      * so that Validation will be stop as soon as validator encounter first error
      */
     public DefaultValidationResultStrategy() {
         enableErrors();
         enableWarnings();
-        stopAtFirstError();
+        enableStopAtFirstError();
     }
 
     @Override
     public void enableWarnings() {
-        this.isErrorEnabled = true;
+        this.isWarningEnabled = true;
     }
 
     @Override
     public void disableWarnings() {
-        this.isErrorEnabled = false;
+        this.isWarningEnabled = false;
     }
 
     @Override
@@ -57,8 +57,13 @@ public class DefaultValidationResultStrategy implements ValidationResultStrategy
     }
 
     @Override
-    public void stopAtFirstError() {
+    public void enableStopAtFirstError() {
         this.stopAtFirstError = true;
+    }
+
+    @Override
+    public void disableStopAtFirstError() {
+        this.stopAtFirstError = false;
     }
 
     @Override

@@ -10,18 +10,21 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public class TestPerformance {
 
-    private String filename = "/home/deepak/Documents/FASTA_FILES/protein.fa";
+    private String protein = "/home/deepak/Documents/FASTA_FILES/protein.fa";
     private String smallProtein = "/home/deepak/Documents/FASTA_FILES/Protein/fasta_protein.fa";
     private String gffFile = "/home/deepak/Documents/FASTA_FILES/ref_GRCh38.p12_top_level.gff3";
     private String invalidDna = "/home/deepak/Documents/FASTA_FILES/dna/hs_ref_GRCh38.p12_chr2.fa";
     private String rna = "/home/deepak/Documents/FASTA_FILES/dna/rna.fa";
+    private String bigRna = "/home/deepak/Documents/FASTA_FILES/dna/2GBrna.fa";
 
     @Test
     public void testPerformance() throws ValidationFailureException {
         long start = System.nanoTime();
         long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
-        ValidationResult result = ValidatorHelper.validateFastaDna(invalidDna);
+        ValidationResult result = ValidatorHelper.validateFastaProtein(rna);
+        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+
         if (result.isValid()) {
             System.out.println("Valid File");
             result.getWarningMessages().forEach(System.out::println);
@@ -32,8 +35,6 @@ public class TestPerformance {
             System.out.println(result.getErrorMessages().size());
         }
         long timeTaken = System.nanoTime() - start;
-        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-
         System.out.println("Time Taken : " +
                 TimeUnit.MILLISECONDS.convert((timeTaken), TimeUnit.NANOSECONDS));
         System.out.print("Memory Used : " + (afterUsedMem-beforeUsedMem));
