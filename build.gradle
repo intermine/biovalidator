@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id 'com.gradle.build-scan' version '1.16'
+}
+
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+
+    // https://mvnrepository.com/artifact/info.picocli/picocli-shell-jline3
+    compile group: 'info.picocli', name: 'picocli-shell-jline3', version: '4.0.0-beta-1b'
+}
+
+task myJavadocs(type: Javadoc) {
+    source = sourceSets.main.allJava
+}
+
+checkstyle {
+    toolVersion '7.8.1'
+    configFile file("config/checkstyle/intermine_checkstyle.xml")
+    configProperties = [
+            'checkstyle.header.file': "config/checkstyle/copyright_header.txt",
+            'suppressionFile': "config/checkstyle/suppressions.xml"
+    ]
+    sourceSets = [project.sourceSets.main]
+}
+checkstyleMain {
+    source ='src/main/java'
+}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.intermine.biovalidator.CommandLineRunner'
+    }
+}
+
+task createFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'org.intermine.biovalidator.CommandLineRunner'
+    }
+    baseName = 'valid'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
