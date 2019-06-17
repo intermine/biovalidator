@@ -39,6 +39,7 @@ public abstract class AbstractValidator implements Validator
     @Override
     public void applyValidationResultStrategy(ValidationResultStrategy validationResultStrategy) {
         this.validationResultStrategy = validationResultStrategy;
+        this.validationResult.setValidationStrategy(validationResultStrategy);
     }
 
     @Override

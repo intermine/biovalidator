@@ -82,6 +82,10 @@ public class DefaultValidationResult implements ValidationResult
         }
     }
 
+    @Override public void setValidationStrategy(ValidationResultStrategy strategy) {
+        this.resultStrategy = strategy;
+    }
+
     /**
      * Sets validation result is valid or not.
      *

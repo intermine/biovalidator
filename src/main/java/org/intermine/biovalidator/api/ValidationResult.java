@@ -10,6 +10,8 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
+
 import java.util.List;
 
 /**
@@ -60,4 +62,10 @@ public interface ValidationResult
      * @param warningMessage message
      */
     void addWarning(WarningMessage warningMessage);
+
+    /**
+     * Sets validation result strategy
+     * @param strategy strategy to be used while validation
+     */
+    void setValidationStrategy(ValidationResultStrategy strategy);
 }

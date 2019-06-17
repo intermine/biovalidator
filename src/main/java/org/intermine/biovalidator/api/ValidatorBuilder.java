@@ -32,6 +32,7 @@ public final class ValidatorBuilder
     private ValidatorBuilder() {
         this.validationResultStrategy = new DefaultValidationResultStrategy();
     }
+
     /**
      * Builds a validator implementation
      * @return an implementation of builder

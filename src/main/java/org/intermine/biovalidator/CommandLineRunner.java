@@ -43,13 +43,23 @@ final class CommandLineRunner
      */
     public static void main(String[] args) {
 
-
-
-
+        /*args = Arrays.asList("-t", "fasta-dna",
+            "-f", "/home/deepak/Downloads/FASTA_FILES/protein.fa"
+            , "-w-d").toArray(new String[]{});*/
         try {
-            BioValidatorCommand command = CommandLine.populateCommand(
-                    new BioValidatorCommand(), args/*.toArray(new String[]{})*/);
+            CommandLine commandLine = new CommandLine(new BioValidatorCommand());
+            commandLine.parseArgs(args);
+            if (commandLine.isUsageHelpRequested()) {
+                commandLine.usage(System.out);
+                return;
+            }
+            if (commandLine.isVersionHelpRequested()) {
+                commandLine.printVersionHelp(System.out);
+                return;
+            }
 
+            BioValidatorCommand command = CommandLine.populateCommand(
+                new BioValidatorCommand(), args);
             String validatorType = command.getValidatorType();
 
             /* set fasta as default validator type if not provided */
@@ -106,7 +116,9 @@ final class CommandLineRunner
      * Command Line Parser
      * @author deepak
      */
-    static final class BioValidatorCommand
+    @CommandLine.Command(name = "biovalidator", version = "1.0",
+        mixinStandardHelpOptions = true, description = "validates biological file formats")
+    static final class BioValidatorCommand implements Runnable
     {
         /**
          * Represent possible type of validator accepted by the BioValidatorCommand
@@ -119,32 +131,39 @@ final class CommandLineRunner
                 super(Arrays.asList("", "fasta", "fasta-dna", "fasta-rna", "fasta-protein"));
             }
         }
+
         @CommandLine.Option(
-                names = "-t",
-                description = "ValidatorType",
+                names = {"-t", "--type"},
+                description = "ValidatorType, fasta is used as default if not provided",
                 defaultValue = "",
                 completionCandidates = ValidatorTypes.class)
         private String validatorType;
 
-        @CommandLine.Option(names = "-f", description = "file to be validated", required = true)
+        @CommandLine.Option(names = {"-f", "--file"},
+            description = "file to be validated",
+            required = true)
         private String filename;
 
-        @CommandLine.Option(names = "-d", description = "disable errors")
+        @CommandLine.Option(names = {"-d", "--disable-errors"}, description = "disable errors")
         private boolean disableErrors;
 
-        @CommandLine.Option(names = "-w", description = "disable warnings")
+        @CommandLine.Option(names = {"-w", "--disable-warnings"}, description = "disable warnings")
         private boolean disableWarning;
 
-        @CommandLine.Option(names = "-s", description = "strict validation")
+        @CommandLine.Option(names = {"-s", "--strict"}, description = "strict validation")
         private boolean strict;
 
-        @CommandLine.Option(names = "-z", description = "continue validation if error encountered")
+        @CommandLine.Option(names = {"-z", "--continue-on-error"},
+            description = "continue validation if error encountered")
         private boolean continueOnError;
 
 
         private BioValidatorCommand() {
         }
 
+        @Override public void run() {
+
+        }
         /**
          * Gets disableErrors.
          *
