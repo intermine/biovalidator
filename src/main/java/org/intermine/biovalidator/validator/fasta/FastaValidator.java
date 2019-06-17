@@ -33,7 +33,8 @@ import java.util.Set;
  *
  *<b>Default strategy for Fasta validator :</b>
  * 1. Validator will stop as soon as it encounter first error
- * 2.
+ * 2. Error enabled by-default
+ * 3. Warnings enabled by-default
  *
  *<b>Rules :</b>
  * 1. First Line must start with '>'

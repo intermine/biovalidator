@@ -13,6 +13,7 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
 /**
  * A generic sequence validator to test whether a sequence
  * is following IUPAC codes or not.
+ *
  * @author deepak
  */
 public class GenericSequenceValidator extends AbstractSequenceValidator

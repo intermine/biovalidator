@@ -11,6 +11,7 @@ package org.intermine.biovalidator.api;
  */
 
 /**
+ * Represents an immutable warning message
  * @author deepak
  */
 public class WarningMessage extends Message

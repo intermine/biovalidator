@@ -13,6 +13,7 @@ package org.intermine.biovalidator.api;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 
 /**
+ * A default implementation of ValidationResultStrategy
  * @author deepak
  */
 public class DefaultValidationResultStrategy implements ValidationResultStrategy

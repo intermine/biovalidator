@@ -12,6 +12,7 @@ package org.intermine.biovalidator.api.strategy;
 
 /**
  * Defines strategy for result of validation
+ *
  * @author deepak
  */
 public interface ValidationResultStrategy

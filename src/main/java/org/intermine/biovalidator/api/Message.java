@@ -13,6 +13,7 @@ package org.intermine.biovalidator.api;
 /**
  * Represents an immutable Message that can be created by validator whenever
  * validator finds an invalid data.
+ *
  * @author deepak
  */
 public abstract class Message

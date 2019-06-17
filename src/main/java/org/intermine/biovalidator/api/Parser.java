@@ -13,7 +13,17 @@ package org.intermine.biovalidator.api;
 import java.io.IOException;
 
 /**
+ * Base interface for Parsers, user of this interface can simple call to parseNext(), in order
+ * to get next parsed data to be validated.
+ *
+ * The main purpose of creating parser as a separate entity is to make validator free from how
+ * and where data is being read.
+ *
+ * Each validator can define its own strategy for reading file data. Some implementation can read
+ * the file line by line while some can read more than one line in one step.
+ *
  * @param <T> type of result returned by the parse's parseNext() method
+ *
  * @author deepak
  */
 public interface Parser<T> extends AutoCloseable

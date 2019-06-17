@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * A simple and default implementation of ValidationResult
+ *
  * @author deepak
  */
 public class DefaultValidationResult implements ValidationResult

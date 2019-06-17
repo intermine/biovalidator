@@ -16,6 +16,7 @@ import java.util.Set;
 
 /**
  * Sequence validator for Nucleotide sequence
+ *
  * @author deepak
  */
 public final class NucleicAcidSequenceValidator extends AbstractSequenceValidator

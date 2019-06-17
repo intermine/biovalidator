@@ -20,6 +20,8 @@ import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import java.util.function.Consumer;
 
 /**
+ * Abstract out common functionality that each validator will have.
+ *
  * @author deepak
  */
 public abstract class AbstractValidator implements Validator

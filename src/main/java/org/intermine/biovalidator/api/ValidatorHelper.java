@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * Provides helper methods create validator.
  * Example:
  * <code>
- *      1. ValidatorHelper.validateFasta("file", Type.FASTA, SequenceType.DNA, false)
+ *      1. ValidatorHelper.validate("file", "fasta-dna", false)
  *      2. Or Simply:
  *         ValidatorHelper.validateFastaDna("file")
  * </code>
@@ -50,10 +50,11 @@ public final class ValidatorHelper
                                             @Nonnull ValidatorType validatorType,
                                             boolean isStrict)
             throws ValidationFailureException {
-        return ValidatorBuilder.withFile(file, validatorType)
-                .enableStrictValidation()
-                .build()
-                .validate();
+        ValidatorBuilder builder  = ValidatorBuilder.withFile(file, validatorType);
+        if (isStrict) {
+            builder.enableStrictValidation();
+        }
+        return builder.build().validate();
     }
 
     /**

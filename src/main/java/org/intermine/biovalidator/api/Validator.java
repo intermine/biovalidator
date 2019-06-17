@@ -16,6 +16,15 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**
+ * A common interface for all validators, any validator will an implementation of this interface.
+ * Validator provides a validate() method that user of the interface can use to perform validation,
+ *
+ * Validator also allows to customize validation strategy.
+ * Example:
+ *  1. Enable Errors (default)
+ *  2. Enable Warnings
+ *  3. customize whether validator should stop when it encounter first error or not, etc..
+ *
  * @author deepak
  */
 public interface Validator

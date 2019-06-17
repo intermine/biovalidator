@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
+ * Generic parser that read line by line, meaning each call to parseNext will return the next line
+ *
  * @author deepak
  */
 public class GenericLineByLineParser implements Parser<String>

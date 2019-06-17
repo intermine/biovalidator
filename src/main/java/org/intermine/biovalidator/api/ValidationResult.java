@@ -15,6 +15,9 @@ import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import java.util.List;
 
 /**
+ * This interface represents the result of a validation, instance of this will be returned on
+ * calling validate method any Validator
+ *
  * @author deepak
  */
 public interface ValidationResult

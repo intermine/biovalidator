@@ -11,6 +11,8 @@ package org.intermine.biovalidator.api;
  */
 
 /**
+ * Represents an immutable error message
+ *
  * @author deepak
  */
 public class ErrorMessage extends Message
