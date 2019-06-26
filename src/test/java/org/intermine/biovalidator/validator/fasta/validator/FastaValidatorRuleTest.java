@@ -130,7 +130,7 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
         assertFalse(result.isValid());
 
         List<String> errors = getErrorsListFromValidationResult(result);
-        assertEquals("Record '>' has empty sequence at line 2", errors.get(0));
+        assertEquals("Invalid sequence id at line 1", errors.get(0));
     }
 
     @Test

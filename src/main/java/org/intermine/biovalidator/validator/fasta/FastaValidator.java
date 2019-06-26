@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator.fasta;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
@@ -52,7 +53,6 @@ import java.util.Set;
  */
 public class FastaValidator extends AbstractValidator
 {
-    private static final String FIRST_HEADER_MISSING_MSG = "First line must be a header line";
     private SequenceValidator sequenceValidator;
     private InputStreamReader inputStreamReader;
 
@@ -104,7 +104,12 @@ public class FastaValidator extends AbstractValidator
                         }
 
                         String sequenceId = extractSequenceIdFromHeader(line);
-                        if (uniqueSequenceIds.contains(sequenceId)) {
+
+                        if (StringUtils.isBlank(sequenceId)) {
+                            String msg = "Invalid sequence id at line " + linesCount;
+                            validationResult.addError(ErrorMessage.of(msg));
+                        }
+                        else if (uniqueSequenceIds.contains(sequenceId)) {
                             defaultValidationResult.addError(
                                     ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
                         } else {
@@ -154,17 +159,16 @@ public class FastaValidator extends AbstractValidator
      * @return sequenceId
      */
     private String extractSequenceIdFromHeader(String headerLine) {
-        int firstSpaceIndex = -1;
-        for (int i = 0; i < headerLine.length(); i++) {
-            if (Character.isWhitespace(headerLine.charAt(i))) {
-                firstSpaceIndex = i;
-                break;
-            }
+        /* remove '>' from beginning of the header as this will not be part of the sequenceId,
+           and character '>' will always be present in the header as it is validated earlier.
+         */
+        String headerText = headerLine.substring(1); //this removes '>' from beginning of the header
+        String[] headerTextWords = headerText.split("\\s+"); //split on any whitespace
+        if (headerTextWords.length >= 1) {
+            return headerTextWords[0];
+        } else {
+            return StringUtils.EMPTY;
         }
-        /*if at least one whitespace exist in the header then return a substring
-        from start of the header to the first whitespace(i.e. firstSpaceIndex)
-        else return the given string */
-        return firstSpaceIndex != -1 ? headerLine.substring(0, firstSpaceIndex + 1): headerLine;
     }
 
     private SequenceValidator getSequenceValidatorFromType(SequenceType sequenceType) {
