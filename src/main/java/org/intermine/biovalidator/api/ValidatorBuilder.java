@@ -127,6 +127,20 @@ public final class ValidatorBuilder
     }
 
     /**
+     * Sets stop at first error
+     * @param stopAtFirstError boolean value
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder withStopAtFirstError(boolean stopAtFirstError) {
+        if (stopAtFirstError) {
+            this.validationResultStrategy.enableStopAtFirstError();
+        } else {
+            this.disableStopAtFirstError();
+        }
+        return this;
+    }
+
+    /**
      * Enables warning messages to be create by the validator
      * @return ValidatorBui
      */
@@ -141,6 +155,20 @@ public final class ValidatorBuilder
      */
     public ValidatorBuilder disableWarnings() {
         this.validationResultStrategy.disableWarnings();
+        return this;
+    }
+
+    /**
+     * Sets whether to enable or disable warning
+     * @param isEnable boolean value
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder withWarning(boolean isEnable) {
+        if (isEnable) {
+            this.validationResultStrategy.enableWarnings();
+        } else {
+            this.validationResultStrategy.disableWarnings();
+        }
         return this;
     }
 
@@ -163,11 +191,48 @@ public final class ValidatorBuilder
     }
 
     /**
+     * Sets whether to enable error or not
+     * @param isEnable boolean value
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder withErrors(boolean isEnable) {
+        if (isEnable) {
+            this.validationResultStrategy.enableWarnings();
+        } else {
+            this.validationResultStrategy.disableWarnings();
+        }
+        return this;
+    }
+
+    /**
      * Enable strict validation
      * @return ValidatorBuilder
      */
     public ValidatorBuilder enableStrictValidation() {
-        this.validator.applyStrictValidation();
+        this.validator.enableStrictValidation();
+        return this;
+    }
+
+    /**
+     * Disable Strict validation
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder disableStrictValidation() {
+        this.validator.disableStrictValidation();
+        return this;
+    }
+
+    /**
+     * Sets whether enable or disable strict validation
+     * @param isEnable boolean value
+     * @return ValidatorBuilder
+     */
+    public ValidatorBuilder withStrictValidation(boolean isEnable) {
+        if (isEnable) {
+            this.validator.enableStrictValidation();
+        } else {
+            this.validator.disableStrictValidation();
+        }
         return this;
     }
 }

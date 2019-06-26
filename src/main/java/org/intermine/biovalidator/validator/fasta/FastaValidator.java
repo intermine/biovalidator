@@ -15,6 +15,7 @@ import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
+import org.intermine.biovalidator.api.WarningMessage;
 import org.intermine.biovalidator.parser.GenericLineByLineParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 import org.intermine.biovalidator.validator.fasta.sequencevalidator.GenericSequenceValidator;
@@ -63,6 +64,7 @@ public class FastaValidator extends AbstractValidator
     public FastaValidator(InputStreamReader inputStreamReader, SequenceType sequenceType) {
         this.inputStreamReader = inputStreamReader;
         this.sequenceValidator = getSequenceValidatorFromType(sequenceType);
+        enableStrictValidation(); //by-default use strict validation
     }
 
     /**
@@ -92,7 +94,7 @@ public class FastaValidator extends AbstractValidator
                         String msg = "File is not recognized as valid Fasta format";
                         validationResult.addError(ErrorMessage.of(msg));
                     }
-                    else if (line.startsWith(">")) { //header TODO refactor move to a new method
+                    else if (line.startsWith(">")) { //validate header
 
                         //check whether last record had empty sequence or not
                         if (uniqueSequenceIds.size() >= 1 && seqLengthCount < 1) {
@@ -113,12 +115,13 @@ public class FastaValidator extends AbstractValidator
                     }
                     else { //validateFasta sequence
                         line = line.trim();
-                        if (linesCount < 2) {
-                            ErrorMessage errorMessage = ErrorMessage.of(FIRST_HEADER_MISSING_MSG);
-                            defaultValidationResult.addError(errorMessage);
-                        }
                         seqLengthCount +=  sequenceValidator.validate(
                                 line, linesCount, validationResult);
+
+                        if (!isStrict && line.length() > 80) {
+                            validationResult.addWarning(WarningMessage.of("number of sequence "
+                                    + "length exceed 80 at line " + linesCount));
+                        }
                     }
                     if (!validationResult.isValid()
                             && validationResultStrategy.shouldStopAtFirstError()) {
@@ -144,6 +147,12 @@ public class FastaValidator extends AbstractValidator
         return validationResult;
     }
 
+    /**
+     * extracts sequence_Id from header, sequenceId will be the string from
+     * beginning of the header to the first whitespace character.
+     * @param headerLine header line
+     * @return sequenceId
+     */
     private String extractSequenceIdFromHeader(String headerLine) {
         int firstSpaceIndex = -1;
         for (int i = 0; i < headerLine.length(); i++) {
@@ -152,6 +161,9 @@ public class FastaValidator extends AbstractValidator
                 break;
             }
         }
+        /*if at least one whitespace exist in the header then return a substring
+        from start of the header to the first whitespace(i.e. firstSpaceIndex)
+        else return the given string */
         return firstSpaceIndex != -1 ? headerLine.substring(0, firstSpaceIndex + 1): headerLine;
     }
 

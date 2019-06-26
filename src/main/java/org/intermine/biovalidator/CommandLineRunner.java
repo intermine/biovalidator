@@ -10,12 +10,12 @@ package org.intermine.biovalidator;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Message;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.ValidatorBuilder;
-import org.intermine.biovalidator.utils.StringUtils;
 import picocli.CommandLine;
 
 import java.io.PrintWriter;
@@ -68,7 +68,7 @@ final class CommandLineRunner
             WRITER.println("Validating " + validatorType + " file...");
 
             ValidatorBuilder builder = ValidatorBuilder
-                    .withFile(command.getFilename(), validatorType);
+                    .withFile(command.getFilename(), validatorType); //strict validation by-default
 
             if (command.isContinueOnError()) {
                 builder.disableStopAtFirstError();
@@ -78,6 +78,9 @@ final class CommandLineRunner
             }
             if (command.isDisableWarning()) {
                 builder.disableWarnings();
+            }
+            if (command.isPermissive()) { //allow permissive validation
+                builder.disableStrictValidation();
             }
 
             ValidationResult result = builder.build().validate();
@@ -134,7 +137,8 @@ final class CommandLineRunner
 
         @CommandLine.Option(
                 names = {"-t", "--type"},
-                description = "ValidatorType, fasta is used as default if not provided",
+                description = "ValidatorType, fasta is used as default if not provided"
+                        + " possible values(fasta, fasta-dna, fasta-rna, fasta-protein)",
                 defaultValue = "",
                 completionCandidates = ValidatorTypes.class)
         private String validatorType;
@@ -150,8 +154,8 @@ final class CommandLineRunner
         @CommandLine.Option(names = {"-w", "--disable-warnings"}, description = "disable warnings")
         private boolean disableWarning;
 
-        @CommandLine.Option(names = {"-s", "--strict"}, description = "strict validation")
-        private boolean strict;
+        @CommandLine.Option(names = {"-p", "--permissive"}, description = "permissive validation")
+        private boolean permissive;
 
         @CommandLine.Option(names = {"-z", "--continue-on-error"},
             description = "continue validation if error encountered")
@@ -183,12 +187,12 @@ final class CommandLineRunner
         }
 
         /**
-         * Gets isStrict.
+         * Gets isPermissive.
          *
-         * @return Value of isStrict.
+         * @return Value of isPermissive.
          */
-        boolean isStrict() {
-            return strict;
+        boolean isPermissive() {
+            return permissive;
         }
 
         /**

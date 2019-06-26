@@ -52,5 +52,10 @@ public interface Validator
     /**
      * apply strict validation
      */
-    void applyStrictValidation();
+    void enableStrictValidation();
+
+    /**
+     * Disable strict validation
+     */
+    void disableStrictValidation();
 }

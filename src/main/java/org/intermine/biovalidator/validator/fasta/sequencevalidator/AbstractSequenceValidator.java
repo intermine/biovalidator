@@ -12,7 +12,6 @@ package org.intermine.biovalidator.validator.fasta.sequencevalidator;
 
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.ValidationResult;
-import org.intermine.biovalidator.api.WarningMessage;
 
 import javax.annotation.Nonnull;
 
@@ -23,6 +22,13 @@ import javax.annotation.Nonnull;
  */
 public abstract class AbstractSequenceValidator implements SequenceValidator
 {
+    /**
+     * Generic implementation of validate() methods that iterate over each
+     * character of the string and checks whether a character is valid or not
+     * by calling isValid() method.
+     * [Note: implementation of this class can you this general validate() method
+     *  by @overriding only isValid() method, that will be called for each character]
+     */
     @Override
     public int validate(@Nonnull String sequence, long seqLineNo,
                             @Nonnull ValidationResult validationResult) {
@@ -33,10 +39,6 @@ public abstract class AbstractSequenceValidator implements SequenceValidator
                 validationResult.addError(ErrorMessage.of(msg));
                 return (i + 1);
             }
-        }
-        if (sequence.length() > 80) {
-            validationResult.addWarning(WarningMessage.of("number of sequence length "
-                    + "exceed 80 at line " + seqLineNo));
         }
         return sequence.length();
     }

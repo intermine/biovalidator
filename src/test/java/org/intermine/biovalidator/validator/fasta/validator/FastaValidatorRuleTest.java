@@ -102,8 +102,9 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
         String data = ">seq1\n" +
           "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCA\n"+
           "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATATGCG";
-        ValidationResult result = new FastaValidator(
-                createInMemoryInputStream(data), SequenceType.ALL).validate();
+        Validator validator = new FastaValidator(createInMemoryInputStream(data), SequenceType.ALL);
+        validator.disableStrictValidation();
+        ValidationResult result = validator.validate();
 
         assertTrue(result.isValid());
 

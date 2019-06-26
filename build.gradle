@@ -20,6 +20,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/info.picocli/picocli-shell-jline3
     compile group: 'info.picocli', name: 'picocli-shell-jline3', version: '4.0.0-beta-1b'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 }
 
 task myJavadocs(type: Javadoc) {
