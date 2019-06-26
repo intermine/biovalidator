@@ -34,7 +34,7 @@ if (!validationResult.isValid()) {
 }
 ```
 
-#### Validation Result Customization
+### Validation Result Customization
 Validator's behaviour and result and can be easily customize, ValidatorBuilder can be used to customize
 behaviour and result of the validator.<br/>
 Example: To validate a file by disabling warnings and continue validation even if error occurred
