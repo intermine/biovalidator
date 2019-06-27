@@ -50,10 +50,8 @@ public final class ValidatorHelper
                                             @Nonnull ValidatorType validatorType,
                                             boolean isStrict)
             throws ValidationFailureException {
-        ValidatorBuilder builder  = ValidatorBuilder.withFile(file, validatorType);
-        if (isStrict) {
-            builder.enableStrictValidation();
-        }
+        ValidatorBuilder builder  = ValidatorBuilder.withFile(file, validatorType)
+                .withStrictValidation(isStrict);
         return builder.build().validate();
     }
 
@@ -128,7 +126,7 @@ public final class ValidatorHelper
      */
     public static ValidationResult validateFasta(@Nonnull String file)
             throws ValidationFailureException {
-        return validateFasta(file, ValidatorType.FASTA, false);
+        return validateFasta(file, ValidatorType.FASTA, true);
     }
 
 }

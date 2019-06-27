@@ -20,6 +20,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/info.picocli/picocli-shell-jline3
     compile group: 'info.picocli', name: 'picocli-shell-jline3', version: '4.0.0-beta-1b'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 }
 
 task myJavadocs(type: Javadoc) {
@@ -28,10 +31,10 @@ task myJavadocs(type: Javadoc) {
 
 checkstyle {
     toolVersion '7.8.1'
-    configFile file("config/checkstyle/intermine_checkstyle.xml")
+    configFile file("${rootDir}/config/checkstyle/intermine_checkstyle.xml")
     configProperties = [
-            'checkstyle.header.file': "config/checkstyle/copyright_header.txt",
-            'suppressionFile': "config/checkstyle/suppressions.xml"
+            'checkstyle.header.file': "${rootDir}/config/checkstyle/copyright_header.txt",
+            'suppressionFile': "${rootDir}/config/checkstyle/suppressions.xml"
     ]
     sourceSets = [project.sourceSets.main]
 }

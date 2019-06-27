@@ -102,8 +102,9 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
         String data = ">seq1\n" +
           "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCA\n"+
           "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATATGCG";
-        ValidationResult result = new FastaValidator(
-                createInMemoryInputStream(data), SequenceType.ALL).validate();
+        Validator validator = new FastaValidator(createInMemoryInputStream(data), SequenceType.ALL);
+        validator.disableStrictValidation();
+        ValidationResult result = validator.validate();
 
         assertTrue(result.isValid());
 
@@ -129,7 +130,7 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
         assertFalse(result.isValid());
 
         List<String> errors = getErrorsListFromValidationResult(result);
-        assertEquals("Record '>' has empty sequence at line 2", errors.get(0));
+        assertEquals("Invalid sequence id at line 1", errors.get(0));
     }
 
     @Test

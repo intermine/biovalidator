@@ -51,7 +51,21 @@ public abstract class AbstractValidator implements Validator
     }
 
     @Override
-    public void applyStrictValidation() {
+    public void enableStrictValidation() {
         isStrict = true;
+    }
+
+    @Override
+    public void  disableStrictValidation() {
+        isStrict = false;
+    }
+
+    /**
+     * Gets isStrict.
+     *
+     * @return Value of isStrict.
+     */
+    public boolean isStrict() {
+        return isStrict;
     }
 }
