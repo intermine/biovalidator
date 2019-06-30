@@ -103,18 +103,7 @@ public class FastaValidator extends AbstractValidator
                             validationResult.addError(ErrorMessage.of(msg));
                         }
 
-                        String sequenceId = extractSequenceIdFromHeader(line);
-
-                        if (StringUtils.isBlank(sequenceId)) {
-                            String msg = "Invalid sequence id at line " + linesCount;
-                            validationResult.addError(ErrorMessage.of(msg));
-                        }
-                        else if (uniqueSequenceIds.contains(sequenceId)) {
-                            defaultValidationResult.addError(
-                                    ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
-                        } else {
-                            uniqueSequenceIds.add(sequenceId);
-                        }
+                        validateHeader(uniqueSequenceIds, line, linesCount);
                         seqLengthCount = 0;
                         lastHeaderLine = line;
                     }
@@ -150,6 +139,27 @@ public class FastaValidator extends AbstractValidator
             throw new ValidationFailureException(e.getMessage());
         }
         return validationResult;
+    }
+
+    /**
+     * validates the header of a fasta file
+     * @param uniqueSequenceIds set of unique sequence Ids
+     * @param line current line to be validated
+     * @param linesCount current line count
+     */
+    private void validateHeader(Set<String> uniqueSequenceIds, String line, long linesCount) {
+        String sequenceId = extractSequenceIdFromHeader(line);
+
+        if (StringUtils.isBlank(sequenceId)) {
+            String msg = "Invalid sequence id at line " + linesCount;
+            validationResult.addError(ErrorMessage.of(msg));
+        }
+        else if (uniqueSequenceIds.contains(sequenceId)) {
+            validationResult.addError(
+                    ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
+        } else {
+            uniqueSequenceIds.add(sequenceId);
+        }
     }
 
     /**
