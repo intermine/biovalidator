@@ -22,9 +22,128 @@ public class Feature
     private String type;
     private long startCord;
     private long endCord;
-    private double score;
+    private String score;
     private String strand;
     private String phase;
     private String attributes;
     private Map<String, String> attributesMapping;
+
+    /**
+     * Construct a Feature
+     * @param seqId sequenceId
+     * @param soure sequence source
+     * @param type type
+     * @param startCord start coordinate
+     * @param endCord end coordinate
+     * @param score score
+     * @param strand strands
+     * @param phase phase
+     * @param attributes attributes
+     * @param attributesMapping attributes map
+     */
+    public Feature(String seqId, String soure, String type, long startCord, long endCord,
+                   String score, String strand, String phase, String attributes,
+                   Map<String, String> attributesMapping) {
+        this.seqId = seqId;
+        this.soure = soure;
+        this.type = type;
+        this.startCord = startCord;
+        this.endCord = endCord;
+        this.score = score;
+        this.strand = strand;
+        this.phase = phase;
+        this.attributes = attributes;
+        this.attributesMapping = attributesMapping;
+    }
+
+
+    /**
+     * Gets endCord.
+     *
+     * @return Value of endCord.
+     */
+    public long getEndCord() {
+        return endCord;
+    }
+
+    /**
+     * Gets attributesMapping.
+     *
+     * @return Value of attributesMapping.
+     */
+    public Map<String, String> getAttributesMapping() {
+        return attributesMapping;
+    }
+
+    /**
+     * Gets type.
+     *
+     * @return Value of type.
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Gets soure.
+     *
+     * @return Value of soure.
+     */
+    public String getSoure() {
+        return soure;
+    }
+
+    /**
+     * Gets attributes.
+     *
+     * @return Value of attributes.
+     */
+    public String getAttributes() {
+        return attributes;
+    }
+
+    /**
+     * Gets seqId.
+     *
+     * @return Value of seqId.
+     */
+    public String getSeqId() {
+        return seqId;
+    }
+
+    /**
+     * Gets strand.
+     *
+     * @return Value of strand.
+     */
+    public String getStrand() {
+        return strand;
+    }
+
+    /**
+     * Gets phase.
+     *
+     * @return Value of phase.
+     */
+    public String getPhase() {
+        return phase;
+    }
+
+    /**
+     * Gets score.
+     *
+     * @return Value of score.
+     */
+    public String getScore() {
+        return score;
+    }
+
+    /**
+     * Gets startCord.
+     *
+     * @return Value of startCord.
+     */
+    public long getStartCord() {
+        return startCord;
+    }
 }

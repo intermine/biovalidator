@@ -19,6 +19,7 @@ import org.intermine.biovalidator.validator.AbstractValidator;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
 
 /**
  * @author deepak
@@ -38,15 +39,19 @@ public class Gff3Validator extends AbstractValidator
     @Nonnull
     @Override
     public ValidationResult validate() throws ValidationFailureException {
-        try (Parser<Feature> parser = new Gff3FeatureParser(inputStreamReader)) {
-            Feature feature = parser.parseNext();
-            while (feature != null) {
-
-                feature = parser.parseNext();
+        try (Parser<Optional<Feature>> parser = new Gff3FeatureParser(inputStreamReader)) {
+            Optional<Feature> featureOpt = parser.parseNext();
+            while (featureOpt.isPresent()) {
+                Feature feature = featureOpt.get();
+                validateFeature(feature);
             }
             return validationResult;
         } catch (IOException e) {
             throw new ValidationFailureException(e.getMessage());
         }
+    }
+
+    private void validateFeature(Feature feature) {
+        String seqId = feature.getSeqId();
     }
 }
