@@ -38,7 +38,11 @@ public class Gff3FeatureParser implements Parser<Optional<Feature>>
     public Optional<Feature> parseNext() throws ParsingException {
         String line = lineParser.parseNext();
         if (line != null) {
-            return Optional.of(parseFeature(line));
+            if (!line.startsWith("#")) {
+
+            } else {
+                return Optional.of(parseFeature(line));
+            }
         }
         return Optional.empty();
     }

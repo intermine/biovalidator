@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator.gff3;
  *
  */
 
+import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
@@ -26,6 +27,7 @@ import java.util.Optional;
  */
 public class Gff3Validator extends AbstractValidator
 {
+    private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+_?-|]+";
     private InputStreamReader inputStreamReader;
 
     /**
@@ -40,10 +42,14 @@ public class Gff3Validator extends AbstractValidator
     @Override
     public ValidationResult validate() throws ValidationFailureException {
         try (Parser<Optional<Feature>> parser = new Gff3FeatureParser(inputStreamReader)) {
+            long currentLineNum = 1;
+
             Optional<Feature> featureOpt = parser.parseNext();
+
             while (featureOpt.isPresent()) {
                 Feature feature = featureOpt.get();
-                validateFeature(feature);
+                validateFeature(feature, currentLineNum);
+                featureOpt = parser.parseNext(); //next feature
             }
             return validationResult;
         } catch (IOException e) {
@@ -51,7 +57,19 @@ public class Gff3Validator extends AbstractValidator
         }
     }
 
-    private void validateFeature(Feature feature) {
+    private void validateFeature(Feature feature, long currentLineNum) {
         String seqId = feature.getSeqId();
+        if (!seqId.matches(SEQUENCE_ID_VALID_PATTERN)) {
+            validationResult.addError(ErrorMessage.of("Invalid Sequence Id at " + currentLineNum));
+        }
+
+        if (feature.getStartCord() > feature.getEndCord()) {
+            String coordinateErrMsg = "Start coordinate must be greater or equal to end"
+                + " coordinate at line " + currentLineNum;
+            validationResult.addError(ErrorMessage.of(coordinateErrMsg));
+        }
+
+        //String score = feature.getScore();
+
     }
 }

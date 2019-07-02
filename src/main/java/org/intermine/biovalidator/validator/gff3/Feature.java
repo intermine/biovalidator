@@ -15,10 +15,10 @@ import java.util.Map;
 /**
  * @author deepak
  */
-public class Feature
+public class Feature implements Gff3Line
 {
     private String seqId;
-    private String soure;
+    private String source;
     private String type;
     private long startCord;
     private long endCord;
@@ -31,7 +31,7 @@ public class Feature
     /**
      * Construct a Feature
      * @param seqId sequenceId
-     * @param soure sequence source
+     * @param source sequence source
      * @param type type
      * @param startCord start coordinate
      * @param endCord end coordinate
@@ -41,11 +41,11 @@ public class Feature
      * @param attributes attributes
      * @param attributesMapping attributes map
      */
-    public Feature(String seqId, String soure, String type, long startCord, long endCord,
+    public Feature(String seqId, String source, String type, long startCord, long endCord,
                    String score, String strand, String phase, String attributes,
                    Map<String, String> attributesMapping) {
         this.seqId = seqId;
-        this.soure = soure;
+        this.source = source;
         this.type = type;
         this.startCord = startCord;
         this.endCord = endCord;
@@ -90,7 +90,7 @@ public class Feature
      * @return Value of soure.
      */
     public String getSoure() {
-        return soure;
+        return source;
     }
 
     /**
