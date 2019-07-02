@@ -11,17 +11,34 @@ import java.io.FileReader;
 
 import static org.junit.Assert.assertTrue;
 
-public class FastaValidatorFeatureTest extends BaseValidatorTest {
+public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 
-	@Test
+	//@Test
 	public void testGff3Feature() throws FileNotFoundException, ValidationFailureException {
 		String filePath = getFullPath("gff3/valid/sample.gff3");
 		FileReader reader = new FileReader(filePath);
 
 		Validator validator = ValidatorBuilder.ofType(new Gff3Validator(reader)).build();
-		/*validator.validate(result -> {
+		validator.validate(result -> {
+			if (!result.isValid()) {
+				result.getErrorMessages().forEach(System.out::println);
+			}
 			assertTrue(result.isValid());
-		});*/
+		});
+	}
+
+	//@Test
+	public void testValidGff3() throws FileNotFoundException, ValidationFailureException {
+		String filePath = getFullPath("gff3/valid/gff3_spec_example.gff3");
+		FileReader reader = new FileReader(filePath);
+
+		Validator validator = ValidatorBuilder.ofType(new Gff3Validator(reader)).build();
+		validator.validate(result -> {
+			if (!result.isValid()) {
+				result.getErrorMessages().forEach(System.out::println);
+			}
+			assertTrue(result.isValid());
+		});
 	}
 
 }

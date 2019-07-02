@@ -12,7 +12,9 @@ package org.intermine.biovalidator.parser;
 
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ParsingException;
-import org.intermine.biovalidator.validator.gff3.Feature;
+import org.intermine.biovalidator.validator.gff3.FeatureLine;
+import org.intermine.biovalidator.validator.gff3.Gff3CommentLine;
+import org.intermine.biovalidator.validator.gff3.Gff3Line;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,7 +25,7 @@ import java.util.Optional;
 /**
  * @author deepak
  */
-public class Gff3FeatureParser implements Parser<Optional<Feature>>
+public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
 {
     private GenericLineByLineParser lineParser;
 
@@ -35,11 +37,11 @@ public class Gff3FeatureParser implements Parser<Optional<Feature>>
         this.lineParser = new GenericLineByLineParser(inputStreamReader);
     }
     @Override
-    public Optional<Feature> parseNext() throws ParsingException {
+    public Optional<Gff3Line> parseNext() throws ParsingException {
         String line = lineParser.parseNext();
         if (line != null) {
-            if (!line.startsWith("#")) {
-
+            if (line.startsWith("#")) {
+                return Optional.of(Gff3CommentLine.of(line));
             } else {
                 return Optional.of(parseFeature(line));
             }
@@ -52,7 +54,7 @@ public class Gff3FeatureParser implements Parser<Optional<Feature>>
         lineParser.close();
     }
 
-    private Feature parseFeature(String featureStr) {
+    private FeatureLine parseFeature(String featureStr) {
         String[] columns = featureStr.split("\t"); //split only on tab not on space
 
         String seqId = columns[0];
@@ -74,7 +76,7 @@ public class Gff3FeatureParser implements Parser<Optional<Feature>>
 
         Map<String, String> keyValAttributeMapping = parseAttributes(attributes);
 
-        return new Feature(seqId, source, type, startCord, endCord, score, strand, phase,
+        return new FeatureLine(seqId, source, type, startCord, endCord, score, strand, phase,
                 attributes, keyValAttributeMapping);
     }
 
@@ -86,8 +88,11 @@ public class Gff3FeatureParser implements Parser<Optional<Feature>>
     private Map<String, String> parseAttributes(String attributes) {
         Map<String, String> attributeMapping = new HashMap<>();
         for (String attr: attributes.split(";")) {
-            String[] attrPair = attr.trim().split("=");
-            attributeMapping.put(attrPair[0], attrPair[1]);
+            if (attr.contains("=")) {
+                String[] attrPair = attr.trim().split("=");
+                String value = attrPair.length > 1 ? attrPair[1]: "";
+                attributeMapping.put(attrPair[0], value);
+            }
         }
         return attributeMapping;
     }

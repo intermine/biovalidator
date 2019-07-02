@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author deepak
  */
-public class Feature implements Gff3Line
+public class FeatureLine implements Gff3Line
 {
     private String seqId;
     private String source;
@@ -29,7 +29,7 @@ public class Feature implements Gff3Line
     private Map<String, String> attributesMapping;
 
     /**
-     * Construct a Feature
+     * Construct a FeatureLine
      * @param seqId sequenceId
      * @param source sequence source
      * @param type type
@@ -41,9 +41,9 @@ public class Feature implements Gff3Line
      * @param attributes attributes
      * @param attributesMapping attributes map
      */
-    public Feature(String seqId, String source, String type, long startCord, long endCord,
-                   String score, String strand, String phase, String attributes,
-                   Map<String, String> attributesMapping) {
+    public FeatureLine(String seqId, String source, String type, long startCord, long endCord,
+                       String score, String strand, String phase, String attributes,
+                       Map<String, String> attributesMapping) {
         this.seqId = seqId;
         this.source = source;
         this.type = type;
