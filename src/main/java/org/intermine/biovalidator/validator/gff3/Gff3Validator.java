@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator.gff3;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
@@ -107,6 +108,20 @@ public class Gff3Validator extends AbstractValidator
             addError("score value must be floating point number");
         }
 
+        String strand = feature.getStrand();
+        if (!StringUtils.equalsAny(strand, "-", "+")) { //checks strand value is valid
+            addError("strand value must be one of ('-', '+')");
+        }
+
+        String phase = feature.getPhase();
+        if (!isInteger(phase)) {
+            addError("phase value can only be one of 0, 1 or 2");
+        }
+
+        if ("CDS".equals(phase) && !StringUtils.equalsAny("0", "1", "2")) {
+            addError("phase is required for CDS and can only be 0, 1 or 2");
+        }
+
         Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
 
         //check unique ID attributes
@@ -155,5 +170,14 @@ public class Gff3Validator extends AbstractValidator
             String coordinateErrMsg = "Start coordinate must be less or equal to end coordinate";
             validationResult.addError(ErrorMessage.of(coordinateErrMsg));
         }
+    }
+
+    /**
+     * checks whether string is number or not
+     * @param phase value to be tested
+     * @return true or false
+     */
+    private boolean isInteger(String phase) {
+        return phase.matches("[0-9]{1,9}"); //TODO need to be refactored
     }
 }
