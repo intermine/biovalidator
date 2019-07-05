@@ -61,8 +61,8 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
         String source = columns[1];
         String type = columns[2];
 
-        long startCord = Long.valueOf(columns[3].trim());
-        long endCord = Long.parseLong(columns[4].trim());
+        String startCord = columns[3].trim();
+        String endCord = columns[4].trim();
 
         String score = columns[5].trim();
         /*double scoreValue = 0.0D;

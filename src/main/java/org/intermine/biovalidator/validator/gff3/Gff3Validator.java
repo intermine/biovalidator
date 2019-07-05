@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator.gff3;
  *
  */
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ValidationFailureException;
@@ -33,10 +34,11 @@ public class Gff3Validator extends AbstractValidator
     private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+_?-|]+";
     private static final String FASTA_DIRECTIVE = "##FASTA";
     private static final String GFF3_HEADER = "##gff-version 3";
-
+    private static final String FLOATING_POINT_NUM_PATTERN = "[0-9]*\\.?[0-9]+";
     private InputStreamReader inputStreamReader;
 
     private Set<String> uniqueIdAttributesSet;
+    private Set<String> uniqueNameAttributeSet;
 
     /**
      * Contruct a Gff3Validator with an input stream
@@ -45,6 +47,7 @@ public class Gff3Validator extends AbstractValidator
     public Gff3Validator(InputStreamReader inputStreamReader) {
         this.inputStreamReader = inputStreamReader;
         this.uniqueIdAttributesSet = new HashSet<>();
+        this.uniqueNameAttributeSet = new HashSet<>();
     }
 
     @Nonnull
@@ -54,7 +57,7 @@ public class Gff3Validator extends AbstractValidator
             long currentLineNum = 1;
             Optional<Gff3Line> lineOpt = parser.parseNext();
 
-            if (lineOpt.isPresent() && !isGff3HeaderLine(lineOpt.get())) {
+            if (lineOpt.isPresent() && !isValidGff3HeaderLine(lineOpt.get())) {
                 validationResult.addError(ErrorMessage.of("Invalid Gff file"));
             }
 
@@ -83,7 +86,7 @@ public class Gff3Validator extends AbstractValidator
         }
     }
 
-    private boolean isGff3HeaderLine(Gff3Line line) {
+    private boolean isValidGff3HeaderLine(Gff3Line line) {
         if (line instanceof Gff3CommentLine) {
             Gff3CommentLine comment = (Gff3CommentLine) line;
             return comment.getComment().startsWith(GFF3_HEADER);
@@ -94,16 +97,15 @@ public class Gff3Validator extends AbstractValidator
     private void validateFeature(FeatureLine feature, long currentLineNum) {
         String seqId = feature.getSeqId();
         if (!seqId.matches(SEQUENCE_ID_VALID_PATTERN)) {
-            validationResult.addError(ErrorMessage.of("Invalid Sequence Id at " + currentLineNum));
+            addError("Invalid Sequence Id at " + currentLineNum);
         }
 
-        if (feature.getStartCord() > feature.getEndCord()) {
-            String coordinateErrMsg = "Start coordinate must be greater or equal to end"
-                + " coordinate at line " + currentLineNum;
-            validationResult.addError(ErrorMessage.of(coordinateErrMsg));
-        }
+        validateStartEndCoordinates(feature);
 
         String score = feature.getScore();
+        if (!".".equals(score) || !score.matches(FLOATING_POINT_NUM_PATTERN)) {
+            addError("score value must be floating point number");
+        }
 
         Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
 
@@ -124,6 +126,34 @@ public class Gff3Validator extends AbstractValidator
                 String parentErrMsg = "Parent no found at line " + currentLineNum;
                 validationResult.addError(ErrorMessage.of(parentErrMsg));
             }
+        }
+    }
+
+    private void addError(String msg) {
+        validationResult.addError(ErrorMessage.of(msg));
+    }
+
+    /**
+        Validates start and end coordinate column of a feature
+        @param feature feature to be validated
+     */
+    private void validateStartEndCoordinates(FeatureLine feature) {
+        if (!NumberUtils.isParsable(feature.getStartCord())) {
+            String invalidStartCordMsg = "start coordinate value is not a number";
+            validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
+            return;
+        }
+        if (!NumberUtils.isParsable(feature.getEndCord())) {
+            String invalidStartCordMsg = "end coordinate value is not a number";
+            validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
+            return;
+        }
+        long startCord = Long.parseLong(feature.getStartCord());
+        long endCord = Long.parseLong(feature.getEndCord());
+
+        if (endCord < startCord) {
+            String coordinateErrMsg = "Start coordinate must be less or equal to end coordinate";
+            validationResult.addError(ErrorMessage.of(coordinateErrMsg));
         }
     }
 }

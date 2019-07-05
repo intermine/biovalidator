@@ -20,8 +20,8 @@ public class FeatureLine implements Gff3Line
     private String seqId;
     private String source;
     private String type;
-    private long startCord;
-    private long endCord;
+    private String startCord;
+    private String endCord;
     private String score;
     private String strand;
     private String phase;
@@ -41,7 +41,7 @@ public class FeatureLine implements Gff3Line
      * @param attributes attributes
      * @param attributesMapping attributes map
      */
-    public FeatureLine(String seqId, String source, String type, long startCord, long endCord,
+    public FeatureLine(String seqId, String source, String type, String startCord, String endCord,
                        String score, String strand, String phase, String attributes,
                        Map<String, String> attributesMapping) {
         this.seqId = seqId;
@@ -62,7 +62,7 @@ public class FeatureLine implements Gff3Line
      *
      * @return Value of endCord.
      */
-    public long getEndCord() {
+    public String getEndCord() {
         return endCord;
     }
 
@@ -143,7 +143,7 @@ public class FeatureLine implements Gff3Line
      *
      * @return Value of startCord.
      */
-    public long getStartCord() {
+    public String getStartCord() {
         return startCord;
     }
 }
