@@ -16,6 +16,7 @@ import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
+import org.intermine.biovalidator.api.WarningMessage;
 import org.intermine.biovalidator.parser.Gff3FeatureParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 
@@ -117,12 +118,17 @@ public class Gff3Validator extends AbstractValidator
         if (!isInteger(phase)) {
             addError("phase value can only be one of 0, 1 or 2");
         }
-
-        if ("CDS".equals(phase) && !StringUtils.equalsAny("0", "1", "2")) {
+        if ("CDS".equals(phase) && !StringUtils.equalsAny(phase, "1", "2")) {
             addError("phase is required for CDS and can only be 0, 1 or 2");
         }
 
+
+        // Validating Attribute column
+        if (!isAttributesEncoded(feature.getAttributes())) {
+            addError("attribute is not encoded");
+        }
         Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
+        validateFeatureAttributesKeyAndValue(feature);
 
         //check unique ID attributes
         if (keyValPairAttributes.containsKey("ID")) {
@@ -144,8 +150,49 @@ public class Gff3Validator extends AbstractValidator
         }
     }
 
+    /**
+     * validates key and value of the attribute column of a feature
+     * @param feature feature to be validated
+     */
+    private void validateFeatureAttributesKeyAndValue(FeatureLine feature) {
+        Map<String, String> attributesMapping = feature.getAttributesMapping();
+        Set<String> uniqueKeys = new HashSet<>();
+        for (Map.Entry<String, String> entry: attributesMapping.entrySet()) {
+            String attrTag = entry.getKey();
+            String attrVal = entry.getValue();
+
+            if (StringUtils.isBlank(attrTag)) {
+                addWarning("attribute key is missing or empty");
+            }
+            if (StringUtils.isBlank(attrVal)) {
+                addWarning("attribute value is missing or empty");
+            }
+            if (uniqueKeys.contains(attrTag)) {
+                addError("Tag '" + attrTag + "' is duplicated");
+            } else {
+                uniqueKeys.add(attrTag);
+            }
+            if (!validationResult.isValid()) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * Test whether given attribute column's value is encoded|escaped or not
+     * @param attributes attribute string
+     * @return true or false
+     */
+    private boolean isAttributesEncoded(String attributes) {
+        return true; // TODO
+    }
+
     private void addError(String msg) {
         validationResult.addError(ErrorMessage.of(msg));
+    }
+
+    private void addWarning(String msg) {
+        validationResult.addWarning(WarningMessage.of(msg));
     }
 
     /**
