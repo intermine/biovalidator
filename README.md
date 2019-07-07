@@ -1,4 +1,4 @@
-# BioValidator
+# BioValidator ![master build status](https://travis-ci.org/deepakkumar96/biovalidator.svg?branch=master)
 
 BioValidator is a schema validator that validates biological file format like Fasta, GFF, etc.
 Currently, it only supports Fasta file format
