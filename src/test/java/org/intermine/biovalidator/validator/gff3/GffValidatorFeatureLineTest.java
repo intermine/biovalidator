@@ -8,12 +8,13 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
 public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 
-	//@Test
+	@Test
 	public void testGff3Feature() throws FileNotFoundException, ValidationFailureException {
 		String filePath = getFullPath("gff3/valid/sample.gff3");
 		FileReader reader = new FileReader(filePath);
@@ -22,6 +23,8 @@ public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 		validator.validate(result -> {
 			if (!result.isValid()) {
 				result.getErrorMessages().forEach(System.out::println);
+			} else {
+				System.out.println("Valid File!");
 			}
 			assertTrue(result.isValid());
 		});
@@ -36,9 +39,10 @@ public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 		validator.validate(result -> {
 			if (!result.isValid()) {
 				result.getErrorMessages().forEach(System.out::println);
+			} else {
+				System.out.println("Valid File!");
 			}
 			assertTrue(result.isValid());
 		});
 	}
-
 }

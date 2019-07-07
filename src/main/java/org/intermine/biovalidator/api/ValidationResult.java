@@ -42,6 +42,13 @@ public interface ValidationResult
     List<Message> getErrorMessages();
 
     /**
+     * Returns a single error message as string describing the cause of validation failure
+     * if validator failed or else it returns an empty string
+     * @return string containing error message or empty string
+     */
+    String getErrorMessage();
+
+    /**
      * Return list of warning messages.
      *
      * @return Value of warning messages.

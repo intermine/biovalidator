@@ -88,14 +88,6 @@ public class Gff3Validator extends AbstractValidator
         }
     }
 
-    private boolean isValidGff3HeaderLine(Gff3Line line) {
-        if (line instanceof Gff3CommentLine) {
-            Gff3CommentLine comment = (Gff3CommentLine) line;
-            return comment.getComment().startsWith(GFF3_HEADER);
-        }
-        return false;
-    }
-
     private void validateFeature(FeatureLine feature, long currentLineNum) {
         String seqId = feature.getSeqId();
         if (!seqId.matches(SEQUENCE_ID_VALID_PATTERN)) {
@@ -105,18 +97,18 @@ public class Gff3Validator extends AbstractValidator
         validateStartEndCoordinates(feature);
 
         String score = feature.getScore();
-        if (!".".equals(score) || !score.matches(FLOATING_POINT_NUM_PATTERN)) {
-            addError("score value must be floating point number");
+        if (!".".equals(score) && !score.matches(FLOATING_POINT_NUM_PATTERN)) {
+            addError("score value must be floating point number at line " + currentLineNum);
         }
 
         String strand = feature.getStrand();
-        if (!StringUtils.equalsAny(strand, "-", "+")) { //checks strand value is valid
-            addError("strand value must be one of ('-', '+')");
+        if (!StringUtils.equalsAny(strand, ".", "-", "+")) { //checks strand value is valid
+            addError("strand value must be one of ('-', '+') at line " + currentLineNum);
         }
 
         String phase = feature.getPhase();
-        if (!isInteger(phase)) {
-            addError("phase value can only be one of 0, 1 or 2");
+        if (!".".equals(phase) && !isInteger(phase)) {
+            addError("phase value can only be one of 0, 1, 2 or '.' at line " + currentLineNum);
         }
         if ("CDS".equals(phase) && !StringUtils.equalsAny(phase, "1", "2")) {
             addError("phase is required for CDS and can only be 0, 1 or 2");
@@ -127,27 +119,42 @@ public class Gff3Validator extends AbstractValidator
         if (!isAttributesEncoded(feature.getAttributes())) {
             addError("attribute is not encoded");
         }
-        Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
-        validateFeatureAttributesKeyAndValue(feature);
+
+        validateFeatureAttributes(feature, currentLineNum);
 
         //check unique ID attributes
+        Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
         if (keyValPairAttributes.containsKey("ID")) {
-            String idValue = keyValPairAttributes.get("ID");
-            if (uniqueIdAttributesSet.contains(idValue)) {
-                String duplicateErrMsg = "Duplicate ID at line " + currentLineNum;
-                validationResult.addError(ErrorMessage.of(duplicateErrMsg));
-            } else {
-                uniqueIdAttributesSet.add(idValue);
-            }
+            uniqueIdAttributesSet.add(keyValPairAttributes.get("ID"));
+        }
+        if (keyValPairAttributes.containsKey("Name")) {
+            uniqueNameAttributeSet.add(keyValPairAttributes.get("Name"));
+        }
+    }
+
+    private void validateFeatureAttributes(FeatureLine feature, long currentLineNum) {
+        validateFeatureAttributesKeyAndValue(feature);
+        if (!validationResult.isValid()) {
+            return;
         }
 
-        //check parent exist if attribute has parent value
+        //If feature has a parent key then check its parent exist or not
+        Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
         if (keyValPairAttributes.containsKey("Parent")) {
-            if (!uniqueIdAttributesSet.contains("Parent")) {
-                String parentErrMsg = "Parent no found at line " + currentLineNum;
-                validationResult.addError(ErrorMessage.of(parentErrMsg));
+            String parentVal = keyValPairAttributes.get("Parent");
+            if (!uniqueIdAttributesSet.contains(parentVal)
+                    && !uniqueNameAttributeSet.contains(parentVal)) {
+                addError("Parent '" + parentVal + "' not found at line " + currentLineNum);
             }
         }
+    }
+
+    private boolean isValidGff3HeaderLine(Gff3Line line) {
+        if (line instanceof Gff3CommentLine) {
+            Gff3CommentLine comment = (Gff3CommentLine) line;
+            return comment.getComment().startsWith(GFF3_HEADER);
+        }
+        return false;
     }
 
     /**

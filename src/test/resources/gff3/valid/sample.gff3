@@ -1,18 +1,30 @@
 ##gff-version 3
-chr17	RefSeq	gene	6797760	6818159	.	+	.	ID=NC_000083.5:LOC100040603;Name=NC_000083.5:LOC100040603
-chr17	RefSeq	mRNA	6797760	6818159	.	+	.	ID=XM_001475631.1;Parent=NC_000083.5:LOC100040603
-chr17	RefSeq	protein	6806527	6812289	.	+	.	ID=;Parent=XM_001475631.1
-chr17	RefSeq	five_prime_UTR	6797760	6797769	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	five_prime_UTR	6806513	6806526	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	CDS	6806527	6806553	.	+	0	Name=CDS:NC_000083.5:LOC100040603;Parent=XM_001475631.1,
-chr17	RefSeq	CDS	6808204	6808245	.	+	0	Name=CDS:NC_000083.5:LOC100040603;Parent=XM_001475631.1,
-chr17	RefSeq	CDS	6811330	6811453	.	+	0	Name=CDS:NC_000083.5:LOC100040603;Parent=XM_001475631.1,
-chr17	RefSeq	CDS	6811792	6811869	.	+	2	Name=CDS:NC_000083.5:LOC100040603;Parent=XM_001475631.1,
-chr17	RefSeq	CDS	6812219	6812289	.	+	2	Name=CDS:NC_000083.5:LOC100040603;Parent=XM_001475631.1,
-chr17	RefSeq	three_prime_UTR	6812290	6818159	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	exon	6797760	6797769	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	exon	6806513	6806553	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	exon	6808204	6808245	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	exon	6811330	6811453	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	exon	6811792	6811869	.	+	.	Parent=XM_001475631.1
-chr17	RefSeq	exon	6812219	6818159	.	+	.	Parent=XM_001475631.1
+#!gff-spec-version 1.21
+#!processor NCBI annotwriter
+#!genome-build GRCh38.p12
+#!genome-build-accession NCBI_Assembly:GCF_000001405.38
+#!annotation-date 26 March 2018
+#!annotation-source NCBI Homo sapiens Annotation Release 109
+##sequence-region NC_000001.11 1 248956422
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606
+NC_000001.11	RefSeq	region	1	248956422	.	+	.	ID=id0;Dbxref=taxon:9606;Name=1;chromosome=1;gbkey=Src;genome=chromosome;mol_type=genomic DNA
+NC_000001.11	BestRefSeq	pseudogene	11874	14409	.	+	.	ID=gene0;Dbxref=GeneID:100287102,HGNC:HGNC:37102;Name=DDX11L1;description=DEAD/H-box helicase 11 like 1;gbkey=Gene;gene=DDX11L1;gene_biotype=transcribed_pseudogene;pseudo=true
+NC_000001.11	BestRefSeq	transcript	11874	14409	.	+	.	ID=rna0;Parent=gene0;Dbxref=GeneID:100287102,Genbank:NR_046018.2,HGNC:HGNC:37102;Name=NR_046018.2;gbkey=misc_RNA;gene=DDX11L1;product=DEAD/H-box helicase 11 like 1;transcript_id=NR_046018.2
+NC_000001.11	BestRefSeq	exon	11874	12227	.	+	.	ID=id1;Parent=rna0;Dbxref=GeneID:100287102,Genbank:NR_046018.2,HGNC:HGNC:37102;gbkey=misc_RNA;gene=DDX11L1;product=DEAD/H-box helicase 11 like 1;transcript_id=NR_046018.2
+NC_000001.11	BestRefSeq	exon	12613	12721	.	+	.	ID=id2;Parent=rna0;Dbxref=GeneID:100287102,Genbank:NR_046018.2,HGNC:HGNC:37102;gbkey=misc_RNA;gene=DDX11L1;product=DEAD/H-box helicase 11 like 1;transcript_id=NR_046018.2
+NC_000001.11	BestRefSeq	exon	13221	14409	.	+	.	ID=id3;Parent=rna0;Dbxref=GeneID:100287102,Genbank:NR_046018.2,HGNC:HGNC:37102;gbkey=misc_RNA;gene=DDX11L1;product=DEAD/H-box helicase 11 like 1;transcript_id=NR_046018.2
+NC_000001.11	BestRefSeq	pseudogene	14362	29370	.	-	.	ID=gene1;Dbxref=GeneID:653635,HGNC:HGNC:38034;Name=WASH7P;description=WAS protein family homolog 7 pseudogene;gbkey=Gene;gene=WASH7P;gene_biotype=transcribed_pseudogene;gene_synonym=FAM39F,WASH5P;pseudo=true
+NC_000001.11	BestRefSeq	transcript	14362	29370	.	-	.	ID=rna1;Parent=gene1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;Name=NR_024540.1;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	29321	29370	.	-	.	ID=id4;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	24738	24891	.	-	.	ID=id5;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	18268	18366	.	-	.	ID=id6;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	17915	18061	.	-	.	ID=id7;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	17606	17742	.	-	.	ID=id8;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	17233	17368	.	-	.	ID=id9;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	16858	17055	.	-	.	ID=id10;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	16607	16765	.	-	.	ID=id11;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	15796	15947	.	-	.	ID=id12;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	14970	15038	.	-	.	ID=id13;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	exon	14362	14829	.	-	.	ID=id14;Parent=rna1;Dbxref=GeneID:653635,Genbank:NR_024540.1,HGNC:HGNC:38034;gbkey=misc_RNA;gene=WASH7P;product=WAS protein family homolog 7 pseudogene;transcript_id=NR_024540.1
+NC_000001.11	BestRefSeq	gene	17369	17436	.	-	.	ID=gene2;Dbxref=GeneID:102466751,HGNC:HGNC:50039,miRBase:MI0022705;Name=MIR6859-1;description=microRNA 6859-1;gbkey=Gene;gene=MIR6859-1;gene_biotype=miRNA;gene_synonym=hsa-mir-6859-1
+NC_000001.11	BestRefSeq	primary_transcript	17369	17436	.	-	.	ID=rna2;Parent=gene2;Dbxref=GeneID:102466751,Genbank:NR_106918.1,HGNC:HGNC:50039,miRBase:MI0022705;Name=NR_106918.1;gbkey=precursor_RNA;gene=MIR6859-1;product=microRNA 6859-1;transcript_id=NR_106918.1

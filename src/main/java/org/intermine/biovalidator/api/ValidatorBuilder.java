@@ -14,6 +14,7 @@ import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import org.intermine.biovalidator.validator.ValidatorType;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
+import org.intermine.biovalidator.validator.gff3.Gff3Validator;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -78,6 +79,8 @@ public final class ValidatorBuilder
                 return ofType(new FastaValidator(reader, SequenceType.RNA));
             case FASTA_PROTEIN:
                 return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
+            case GFF3:
+                return ofType(new Gff3Validator(reader));
             default:
                 throw new IllegalArgumentException("invalid validator type");
         }

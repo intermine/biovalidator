@@ -129,5 +129,28 @@ public final class ValidatorHelper
         return validateFasta(file, ValidatorType.FASTA, true);
     }
 
+    /**
+     * Validate a Gff3 file with string mode
+     * @param file file to be validated
+     * @return result of validation
+     * @throws ValidationFailureException is validation fails
+     */
+    public static ValidationResult validateGff3(@Nonnull String file)
+            throws ValidationFailureException {
+        return validate(file, ValidatorType.GFF3, true);
+    }
+
+    /**
+     * Validate a gff3 file with a given mode(strict or permissive)
+     * @param file file to be validated
+     * @param isStrict whether to validate in strict mode or permissive
+     * @return result of validation
+     * @throws ValidationFailureException if validation failes
+     */
+    public static ValidationResult validateGff3(@Nonnull String file, boolean isStrict)
+            throws ValidationFailureException {
+        return validate(file, ValidatorType.GFF3, isStrict);
+    }
+
 }
 

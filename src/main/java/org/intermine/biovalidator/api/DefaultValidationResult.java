@@ -10,6 +10,7 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 
 import javax.annotation.Nonnull;
@@ -57,6 +58,18 @@ public class DefaultValidationResult implements ValidationResult
     @Override
     public List<Message> getErrorMessages() {
         return Collections.unmodifiableList(errorMessages);
+    }
+
+    @Override
+    public String getErrorMessage() {
+        //return first error msg its in invalid state else return empty string
+        if (!isValid && errorMessages.size() > 0) {
+            Message errMsg = errorMessages.get(0);
+            if (errMsg != null) {
+                return errMsg.getMessage();
+            }
+        }
+        return StringUtils.EMPTY;
     }
 
     @Override

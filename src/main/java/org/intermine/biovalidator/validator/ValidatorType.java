@@ -17,7 +17,12 @@ public enum ValidatorType {
     /**
      * type for each available validator and it type
      */
-    FASTA("fasta"), FASTA_DNA("fasta-dna"), FASTA_RNA("fasta-rna"), FASTA_PROTEIN("fasta-protein");
+    FASTA("fasta"), FASTA_DNA("fasta-dna"), FASTA_RNA("fasta-rna"), FASTA_PROTEIN("fasta-protein"),
+
+    /**
+     * Reprsents a validator of type GFF3
+     */
+    GFF3("gff3");
 
     private String name;
 
