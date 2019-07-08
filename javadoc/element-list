@@ -1,0 +1,6 @@
+org.intermine.biovalidator.api
+org.intermine.biovalidator.api.strategy
+org.intermine.biovalidator.parser
+org.intermine.biovalidator.validator
+org.intermine.biovalidator.validator.fasta
+org.intermine.biovalidator.validator.fasta.sequencevalidator
