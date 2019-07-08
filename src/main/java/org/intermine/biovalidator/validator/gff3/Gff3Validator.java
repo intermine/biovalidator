@@ -110,7 +110,7 @@ public class Gff3Validator extends AbstractValidator
         if (!".".equals(phase) && !isInteger(phase)) {
             addError("phase value can only be one of 0, 1, 2 or '.' at line " + currentLineNum);
         }
-        if ("CDS".equals(phase) && !StringUtils.equalsAny(phase, "1", "2")) {
+        if ("CDS".equals(phase) && !StringUtils.equalsAny(phase, "0", "1", "2")) {
             addError("phase is required for CDS and can only be 0, 1 or 2");
         }
 
