@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"org.intermine.biovalidator.api"},{"l":"org.intermine.biovalidator.api.strategy"},{"l":"org.intermine.biovalidator.parser"},{"l":"org.intermine.biovalidator.validator"},{"l":"org.intermine.biovalidator.validator.fasta"},{"l":"org.intermine.biovalidator.validator.fasta.sequencevalidator"}]
