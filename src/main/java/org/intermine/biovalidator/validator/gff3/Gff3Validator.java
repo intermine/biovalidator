@@ -34,6 +34,7 @@ import java.util.Set;
 public class Gff3Validator extends AbstractValidator
 {
     private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+_?-|]+";
+    private static final String SEQUENCE_REGION_DIRECTIVE = "##sequence-region";
     private static final String FASTA_DIRECTIVE = "##FASTA";
     private static final String GFF3_HEADER = "##gff-version 3";
     private static final String FLOATING_POINT_NUM_PATTERN = "[0-9]*\\.?[0-9]+";
@@ -41,6 +42,8 @@ public class Gff3Validator extends AbstractValidator
 
     private Set<String> uniqueIdAttributesSet;
     private Set<String> uniqueNameAttributeSet;
+
+    private Set<SequenceRegion> sequenceRegionDirectives;
 
     /**
      * Contruct a Gff3Validator with an input stream
@@ -50,6 +53,14 @@ public class Gff3Validator extends AbstractValidator
         this.inputStreamReader = inputStreamReader;
         this.uniqueIdAttributesSet = new HashSet<>();
         this.uniqueNameAttributeSet = new HashSet<>();
+
+        /*
+           if ##sequence-region directive is provided then seqId must be within range of
+           ##sequence-region start and end.
+           If ##sequence-region is not provided then set be default sequenceRegionStart
+           as 0 and sequenceRegionEnd as MAX value
+         */
+        this.sequenceRegionDirectives = new HashSet<>();
     }
 
     @Nonnull
@@ -71,6 +82,7 @@ public class Gff3Validator extends AbstractValidator
                     if (comment.getComment().startsWith(FASTA_DIRECTIVE)) { //End of GFF3 content
                         return validationResult;
                     }
+                    processCommentLine(comment);
                 } else {
                     FeatureLine feature = (FeatureLine) line;
                     validateFeature(feature, currentLineNum);
@@ -90,9 +102,12 @@ public class Gff3Validator extends AbstractValidator
 
     private void validateFeature(FeatureLine feature, long currentLineNum) {
         String seqId = feature.getSeqId();
+
         if (!seqId.matches(SEQUENCE_ID_VALID_PATTERN)) {
             addError("Invalid Sequence Id at " + currentLineNum);
         }
+
+
 
         validateStartEndCoordinates(feature);
 
@@ -220,7 +235,8 @@ public class Gff3Validator extends AbstractValidator
         long startCord = Long.parseLong(feature.getStartCord());
         long endCord = Long.parseLong(feature.getEndCord());
 
-        if (endCord < startCord) {
+        //start and end can't be zero and end should be greater than start
+        if (startCord < 1 || endCord < 1 || endCord < startCord) {
             String coordinateErrMsg = "Start coordinate must be less or equal to end coordinate";
             validationResult.addError(ErrorMessage.of(coordinateErrMsg));
         }
@@ -233,5 +249,30 @@ public class Gff3Validator extends AbstractValidator
      */
     private boolean isInteger(String phase) {
         return phase.matches("[0-9]{1,9}"); //TODO need to be refactored
+    }
+
+    private void processCommentLine(Gff3CommentLine commentLine) {
+        String comment = commentLine.getComment();
+        if (comment.startsWith(SEQUENCE_REGION_DIRECTIVE)) {
+            Optional<SequenceRegion> sequenceRegionOpt = parseSequenceRegion(comment);
+            sequenceRegionOpt.ifPresent(sequenceRegionDirectives::add);
+        }
+    }
+
+    private Optional<SequenceRegion> parseSequenceRegion(String comment) {
+        if (StringUtils.isNoneBlank(comment)) {
+            String[] values = comment.split(" ");
+            if (values.length >= 4) {
+                String seqId = values[1];
+                String start = values[2];
+                String end = values[3];
+                if (NumberUtils.isParsable(start) && NumberUtils.isParsable(end)) {
+                    long startValue = Long.parseLong(start);
+                    long endValue = Long.parseLong(end);
+                    return Optional.of(SequenceRegion.of(seqId, startValue, endValue));
+                }
+            }
+        }
+        return Optional.empty();
     }
 }

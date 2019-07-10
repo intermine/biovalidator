@@ -16,7 +16,9 @@ public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 
 	@Test
 	public void testGff3Feature() throws FileNotFoundException, ValidationFailureException {
-		String filePath = getFullPath("gff3/valid/sample.gff3");
+		String path = "/home/deepak/Documents/FASTA_FILES/sample1.gff3";
+		String file = "gff3/valid/sample1.gff3";
+		String filePath = path;//getFullPath(file);
 		FileReader reader = new FileReader(filePath);
 
 		Validator validator = ValidatorBuilder.ofType(new Gff3Validator(reader)).build();
