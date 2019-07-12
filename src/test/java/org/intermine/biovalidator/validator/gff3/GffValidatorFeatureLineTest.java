@@ -4,6 +4,7 @@ import org.intermine.biovalidator.BaseValidatorTest;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.Validator;
 import org.intermine.biovalidator.api.ValidatorBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -15,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 
 	@Test
+	@Ignore
 	public void testGff3Feature() throws FileNotFoundException, ValidationFailureException {
 		String path = "/home/deepak/Documents/FASTA_FILES/sample1.gff3";
 		String file = "gff3/valid/sample1.gff3";
