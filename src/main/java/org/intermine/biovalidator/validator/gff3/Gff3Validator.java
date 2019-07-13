@@ -256,7 +256,8 @@ public class Gff3Validator extends AbstractValidator
 
         //start and end can't be zero and end should be greater than start
         if (startCord < 1 || endCord < 1 || endCord < startCord) {
-            String coordinateErrMsg = "Start coordinate must be less or equal to end coordinate";
+            String coordinateErrMsg = "Start must be greater than zero and"
+                    + " less or equal to end coordinate";
             validationResult.addError(ErrorMessage.of(coordinateErrMsg));
             if (validationResultStrategy.shouldStopAtFirstError()) {
                 return;
@@ -272,7 +273,7 @@ public class Gff3Validator extends AbstractValidator
         Map<String, String> featureAttributes = feature.getAttributesMapping();
 
         if (featureAttributes.containsKey("Is_circular")) {
-            boolean isCircularValueTrue = Boolean.valueOf(featureAttributes.get("Is_circular"));
+            boolean isCircularValueTrue = Boolean.parseBoolean(featureAttributes.get("Is_circular"));
             if (isCircularValueTrue) {
                 return; // if a feature is circular then ignore ##sequence-region range check
             }
