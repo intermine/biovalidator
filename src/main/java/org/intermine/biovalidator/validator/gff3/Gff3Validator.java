@@ -70,7 +70,8 @@ public class Gff3Validator extends AbstractValidator
             long currentLineNum = 1;
             Optional<Gff3Line> lineOpt = parser.parseNext();
 
-            if (lineOpt.isPresent() && !isValidGff3HeaderLine(lineOpt.get())) {
+            // first line must be a valid gff3 header line
+            if (!lineOpt.isPresent() || !isValidGff3HeaderLine(lineOpt.get())) {
                 validationResult.addError(ErrorMessage.of("Invalid Gff file"));
             }
 
@@ -188,11 +189,12 @@ public class Gff3Validator extends AbstractValidator
                 return false;
             }
             String version = values[1];
-            if (!version.startsWith("3") && !version.matches(VERSION_NUMBER_PATTERN)) {
+            int majorVersion = extractMajorPartOfVersion(version);
+            if (majorVersion != 3 || !version.matches(VERSION_NUMBER_PATTERN)) {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -273,7 +275,8 @@ public class Gff3Validator extends AbstractValidator
         Map<String, String> featureAttributes = feature.getAttributesMapping();
 
         if (featureAttributes.containsKey("Is_circular")) {
-            boolean isCircularValueTrue = Boolean.parseBoolean(featureAttributes.get("Is_circular"));
+            boolean isCircularValueTrue = Boolean.parseBoolean(
+                    featureAttributes.get("Is_circular"));
             if (isCircularValueTrue) {
                 return; // if a feature is circular then ignore ##sequence-region range check
             }
@@ -340,6 +343,24 @@ public class Gff3Validator extends AbstractValidator
             }
         }
         return ImmutablePair.nullPair();
+    }
+
+    /**
+     * Extract major version part from a given version string
+     * Example:
+     *      '3.4.5'   ->   3
+     *      '34.1.6'  ->   34
+     *      'x.y.z'   ->   0
+     * @param version version string in format 'X.X.X'
+     * @return return major part of the version if exist or else return 0
+     */
+    private int extractMajorPartOfVersion(String version) {
+        String majorVersion = StringUtils.substringBefore(version, ".");
+        if (NumberUtils.isParsable(majorVersion)) {
+            return Integer.parseInt(majorVersion);
+        } else {
+            return 0;
+        }
     }
 
     private void addError(String msg) {
