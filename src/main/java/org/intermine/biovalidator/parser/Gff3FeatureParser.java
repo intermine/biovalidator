@@ -54,8 +54,12 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
         lineParser.close();
     }
 
-    private FeatureLine parseFeature(String featureStr) {
+    private FeatureLine parseFeature(String featureStr) throws ParsingException {
         String[] columns = featureStr.split("\t"); //split only on tab not on space
+
+        if (columns.length < 9) {
+            throw new ParsingException("Unable to parse! a feature must have 9 columns");
+        }
 
         String seqId = columns[0];
         String source = columns[1];

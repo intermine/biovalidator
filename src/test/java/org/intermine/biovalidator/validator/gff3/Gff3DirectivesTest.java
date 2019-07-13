@@ -7,8 +7,9 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-public class Gff3DirectivesTest extends BaseGff3ValidatorTest {
 
+
+public class Gff3DirectivesTest extends BaseGff3ValidatorTest {
 
     @Test
     public void testValidGff3Version() throws ValidationFailureException {
@@ -30,6 +31,10 @@ public class Gff3DirectivesTest extends BaseGff3ValidatorTest {
 
     @Test
     public void testInvalidVersionNumber() throws ValidationFailureException {
+        assertFalse(isValidGff3Content("##gff-version"));
+        assertFalse(isValidGff3Content("##gff-version       "));
+        assertFalse(isValidGff3Content("##gff-version #"));
+        assertFalse(isValidGff3Content("##gff-version #.#.#"));
         assertFalse(isValidGff3Content("##gff-version 3.x.x"));
         assertFalse(isValidGff3Content("##gff-version 3.3.x"));
         assertFalse(isValidGff3Content("##gff-version 3.x.x"));
@@ -39,6 +44,7 @@ public class Gff3DirectivesTest extends BaseGff3ValidatorTest {
         assertFalse(isValidGff3Content("##gff-version 3.#"));
         assertFalse(isValidGff3Content("##gff-version 3.9.#"));
         assertFalse(isValidGff3Content("##gff-version 33"));
+
     }
 
     @Test
