@@ -24,8 +24,10 @@ import org.intermine.biovalidator.validator.AbstractValidator;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +44,8 @@ public class Gff3Validator extends AbstractValidator
     private static final String SEQUENCE_REGION_DIRECTIVE = "##sequence-region";
     private static final String FASTA_DIRECTIVE = "##FASTA";
     private static final String GFF3_HEADER = "##gff-version";
+    private static final List<String> VALID_FEATURE_TYPES = Arrays.asList("gene", "mRNA", "exon",
+            "cds", "region", "transcript", "SO:0000704", "SO:0000234", "SO:0000147", "SO:0000316");
 
     private InputStreamReader inputStreamReader;
 
@@ -102,13 +106,16 @@ public class Gff3Validator extends AbstractValidator
     }
 
     private void validateFeature(FeatureLine feature, long currentLineNum) {
-        String seqId = feature.getSeqId();
 
-        if (!seqId.matches(SEQUENCE_ID_VALID_PATTERN)) {
+        if (!isValidSeqId(feature.getSeqId())) {
             addError("Invalid Sequence Id at " + currentLineNum);
         }
 
         validateStartEndCoordinates(feature, currentLineNum);
+
+        if (!VALID_FEATURE_TYPES.contains(feature.getType())) {
+            addError("unknown type at line " + currentLineNum);
+        }
 
         String score = feature.getScore();
         if (!".".equals(score) && !score.matches(FLOATING_POINT_NUM_PATTERN)) {
@@ -144,6 +151,20 @@ public class Gff3Validator extends AbstractValidator
         if (keyValPairAttributes.containsKey("Name")) {
             uniqueNameAttributeSet.add(keyValPairAttributes.get("Name"));
         }
+    }
+
+    /**
+     * Check whether seqId is valid or not.
+     * Rules:
+     *  1. valid pattern for seqId is one or more of 'a-zA-Z0-9.:^*$@!+_?-|'
+     *  2. escaped '>' and space(' ') is allowed
+     * @param seqId seqId to be tested
+     * @return boolean representing valid or not
+     */
+    private boolean isValidSeqId(String seqId) {
+        seqId = StringUtils.replace(seqId, "\\>", "");
+        seqId = StringUtils.replace(seqId, "\\ ", "");
+        return seqId.matches(SEQUENCE_ID_VALID_PATTERN);
     }
 
     private void validateFeatureAttributes(FeatureLine feature, long currentLineNum) {
@@ -270,7 +291,7 @@ public class Gff3Validator extends AbstractValidator
         if ##sequence-region directive is defined for the current seqId then check
         start and end coordinate of current feature should be within the range of
         defined ##sequence-region directive
-        */
+        */ //TODO move this bloc to a separate method
         String seqId = feature.getSeqId();
         Map<String, String> featureAttributes = feature.getAttributesMapping();
 
@@ -330,6 +351,7 @@ public class Gff3Validator extends AbstractValidator
      */
     private ImmutablePair<String, SequenceRegion> parseSequenceRegion(String comment) {
         if (StringUtils.isNoneBlank(comment)) {
+            //TODO split only on raw space but not on escaped spaces
             String[] values = comment.split("\\s+"); //split by skipping empty spaces
             if (values.length >= 4) {
                 String seqId = values[1];

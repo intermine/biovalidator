@@ -15,10 +15,26 @@ public class Gff3SequenceIdTest extends BaseGff3ValidatorTest {
     }
 
     @Test
+    public void testValidEscapedSpaceInSeqId() throws ValidationFailureException {
+        String seqIdWithSpace = createGff3ContentWithSeqId("chr1\\ 23");
+        assertTrue(isValidGff3Content(seqIdWithSpace));
+
+        String seqIdWithSpaceAndBracket = createGff3ContentWithSeqId("\\ 123\\>");
+        assertTrue(isValidGff3Content(seqIdWithSpaceAndBracket));
+    }
+
+    @Test
     public void testInValidGff3SeqId() throws ValidationFailureException {
         String content = createGff3ContentWithSeqId("NC_%"); // '%' is not allowed in seqId
         assertFalse(isValidGff3Content(content));
+
+        String invalidStartContent = createGff3ContentWithSeqId(">NC"); // must not start with '>'
+        assertFalse(isValidGff3Content(invalidStartContent));
+
+        String invalidStartContentWithSpace = createGff3ContentWithSeqId(" NC"); // must not start with '>'
+        assertFalse(isValidGff3Content(invalidStartContentWithSpace));
     }
+
 
     private String createGff3ContentWithSeqId(String seqId) {
         return "##gff-version 3" + System.lineSeparator()
