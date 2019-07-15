@@ -22,8 +22,6 @@ public class DefaultValidationResultStrategy implements ValidationResultStrategy
 
     private boolean isErrorEnabled;
 
-    private boolean constructDetailedMessage;
-
     private boolean stopAtFirstError;
 
     /**
@@ -33,7 +31,7 @@ public class DefaultValidationResultStrategy implements ValidationResultStrategy
      */
     public DefaultValidationResultStrategy() {
         enableErrors();
-        enableWarnings();
+        //enableWarnings();
         enableStopAtFirstError();
     }
 

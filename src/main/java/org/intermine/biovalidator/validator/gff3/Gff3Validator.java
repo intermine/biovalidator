@@ -24,10 +24,10 @@ import org.intermine.biovalidator.validator.AbstractValidator;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,15 +40,17 @@ public class Gff3Validator extends AbstractValidator
     private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+_?-|]+";
     private static final String VERSION_NUMBER_PATTERN = "(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)";
     private static final String FLOATING_POINT_NUM_PATTERN = "[0-9]*\\.?[0-9]+";
+    private static final int GFF_VERSION = 3;
+    private static final String PROCESSED_SO_TERMS_FILENAME = "src/main/resources/"
+        + "gff3/processed_so_terms.obo";
 
     private static final String SEQUENCE_REGION_DIRECTIVE = "##sequence-region";
     private static final String FASTA_DIRECTIVE = "##FASTA";
     private static final String GFF3_HEADER = "##gff-version";
-    private static final List<String> VALID_FEATURE_TYPES = Arrays.asList("gene", "mRNA", "exon",
-            "cds", "region", "transcript", "SO:0000704", "SO:0000234", "SO:0000147", "SO:0000316");
 
     private InputStreamReader inputStreamReader;
 
+    private Set<String> sequenceOntologyFeatureTypes;
     private Set<String> uniqueIdAttributesSet;
     private Set<String> uniqueNameAttributeSet;
 
@@ -65,6 +67,14 @@ public class Gff3Validator extends AbstractValidator
 
         //store start/end coordinate all the ##sequence-region directives available in the file
         this.sequenceRegionDirectives = new HashMap<>();
+
+        //parse and store all the SO-Terms in a Set
+        try {
+            this.sequenceOntologyFeatureTypes =
+                    parseSequenceOntologyTypes(PROCESSED_SO_TERMS_FILENAME);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("unable to parse sequence-ontology term file");
+        }
     }
 
     @Nonnull
@@ -87,7 +97,7 @@ public class Gff3Validator extends AbstractValidator
                     if (comment.getComment().startsWith(FASTA_DIRECTIVE)) { //End of GFF3 content
                         return validationResult;
                     }
-                    processCommentLine(comment);
+                    processCommentLine(comment, currentLineNum);
                 } else {
                     FeatureLine feature = (FeatureLine) line;
                     validateFeature(feature, currentLineNum);
@@ -111,10 +121,22 @@ public class Gff3Validator extends AbstractValidator
             addError("Invalid Sequence Id at " + currentLineNum);
         }
 
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
+        }
+
         validateStartEndCoordinates(feature, currentLineNum);
 
-        if (!VALID_FEATURE_TYPES.contains(feature.getType())) {
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
+        }
+
+        if (!sequenceOntologyFeatureTypes.contains(feature.getType())) {
             addError("unknown type at line " + currentLineNum);
+        }
+
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
         }
 
         String score = feature.getScore();
@@ -122,9 +144,17 @@ public class Gff3Validator extends AbstractValidator
             addError("score value must be floating point number at line " + currentLineNum);
         }
 
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
+        }
+
         String strand = feature.getStrand();
         if (!StringUtils.equalsAny(strand, ".", "-", "+")) { //checks strand value is valid
             addError("strand value must be one of ('-', '+') at line " + currentLineNum);
+        }
+
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
         }
 
         String phase = feature.getPhase();
@@ -135,14 +165,24 @@ public class Gff3Validator extends AbstractValidator
             addError("phase is required for CDS and can only be 0, 1 or 2");
         }
 
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
+        }
 
         // Validating Attribute column
         if (!isAttributesEncoded(feature.getAttributes())) {
             addError("attribute is not encoded");
         }
 
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
+        }
+
         validateFeatureAttributes(feature, currentLineNum);
 
+        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
+            return;
+        }
         //check unique ID attributes
         Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
         if (keyValPairAttributes.containsKey("ID")) {
@@ -211,7 +251,7 @@ public class Gff3Validator extends AbstractValidator
             }
             String version = values[1];
             int majorVersion = extractMajorPartOfVersion(version);
-            if (majorVersion != 3 || !version.matches(VERSION_NUMBER_PATTERN)) {
+            if (majorVersion != GFF_VERSION || !version.matches(VERSION_NUMBER_PATTERN)) {
                 return false;
             }
         }
@@ -322,7 +362,7 @@ public class Gff3Validator extends AbstractValidator
         return phase.matches("[0-9]{1,9}"); //TODO need to be refactored
     }
 
-    private void processCommentLine(Gff3CommentLine commentLine) {
+    private void processCommentLine(Gff3CommentLine commentLine, long currentLineNum) {
         String comment = commentLine.getComment();
 
         // Process ##sequence-region directive
@@ -333,7 +373,7 @@ public class Gff3Validator extends AbstractValidator
                 String seqId =  seqIdAndSequenceRegionPair.getLeft();
                 if (sequenceRegionDirectives.containsKey(seqId)) {
                     String msg = "Found more than one entry for "
-                        + SEQUENCE_REGION_DIRECTIVE + seqId;
+                        + SEQUENCE_REGION_DIRECTIVE + " " + seqId + " at line " + currentLineNum;
                     addWarning(msg);
                 } else {
                     sequenceRegionDirectives.put(seqId, seqIdAndSequenceRegionPair.getRight());
@@ -383,6 +423,16 @@ public class Gff3Validator extends AbstractValidator
         } else {
             return 0;
         }
+    }
+
+    private Set<String> parseSequenceOntologyTypes(String filename) throws IOException {
+        Set<String> featureTypes = new HashSet<>();
+        Files.lines(Paths.get(filename)).forEach(line -> {
+            if (StringUtils.isNotBlank(line)) {
+                featureTypes.add(line.trim());
+            }
+        });
+        return featureTypes;
     }
 
     private void addError(String msg) {

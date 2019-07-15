@@ -3,7 +3,10 @@ package org.intermine.biovalidator.validator.fasta.validator;
 import org.intermine.biovalidator.BaseValidatorTest;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
+import org.intermine.biovalidator.api.Validator;
+import org.intermine.biovalidator.api.ValidatorBuilder;
 import org.intermine.biovalidator.api.ValidatorHelper;
+import org.intermine.biovalidator.validator.ValidatorType;
 import org.junit.Test;
 
 import java.util.List;
@@ -16,7 +19,11 @@ public class FastaProteinValidatorTest extends BaseValidatorTest {
     @Test
     public void testDNASequence() throws ValidationFailureException {
         String filename = "valid/protein/protein.fa";
-        ValidationResult result = ValidatorHelper.validate(path(filename), "fasta-protein", false);
+        Validator validator = ValidatorBuilder.withFile(path(filename), ValidatorType.FASTA_PROTEIN)
+                .enableWarnings()
+                .disableStrictValidation()
+                .build();
+        ValidationResult result = validator.validate();
         assertTrue(result.isValid());
 
         List<String> warnings = getWarningsListFromValidationResult(result);

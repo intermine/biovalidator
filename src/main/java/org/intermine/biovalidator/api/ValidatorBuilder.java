@@ -180,7 +180,7 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      */
     public ValidatorBuilder enableErrors() {
-        this.validationResultStrategy.enableWarnings();
+        this.validationResultStrategy.enableErrors();
         return this;
     }
 
