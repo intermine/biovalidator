@@ -12,10 +12,12 @@ import java.util.concurrent.TimeUnit;
 public class Gff3PerformanceTest {
 
     @Test
+    @Ignore
     public void test1GBGff3File() {
         simpleBenchmark(() -> {
             try {
-                String file = "/home/deepak/Documents/FASTA_FILES/ref_GRCh38.p12_top_level (1).gff3";
+                //String file = "/home/deepak/Documents/FASTA_FILES/ref_GRCh38.p12_top_level (1).gff3";
+                String file = "/home/deepak/Documents/Intermine/FILES/gencode.vM22.annotation.gff3";
                 ValidationResult result = ValidatorHelper.validateGff3(file);
                 if (result.isValid()) {
                     System.out.println("Valid File");

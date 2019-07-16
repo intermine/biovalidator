@@ -137,8 +137,9 @@ final class CommandLineRunner
 
         @CommandLine.Option(
                 names = {"-t", "--type"},
-                description = "ValidatorType, fasta is used as default if not provided"
-                        + " possible values(fasta, fasta-dna, fasta-rna, fasta-protein)",
+                description = "ValidatorType, fasta is used as default if not provided\n"
+                        + "possible values:\n fasta,\n fasta-dna,\n fasta-rna,\n fasta-protein,\n"
+                        + "gff3",
                 defaultValue = "",
                 completionCandidates = ValidatorTypes.class)
         private String validatorType;

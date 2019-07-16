@@ -59,7 +59,7 @@ task createFatJar(type: Jar) {
     manifest {
         attributes 'Main-Class': 'org.intermine.biovalidator.CommandLineRunner'
     }
-    baseName = 'valid'
+    baseName = 'biovalidator-fat'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
