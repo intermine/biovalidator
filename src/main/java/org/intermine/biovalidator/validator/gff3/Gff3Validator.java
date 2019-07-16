@@ -140,7 +140,7 @@ public class Gff3Validator extends AbstractValidator
         }
 
         String score = feature.getScore();
-        if (!".".equals(score) && !score.matches(FLOATING_POINT_NUM_PATTERN)) {
+        if (!".".equals(score) && !NumberUtils.isCreatable(score)) {
             addError("score value must be floating point number at line " + currentLineNum);
         }
 
@@ -149,8 +149,8 @@ public class Gff3Validator extends AbstractValidator
         }
 
         String strand = feature.getStrand();
-        if (!StringUtils.equalsAny(strand, ".", "-", "+")) { //checks strand value is valid
-            addError("strand value must be one of ('-', '+') at line " + currentLineNum);
+        if (!StringUtils.equalsAny(strand, ".", "-", "+", "?")) { //checks strand value is valid
+            addError("strand value must be one of ('-', '+', '?') at line " + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -158,10 +158,10 @@ public class Gff3Validator extends AbstractValidator
         }
 
         String phase = feature.getPhase();
-        if (!".".equals(phase) && !isInteger(phase)) {
+        if (!isValidPhaseValue(phase)) {
             addError("phase value can only be one of 0, 1, 2 or '.' at line " + currentLineNum);
         }
-        if ("CDS".equals(phase) && !StringUtils.equalsAny(phase, "0", "1", "2")) {
+        if ("CDS".equals(feature.getType()) && !StringUtils.equalsAny(phase, "0", "1", "2")) {
             addError("phase is required for CDS and can only be 0, 1 or 2");
         }
 
@@ -191,6 +191,17 @@ public class Gff3Validator extends AbstractValidator
         if (keyValPairAttributes.containsKey("Name")) {
             uniqueNameAttributeSet.add(keyValPairAttributes.get("Name"));
         }
+    }
+
+    private boolean isValidPhaseValue(String phase) {
+        if (".".equals(phase)) {
+            return true;
+        }
+        if (isInteger(phase)) {
+            int phaseVal = Integer.parseInt(phase);
+            return phaseVal >= 0 && phaseVal < 3;
+        }
+        return false;
     }
 
     /**

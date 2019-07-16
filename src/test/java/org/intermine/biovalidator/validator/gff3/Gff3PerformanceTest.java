@@ -16,9 +16,11 @@ public class Gff3PerformanceTest {
     public void test1GBGff3File() {
         simpleBenchmark(() -> {
             try {
-                //String file = "/home/deepak/Documents/FASTA_FILES/ref_GRCh38.p12_top_level (1).gff3";
-                String file = "/home/deepak/Documents/Intermine/FILES/gencode.vM22.annotation.gff3";
-                ValidationResult result = ValidatorHelper.validateGff3(file);
+                String file = "/home/deepak/Documents/FASTA_FILES/GFF/ref_GRCh38.p12_top_level.gff3";
+                //String file = "/home/deepak/Documents/Intermine/FILES/gencode.vM22.annotation.gff3";
+                String gencode = "/home/deepak/Documents/FASTA_FILES/GFF/gencode.vM22.chr_patch_hapl_scaff.annotation.gff3";
+
+                ValidationResult result = ValidatorHelper.validateGff3(gencode);
                 if (result.isValid()) {
                     System.out.println("Valid File");
                 } else {
