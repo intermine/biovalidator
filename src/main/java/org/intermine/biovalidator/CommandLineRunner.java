@@ -76,8 +76,8 @@ final class CommandLineRunner
             if (command.isDisableErrors()) {
                 builder.disableErrors();
             }
-            if (command.isDisableWarning()) {
-                builder.disableWarnings();
+            if (command.isEnableWarning()) { //enable warning
+                builder.enableWarnings();
             }
             if (command.isPermissive()) { //allow permissive validation
                 builder.disableStrictValidation();
@@ -152,8 +152,8 @@ final class CommandLineRunner
         @CommandLine.Option(names = {"-d", "--disable-errors"}, description = "disable errors")
         private boolean disableErrors;
 
-        @CommandLine.Option(names = {"-w", "--disable-warnings"}, description = "disable warnings")
-        private boolean disableWarning;
+        @CommandLine.Option(names = {"-w", "--enable-warnings"}, description = "enable warnings")
+        private boolean enableWarning;
 
         @CommandLine.Option(names = {"-p", "--permissive"}, description = "permissive validation")
         private boolean permissive;
@@ -201,10 +201,9 @@ final class CommandLineRunner
          *
          * @return Value of disableWarning.
          */
-        boolean isDisableWarning() {
-            return disableWarning;
+        boolean isEnableWarning() {
+            return enableWarning;
         }
-
 
         /**
          * Gets continueOnError.

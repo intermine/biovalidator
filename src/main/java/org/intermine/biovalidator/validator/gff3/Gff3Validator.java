@@ -22,10 +22,10 @@ import org.intermine.biovalidator.parser.Gff3FeatureParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 
 import javax.annotation.Nonnull;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,12 +37,11 @@ import java.util.Set;
  */
 public class Gff3Validator extends AbstractValidator
 {
-    private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+_?-|]+";
+    private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+?-|\\-]+";
     private static final String VERSION_NUMBER_PATTERN = "(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)";
     private static final String FLOATING_POINT_NUM_PATTERN = "[0-9]*\\.?[0-9]+";
     private static final int GFF_VERSION = 3;
-    private static final String PROCESSED_SO_TERMS_FILENAME = "src/main/resources/"
-        + "gff3/processed_so_terms.obo";
+    private static final String PROCESSED_SO_TERMS_FILENAME = "/gff3/processed_so_terms.obo";
 
     private static final String SEQUENCE_REGION_DIRECTIVE = "##sequence-region";
     private static final String FASTA_DIRECTIVE = "##FASTA";
@@ -86,7 +85,9 @@ public class Gff3Validator extends AbstractValidator
 
             // first line must be a valid gff3 header line
             if (!lineOpt.isPresent() || !isValidGff3HeaderLine(lineOpt.get())) {
-                validationResult.addError(ErrorMessage.of("Invalid Gff file"));
+                String msg = "Invalid Gff file! first line must be a header line"
+                        + " and version version must be in the format 3.#.#";
+                validationResult.addError(ErrorMessage.of(msg));
             }
 
             while (lineOpt.isPresent()) {
@@ -103,7 +104,8 @@ public class Gff3Validator extends AbstractValidator
                     validateFeature(feature, currentLineNum);
                 }
 
-                if (!validationResult.isValid()) {
+                if (!validationResult.isValid()
+                        && validationResultStrategy.shouldStopAtFirstError()) {
                     return validationResult;
                 }
                 lineOpt = parser.parseNext(); //next featureLine
@@ -118,7 +120,7 @@ public class Gff3Validator extends AbstractValidator
     private void validateFeature(FeatureLine feature, long currentLineNum) {
 
         if (!isValidSeqId(feature.getSeqId())) {
-            addError("Invalid Sequence Id at " + currentLineNum);
+            addError("Invalid Sequence Id '" + feature.getSeqId() + "' at line " + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -132,7 +134,7 @@ public class Gff3Validator extends AbstractValidator
         }
 
         if (!sequenceOntologyFeatureTypes.contains(feature.getType())) {
-            addError("unknown type at line " + currentLineNum);
+            addError("unknown feature type at line " + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -161,8 +163,10 @@ public class Gff3Validator extends AbstractValidator
         if (!isValidPhaseValue(phase)) {
             addError("phase value can only be one of 0, 1, 2 or '.' at line " + currentLineNum);
         }
-        if ("CDS".equals(feature.getType()) && !StringUtils.equalsAny(phase, "0", "1", "2")) {
-            addError("phase is required for CDS and can only be 0, 1 or 2");
+        if ("CDS".equalsIgnoreCase(feature.getType())
+                && !StringUtils.equalsAny(phase, "0", "1", "2")) {
+            addError("phase is required for CDS and can only be 0, 1 or 2 at line "
+                    + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -183,7 +187,7 @@ public class Gff3Validator extends AbstractValidator
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
             return;
         }
-        //check unique ID attributes
+
         Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
         if (keyValPairAttributes.containsKey("ID")) {
             uniqueIdAttributesSet.add(keyValPairAttributes.get("ID"));
@@ -219,7 +223,7 @@ public class Gff3Validator extends AbstractValidator
     }
 
     private void validateFeatureAttributes(FeatureLine feature, long currentLineNum) {
-        validateFeatureAttributesKeyAndValue(feature);
+        validateFeatureAttributesKeyAndValue(feature, currentLineNum);
         if (!validationResult.isValid()) {
             return;
         }
@@ -273,7 +277,7 @@ public class Gff3Validator extends AbstractValidator
      * validates key and value of the attribute column of a feature
      * @param feature feature to be validated
      */
-    private void validateFeatureAttributesKeyAndValue(FeatureLine feature) {
+    private void validateFeatureAttributesKeyAndValue(FeatureLine feature, long currentLineNum) {
         Map<String, String> attributesMapping = feature.getAttributesMapping();
         Set<String> uniqueKeys = new HashSet<>();
         for (Map.Entry<String, String> entry: attributesMapping.entrySet()) {
@@ -281,13 +285,14 @@ public class Gff3Validator extends AbstractValidator
             String attrVal = entry.getValue();
 
             if (StringUtils.isBlank(attrTag)) {
-                addWarning("attribute key is missing or empty");
+                addWarning("attribute key is missing or empty at line " + currentLineNum);
             }
             if (StringUtils.isBlank(attrVal)) {
-                addWarning("attribute value is missing or empty");
+                addWarning("attribute value is missing or empty for key '"
+                        + attrTag + "' at line " + currentLineNum);
             }
             if (uniqueKeys.contains(attrTag)) {
-                addError("Tag '" + attrTag + "' is duplicated");
+                addError("Tag '" + attrTag + "' is duplicated at line " + currentLineNum);
             } else {
                 uniqueKeys.add(attrTag);
             }
@@ -312,14 +317,15 @@ public class Gff3Validator extends AbstractValidator
      */
     private void validateStartEndCoordinates(FeatureLine feature, long currentLineNum) {
         if (!NumberUtils.isParsable(feature.getStartCord())) {
-            String invalidStartCordMsg = "start coordinate value is not a number";
+            String invalidStartCordMsg = "start coordinate value is not a number at line "
+                    + currentLineNum;
             validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
             if (validationResultStrategy.shouldStopAtFirstError()) {
                 return;
             }
         }
         if (!NumberUtils.isParsable(feature.getEndCord())) {
-            String invalidStartCordMsg = "end coordinate value is not a number";
+            String invalidStartCordMsg = "end coordinate value is not a number " + currentLineNum;
             validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
             if (validationResultStrategy.shouldStopAtFirstError()) {
                 return;
@@ -331,7 +337,7 @@ public class Gff3Validator extends AbstractValidator
         //start and end can't be zero and end should be greater than start
         if (startCord < 1 || endCord < 1 || endCord < startCord) {
             String coordinateErrMsg = "Start must be greater than zero and"
-                    + " less or equal to end coordinate";
+                    + " less or equal to end coordinate at line " + currentLineNum;
             validationResult.addError(ErrorMessage.of(coordinateErrMsg));
             if (validationResultStrategy.shouldStopAtFirstError()) {
                 return;
@@ -355,10 +361,15 @@ public class Gff3Validator extends AbstractValidator
         }
         if (sequenceRegionDirectives.containsKey(seqId)) {
             SequenceRegion seqRegion = sequenceRegionDirectives.get(seqId);
-            if (startCord < seqRegion.getSequenceRegionStart()
-                || endCord > seqRegion.getSequenceRegionEnd()) {
-                String msg = "start/end coordinate of seqId " + seqId + " is not within the range"
-                    + "of " + SEQUENCE_REGION_DIRECTIVE + " at line " + currentLineNum;
+            if (startCord < seqRegion.getSequenceRegionStart()) {
+                String msg = "start coordinate of seqId '" + seqId + "' is not within the range"
+                        + "of " + SEQUENCE_REGION_DIRECTIVE + " at line " + currentLineNum
+                        + ", it must be greater or equals " + seqRegion.getSequenceRegionStart();
+                addError(msg);
+            } else if (endCord > seqRegion.getSequenceRegionEnd()) {
+                String msg = "end coordinate of seqId '" + seqId + "' is not within the range"
+                        + "of " + SEQUENCE_REGION_DIRECTIVE + " at line " + currentLineNum
+                        + ", it must be less or equals " + seqRegion.getSequenceRegionEnd();
                 addError(msg);
             }
         }
@@ -438,11 +449,20 @@ public class Gff3Validator extends AbstractValidator
 
     private Set<String> parseSequenceOntologyTypes(String filename) throws IOException {
         Set<String> featureTypes = new HashSet<>();
-        Files.lines(Paths.get(filename)).forEach(line -> {
+        try (InputStream is = getClass().getResourceAsStream(filename);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (StringUtils.isNotBlank(line)) {
+                    featureTypes.add(line.trim());
+                }
+            }
+        }
+        /*Files.lines(Paths.get(filename)).forEach(line -> {
             if (StringUtils.isNotBlank(line)) {
                 featureTypes.add(line.trim());
             }
-        });
+        });*/
         return featureTypes;
     }
 

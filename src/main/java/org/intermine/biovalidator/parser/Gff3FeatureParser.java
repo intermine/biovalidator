@@ -10,6 +10,7 @@ package org.intermine.biovalidator.parser;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.validator.gff3.FeatureLine;
@@ -28,7 +29,7 @@ import java.util.Optional;
 public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
 {
     private GenericLineByLineParser lineParser;
-
+    private long totalLineCount;
     /**
      * Construct Gff3 feature parse with an input source
      * @param inputStreamReader input source
@@ -39,11 +40,12 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
     @Override
     public Optional<Gff3Line> parseNext() throws ParsingException {
         String line = lineParser.parseNext();
+        totalLineCount++;
         if (line != null) {
             if (line.startsWith("#")) {
                 return Optional.of(Gff3CommentLine.of(line));
             } else {
-                return Optional.of(parseFeature(line));
+                return Optional.of(parseFeature(line, totalLineCount));
             }
         }
         return Optional.empty();
@@ -54,11 +56,13 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
         lineParser.close();
     }
 
-    private FeatureLine parseFeature(String featureStr) throws ParsingException {
+    private FeatureLine parseFeature(String featureStr, long totalLineCount)
+            throws ParsingException {
         String[] columns = featureStr.split("\t"); //split only on tab not on space
 
         if (columns.length < 9) {
-            throw new ParsingException("Unable to parse! a feature must have 9 columns");
+            String msg = "Unable to parse! a feature must have 9 columns at line " + totalLineCount;
+            throw new ParsingException(msg);
         }
 
         String seqId = columns[0];
@@ -94,8 +98,10 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
         for (String attr: attributes.split(";")) {
             if (attr.contains("=")) {
                 String[] attrPair = attr.trim().split("=");
-                String value = attrPair.length > 1 ? attrPair[1]: "";
+                String value = attrPair.length > 1 ? attrPair[1]: StringUtils.EMPTY;
                 attributeMapping.put(attrPair[0], value);
+            } else if (StringUtils.isNotBlank(attr)) {
+                attributeMapping.put(attr, StringUtils.EMPTY);
             }
         }
         return attributeMapping;

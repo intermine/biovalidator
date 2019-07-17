@@ -2,6 +2,8 @@ package org.intermine.biovalidator.validator.gff3;
 
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
+import org.intermine.biovalidator.api.Validator;
+import org.intermine.biovalidator.api.ValidatorBuilder;
 import org.intermine.biovalidator.api.ValidatorHelper;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,17 +18,22 @@ public class Gff3PerformanceTest {
     public void test1GBGff3File() {
         simpleBenchmark(() -> {
             try {
-                String file = "/home/deepak/Documents/FASTA_FILES/GFF/ref_GRCh38.p12_top_level.gff3";
-                //String file = "/home/deepak/Documents/Intermine/FILES/gencode.vM22.annotation.gff3";
-                String gencode = "/home/deepak/Documents/FASTA_FILES/GFF/gencode.vM22.chr_patch_hapl_scaff.annotation.gff3";
+                //String file = "/home/deepak/Documents/FASTA_FILES/GFF/ref_GRCh38.p12_top_level.gff3";
+                String file = "/home/deepak/Documents/Intermine/FILES/Homo_sapiens.GRCh38.97.chr_patch_hapl_scaff.gff3";
+                //String gencode = "/home/deepak/Documents/FASTA_FILES/GFF/gencode.vM22.chr_patch_hapl_scaff.annotation.gff3";
 
-                ValidationResult result = ValidatorHelper.validateGff3(gencode);
+                Validator validator = ValidatorBuilder.withFile(file, "gff3")
+                        //.enableWarnings()
+                        //.disableStopAtFirstError()
+                        .build();
+                ValidationResult result = validator.validate();
                 if (result.isValid()) {
                     System.out.println("Valid File");
                 } else {
-                    System.out.println("Invalid File!\n" +result.getErrorMessage());
+                    System.out.println("Invalid File!");
                     result.getErrorMessages().forEach(System.out::println);
                 }
+                result.getWarningMessages().forEach(System.out::println);
             } catch (ValidationFailureException e) {
                 e.printStackTrace();
             }
