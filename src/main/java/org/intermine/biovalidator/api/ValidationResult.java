@@ -74,6 +74,18 @@ public interface ValidationResult
     void addWarning(WarningMessage warningMessage);
 
     /**
+     * Add a error with string as the message
+     * @param errorMessage error
+     */
+    void addError(String errorMessage);
+
+    /**
+     * Add a warning with string as the message
+     * @param warningMessage warning
+     */
+    void addWarning(String warningMessage);
+
+    /**
      * Sets validation result strategy
      * @param strategy strategy to be used while validation
      */

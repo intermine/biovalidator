@@ -15,37 +15,45 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
-import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.WarningMessage;
 import org.intermine.biovalidator.parser.Gff3FeatureParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
+import org.intermine.biovalidator.validator.RuleValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3FeatureTypeRulValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3ScoreStrandAndPhaseRuleValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3SeqIdRuleValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3StartAndEndCoordinateRulValidator;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author deepak
  */
 public class Gff3Validator extends AbstractValidator
 {
-    private static final String SEQUENCE_ID_VALID_PATTERN = "[a-zA-Z0-9.:^*$@!+?-|\\-]+";
-    private static final String VERSION_NUMBER_PATTERN = "(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)";
-    private static final String FLOATING_POINT_NUM_PATTERN = "[0-9]*\\.?[0-9]+";
-    private static final int GFF_VERSION = 3;
     private static final String PROCESSED_SO_TERMS_FILENAME = "/gff3/processed_so_terms.obo";
-
     private static final String SEQUENCE_REGION_DIRECTIVE = "##sequence-region";
     private static final String FASTA_DIRECTIVE = "##FASTA";
     private static final String GFF3_HEADER = "##gff-version";
+    private static final int GFF_VERSION = 3;
+
+    private static final Pattern SEQUENCE_ID_VALID_PATTERN =
+            Pattern.compile("[a-zA-Z0-9.:^*$@!+?-|\\-]+");
+    private static final Pattern VERSION_NUMBER_PATTERN =
+            Pattern.compile("(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)");
 
     private InputStreamReader inputStreamReader;
 
@@ -54,6 +62,8 @@ public class Gff3Validator extends AbstractValidator
     private Set<String> uniqueNameAttributeSet;
 
     private Map<String, SequenceRegion> sequenceRegionDirectives;
+
+    private List<RuleValidator<FeatureLine>> gff3RuleValidator;
 
     /**
      * Contruct a Gff3Validator with an input stream
@@ -74,11 +84,12 @@ public class Gff3Validator extends AbstractValidator
         } catch (IOException e) {
             throw new IllegalArgumentException("unable to parse sequence-ontology term file");
         }
+        this.gff3RuleValidator = createGff3RuleValidator();
     }
 
     @Nonnull
     @Override
-    public ValidationResult validate() throws ValidationFailureException {
+    public ValidationResult validate() {
         try (Parser<Optional<Gff3Line>> parser = new Gff3FeatureParser(inputStreamReader)) {
             long currentLineNum = 1;
             Optional<Gff3Line> lineOpt = parser.parseNext();
@@ -119,64 +130,36 @@ public class Gff3Validator extends AbstractValidator
         }
     }
 
+    /**
+     * Create and returns a list of GFF3 rule validators which can be used to validate
+     * a particular feature by iterating over this list and calling
+     * validateAndAddError() method
+     * @return list of GFF3 rule validators
+     */
+    private List<RuleValidator<FeatureLine>> createGff3RuleValidator() {
+        return Arrays.asList(
+                new GFF3SeqIdRuleValidator(),
+                new GFF3FeatureTypeRulValidator(sequenceOntologyFeatureTypes),
+                new GFF3StartAndEndCoordinateRulValidator(sequenceRegionDirectives),
+                new GFF3ScoreStrandAndPhaseRuleValidator()
+        );
+    }
+
     private void validateFeature(FeatureLine feature, long currentLineNum) {
+        for (RuleValidator<FeatureLine> ruleValidator: gff3RuleValidator) {
 
-        if (!isValidSeqId(feature.getSeqId())) {
-            addError("Invalid Sequence Id '" + feature.getSeqId() + "' at line " + currentLineNum);
-        }
+            boolean isValid = ruleValidator.validateAndAddError(feature,
+                    validationResult, currentLineNum);
 
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
-
-        validateStartEndCoordinates(feature, currentLineNum);
-
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
+            if (!isValid && validationResultStrategy.shouldStopAtFirstError()) {
+                return;
+            }
         }
 
         if (!sequenceOntologyFeatureTypes.contains(feature.getType())) {
             addError("unknown feature type '" + feature.getType() + "' at line " + currentLineNum);
         }
 
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
-
-        String score = feature.getScore();
-        if (!".".equals(score) && !NumberUtils.isCreatable(score)) {
-            addError("score value must be a floating point number or '.', but found '"
-                    + score + "' at line " + currentLineNum);
-        }
-
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
-
-        String strand = feature.getStrand();
-        if (!StringUtils.equalsAny(strand, ".", "-", "+", "?")) { //checks strand value is valid
-            addError("strand value must be one of ('-', '+', '?') but found '"
-                    + strand + "' at line " + currentLineNum);
-        }
-
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
-
-        String phase = feature.getPhase();
-        if (!isValidPhaseValue(phase)) {
-            addError("phase value can only be one of 0, 1, 2 or '.', but found '"
-                    + phase + "' at line " + currentLineNum);
-        }
-        if ("CDS".equalsIgnoreCase(feature.getType())
-                && !StringUtils.equalsAny(phase, "0", "1", "2")) {
-            addError("phase is required for CDS and can only be 0, 1 or 2 at line "
-                    + currentLineNum);
-        }
-
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
 
         // Validating Attribute column
         if (!isAttributesEncoded(feature.getAttributes())) {
@@ -224,7 +207,7 @@ public class Gff3Validator extends AbstractValidator
     private boolean isValidSeqId(String seqId) {
         seqId = StringUtils.replace(seqId, "\\>", "");
         seqId = StringUtils.replace(seqId, "\\ ", "");
-        return seqId.matches(SEQUENCE_ID_VALID_PATTERN);
+        return SEQUENCE_ID_VALID_PATTERN.matcher(seqId).matches();
     }
 
     private void validateFeatureAttributes(FeatureLine feature, long currentLineNum) {
@@ -271,7 +254,7 @@ public class Gff3Validator extends AbstractValidator
             }
             String version = values[1];
             int majorVersion = extractMajorPartOfVersion(version);
-            if (majorVersion != GFF_VERSION || !version.matches(VERSION_NUMBER_PATTERN)) {
+            if (majorVersion != GFF_VERSION || !VERSION_NUMBER_PATTERN.matcher(version).matches()) {
                 return false;
             }
         }
@@ -315,70 +298,6 @@ public class Gff3Validator extends AbstractValidator
      */
     private boolean isAttributesEncoded(String attributes) {
         return true; // TODO
-    }
-
-    /**
-        Validates start and end coordinate column of a feature
-        @param feature feature to be validated
-     */
-    private void validateStartEndCoordinates(FeatureLine feature, long currentLineNum) {
-        if (!NumberUtils.isParsable(feature.getStartCord())) {
-            String invalidStartCordMsg = "start coordinate value is not a number,  at line "
-                    + currentLineNum;
-            validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
-            if (validationResultStrategy.shouldStopAtFirstError()) {
-                return;
-            }
-        }
-        if (!NumberUtils.isParsable(feature.getEndCord())) {
-            String invalidStartCordMsg = "end coordinate value is not a number " + currentLineNum;
-            validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
-            if (validationResultStrategy.shouldStopAtFirstError()) {
-                return;
-            }
-        }
-        long startCord = Long.parseLong(feature.getStartCord());
-        long endCord = Long.parseLong(feature.getEndCord());
-
-        //start and end can't be zero and end should be greater than start
-        if (startCord < 1 || endCord < 1 || endCord < startCord) {
-            String coordinateErrMsg = "Start must be greater than zero and"
-                    + " less or equal to end coordinate at line " + currentLineNum;
-            validationResult.addError(ErrorMessage.of(coordinateErrMsg));
-            if (validationResultStrategy.shouldStopAtFirstError()) {
-                return;
-            }
-        }
-
-        /*
-        if ##sequence-region directive is defined for the current seqId then check
-        start and end coordinate of current feature should be within the range of
-        defined ##sequence-region directive
-        */ //TODO move this bloc to a separate method
-        String seqId = feature.getSeqId();
-        Map<String, String> featureAttributes = feature.getAttributesMapping();
-
-        if (featureAttributes.containsKey("Is_circular")) {
-            boolean isCircularValueTrue = Boolean.parseBoolean(
-                    featureAttributes.get("Is_circular"));
-            if (isCircularValueTrue) {
-                return; // if a feature is circular then ignore ##sequence-region range check
-            }
-        }
-        if (sequenceRegionDirectives.containsKey(seqId)) {
-            SequenceRegion seqRegion = sequenceRegionDirectives.get(seqId);
-            if (startCord < seqRegion.getSequenceRegionStart()) {
-                String msg = "start coordinate of seqId '" + seqId + "' is not within the range"
-                        + "of " + SEQUENCE_REGION_DIRECTIVE + " at line " + currentLineNum
-                        + ", it must be greater or equals " + seqRegion.getSequenceRegionStart();
-                addError(msg);
-            } else if (endCord > seqRegion.getSequenceRegionEnd()) {
-                String msg = "end coordinate of seqId '" + seqId + "' is not within the range"
-                        + "of " + SEQUENCE_REGION_DIRECTIVE + " at line " + currentLineNum
-                        + ", it must be less or equals " + seqRegion.getSequenceRegionEnd();
-                addError(msg);
-            }
-        }
     }
 
     /**

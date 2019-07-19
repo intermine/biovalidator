@@ -97,8 +97,26 @@ public class DefaultValidationResult implements ValidationResult
         }
     }
 
+    @Override
+    public void addError(String errorMessage) {
+        addError(ErrorMessage.of(errorMessage));
+    }
+
+    @Override
+    public void addWarning(String warningMessage) {
+        addWarning(WarningMessage.of(warningMessage));
+    }
+
     @Override public void setValidationStrategy(ValidationResultStrategy strategy) {
         this.resultStrategy = strategy;
+    }
+
+    /**
+     * Gets validation result strategy
+     * @return validation result strategy
+     */
+    public ValidationResultStrategy getResultStrategy() {
+        return resultStrategy;
     }
 
     /**
