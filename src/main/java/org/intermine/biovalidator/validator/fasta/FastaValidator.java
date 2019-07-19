@@ -39,7 +39,7 @@ import java.util.Set;
  * 3. Warnings enabled by-default
  *
  *<b>Rules :</b>
- * 1. First Line must start with '>'
+ * 1. First Line must start with {@literal '>'}
  * 2. Allow multiple sequences in a file
  * 4. Strict checking for Nucleic-Acid and Amino-Acid sequences
  * 5. Sequences letters must follow 'IUB/IUPAC'

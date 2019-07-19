@@ -22,7 +22,7 @@ import org.intermine.biovalidator.validator.gff3.SequenceRegion;
 import java.util.Map;
 
 /**
- * Validates 'start' and 'end' coordinate(columns 4 & 5) of a feature
+ * Validates 'start' and 'end' coordinate(columns 4 and 5) of a feature
  * @author deepak
  */
 public class GFF3StartAndEndCoordinateRulValidator implements RuleValidator<FeatureLine>

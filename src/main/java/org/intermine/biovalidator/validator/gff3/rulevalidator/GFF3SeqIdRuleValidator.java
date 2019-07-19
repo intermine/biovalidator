@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * Check whether seqId is valid or not.
  * Rules:
  * 1. valid pattern for seqId is one or more of 'a-zA-Z0-9.:^*$@!+_?-|'
- * 2. escaped '>' and space(' ') are allowed
+ * 2. escaped {@literal '>'} and space(' ') are allowed
  *
  * @author deepak
  */

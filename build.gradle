@@ -118,10 +118,9 @@ bintray {
     configurations = ['archives']
 }
 
-
+// ------------------- For processing SequenceOntology Terms File 'so-simple.obo' ------------------------- \\
 task processSequenceOntologyTerms(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.intermine.biovalidator.utils.SequenceOntologyFileProcessor'
 }
-
 test.dependsOn(processSequenceOntologyTerms) // process GFF3 SO-Terms before running tests
