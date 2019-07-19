@@ -8,6 +8,8 @@ import static junit.framework.TestCase.assertTrue;
 
 public class Gff3SequenceIdTest extends BaseGff3ValidatorTest {
 
+    private static final String INVALID_SEQ_ID_ERR_MSG = "Invalid Sequence Id '%s' at line %s";
+
     @Test
     public void testValidGff3SeqId() throws ValidationFailureException {
         String content = createGff3ContentWithSeqId("NC_000001.11");
@@ -26,13 +28,16 @@ public class Gff3SequenceIdTest extends BaseGff3ValidatorTest {
     @Test
     public void testInValidGff3SeqId() throws ValidationFailureException {
         String content = createGff3ContentWithSeqId("NC_%"); // '%' is not allowed in seqId
-        assertFalse(isValidGff3Content(content));
+        String expectedErrorMsg = String.format(INVALID_SEQ_ID_ERR_MSG, "NC_%", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(content, expectedErrorMsg);
 
         String invalidStartContent = createGff3ContentWithSeqId(">NC"); // must not start with '>'
-        assertFalse(isValidGff3Content(invalidStartContent));
+        String expectedInvalidStartErrorMsg = String.format(INVALID_SEQ_ID_ERR_MSG, ">NC", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(invalidStartContent, expectedInvalidStartErrorMsg);
 
         String invalidStartContentWithSpace = createGff3ContentWithSeqId(" NC"); // must not start with '>'
-        assertFalse(isValidGff3Content(invalidStartContentWithSpace));
+        String expectedInvalidStartErrorMsgWithSpace = String.format(INVALID_SEQ_ID_ERR_MSG, " NC", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(invalidStartContentWithSpace, expectedInvalidStartErrorMsgWithSpace);
     }
 
 

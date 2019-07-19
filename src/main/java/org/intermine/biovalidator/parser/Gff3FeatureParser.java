@@ -45,6 +45,10 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
             if (line.startsWith("#")) {
                 return Optional.of(Gff3CommentLine.of(line));
             } else {
+                if (totalLineCount <= 1) {
+                    throw new ParsingException(
+                            "Invalid gff3 file! first line must be a header line");
+                }
                 return Optional.of(parseFeature(line, totalLineCount));
             }
         }

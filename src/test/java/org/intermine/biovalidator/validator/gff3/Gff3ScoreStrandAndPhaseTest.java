@@ -4,10 +4,23 @@ import org.intermine.biovalidator.api.ValidationFailureException;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Locale;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 public class Gff3ScoreStrandAndPhaseTest extends BaseGff3ValidatorTest{
+
+    private static final String INVALID_SCORE_ERR_MSG = "score value must be a floating point number or '.'"
+            + ", but found '%s' at line %d";
+
+    private static final String INVALID_STRAND_ERR_MSG = "strand value must be one of ('-', '+', '?') "
+            + "but found '%s' at line %d";
+
+    private static final String INVALID_PHASE_ERR_MSG = "phase value can only be one of 0, 1, 2 or '.', but found "
+            + "'%s' at line %d";
+
+    private static final String REQUIRED_PHASE_ERR_MSG = "phase is required for CDS and can only be 0, 1 or 2 at line %d";
 
     @Test
     public void testValidScoreWithEmptyValue() throws ValidationFailureException {
@@ -53,7 +66,7 @@ public class Gff3ScoreStrandAndPhaseTest extends BaseGff3ValidatorTest{
     }
 
     @Test
-    public void testInvalidNegativeScoreValue() throws ValidationFailureException {
+    public void testValidNegativeScoreValue() throws ValidationFailureException {
         String negNumberContent = createGff3ContentWithScore("-1.5");
         assertTrue(isValidGff3Content(negNumberContent));
     }
@@ -67,19 +80,23 @@ public class Gff3ScoreStrandAndPhaseTest extends BaseGff3ValidatorTest{
     @Test
     public void testInvalidScoreValueAsString() throws ValidationFailureException {
         String content = createGff3ContentWithScore("score");
-        assertFalse(isValidGff3Content(content));
+        String expectedErrMsg = String.format(INVALID_SCORE_ERR_MSG, "score", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(content, expectedErrMsg);
     }
 
     @Test
     public void testInvalidScoreValueWithSymbols() throws ValidationFailureException {
         String contentWithScoreAsPlus = createGff3ContentWithScore("+");
-        assertFalse(isValidGff3Content(contentWithScoreAsPlus));
+        String expectedErrMsgScoreAsPlus = String.format(INVALID_SCORE_ERR_MSG, "+", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(contentWithScoreAsPlus, expectedErrMsgScoreAsPlus);
 
         String contentWithScoreAsMinus = createGff3ContentWithScore("+");
-        assertFalse(isValidGff3Content(contentWithScoreAsMinus));
+        String expectedErrMsgScoreAsMinus = String.format(INVALID_SCORE_ERR_MSG, "+", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(contentWithScoreAsMinus, expectedErrMsgScoreAsMinus);
 
         String contentWithScoreAsQuestionMark = createGff3ContentWithScore("?");
-        assertFalse(isValidGff3Content(contentWithScoreAsQuestionMark));
+        String expectedErrMsgScoreAsQuestionMark = String.format(INVALID_SCORE_ERR_MSG, "?", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(contentWithScoreAsQuestionMark, expectedErrMsgScoreAsQuestionMark);
     }
 
     @Test
@@ -92,10 +109,13 @@ public class Gff3ScoreStrandAndPhaseTest extends BaseGff3ValidatorTest{
 
     @Test
     public void testInValidStrandValue() throws ValidationFailureException {
-        assertFalse(isValidGff3Content(createGff3ContentWithStrand(" ")));
+        String emptyStrand = createGff3ContentWithStrand(" ");
+        String expectedErrMsgScoreAsQuestionMark = String.format(INVALID_STRAND_ERR_MSG, " ", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(emptyStrand, expectedErrMsgScoreAsQuestionMark);
+
         assertFalse(isValidGff3Content(createGff3ContentWithStrand("213")));
         assertFalse(isValidGff3Content(createGff3ContentWithStrand("strand")));
-        assertFalse(isValidGff3Content(createGff3ContentWithStrand(" ")));
+        assertFalse(isValidGff3Content(createGff3ContentWithStrand("")));
     }
 
     @Test
@@ -108,12 +128,19 @@ public class Gff3ScoreStrandAndPhaseTest extends BaseGff3ValidatorTest{
 
     @Test
     public void testInvalidValidPhase1() throws ValidationFailureException {
-        assertFalse(isValidGff3Content(createGff3ContentWithPhase("3")));
+        String invalidPhaseAsNumberContent = createGff3ContentWithPhase("3");
+        String expectedErrMsg = String.format(INVALID_PHASE_ERR_MSG, "3", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(invalidPhaseAsNumberContent, expectedErrMsg);
+
         assertFalse(isValidGff3Content(createGff3ContentWithPhase("10")));
         assertFalse(isValidGff3Content(createGff3ContentWithPhase("a")));
         assertFalse(isValidGff3Content(createGff3ContentWithPhase("!")));
         assertFalse(isValidGff3Content(createGff3ContentWithPhase(" ")));
         assertFalse(isValidGff3Content(createGff3ContentWithPhase("-1")));
+
+        String invalidPhaseAsSymbolContent = createGff3ContentWithPhase("@");
+        String expectedErrMsgForSymbol = String.format(INVALID_PHASE_ERR_MSG, "@", 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(invalidPhaseAsSymbolContent, expectedErrMsgForSymbol);
     }
 
     @Test
@@ -121,7 +148,8 @@ public class Gff3ScoreStrandAndPhaseTest extends BaseGff3ValidatorTest{
         String invalidGff3CDSFeatureContent = "##gff-version 3" + System.lineSeparator()
                 + "NC01.101\tRefSeq\tCDS\t1\t248956422\t.\t.\t.\tID=id0";
 
-        assertFalse(isValidGff3Content(invalidGff3CDSFeatureContent));
+        String expectedErrMsg = String.format(REQUIRED_PHASE_ERR_MSG, 2);
+        assertInvalidGFF3ContentAndAssertErrMsg(invalidGff3CDSFeatureContent, expectedErrMsg);
     }
 
     @Test

@@ -35,7 +35,7 @@ public final class SequenceOntologyFileProcessor
     public static void main(String...args) throws IOException {
         String basePath = "src/main/resources/";
 
-        String sequenceOntolofgyFilename = basePath + "gff3/so.obo";
+        String sequenceOntolofgyFilename = basePath + "gff3/so-simple.obo";
         String processFilePath = basePath + "gff3/processed_so_terms.obo";
 
         BufferedReader reader = new BufferedReader(new FileReader(sequenceOntolofgyFilename));

@@ -19,6 +19,8 @@ import static junit.framework.TestCase.assertTrue;
 
 public class Gff3StartEndCordTest extends BaseGff3ValidatorTest{
 
+    
+
     @Test
     public void testValidStatEndCoordinates() throws ValidationFailureException {
         String content = createGff3ContentWithStartAndEndCord(1, 100000);

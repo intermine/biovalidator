@@ -113,7 +113,9 @@ public class Gff3Validator extends AbstractValidator
             }
             return validationResult;
         } catch (IOException e) {
-            throw new ValidationFailureException(e.getMessage());
+            addError(e.getMessage());
+            return validationResult;
+            //throw new ValidationFailureException(e.getMessage());
         }
     }
 
@@ -134,7 +136,7 @@ public class Gff3Validator extends AbstractValidator
         }
 
         if (!sequenceOntologyFeatureTypes.contains(feature.getType())) {
-            addError("unknown feature type at line " + currentLineNum);
+            addError("unknown feature type '" + feature.getType() + "' at line " + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -143,7 +145,8 @@ public class Gff3Validator extends AbstractValidator
 
         String score = feature.getScore();
         if (!".".equals(score) && !NumberUtils.isCreatable(score)) {
-            addError("score value must be floating point number at line " + currentLineNum);
+            addError("score value must be a floating point number or '.', but found '"
+                    + score + "' at line " + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -152,7 +155,8 @@ public class Gff3Validator extends AbstractValidator
 
         String strand = feature.getStrand();
         if (!StringUtils.equalsAny(strand, ".", "-", "+", "?")) { //checks strand value is valid
-            addError("strand value must be one of ('-', '+', '?') at line " + currentLineNum);
+            addError("strand value must be one of ('-', '+', '?') but found '"
+                    + strand + "' at line " + currentLineNum);
         }
 
         if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
@@ -161,7 +165,8 @@ public class Gff3Validator extends AbstractValidator
 
         String phase = feature.getPhase();
         if (!isValidPhaseValue(phase)) {
-            addError("phase value can only be one of 0, 1, 2 or '.' at line " + currentLineNum);
+            addError("phase value can only be one of 0, 1, 2 or '.', but found '"
+                    + phase + "' at line " + currentLineNum);
         }
         if ("CDS".equalsIgnoreCase(feature.getType())
                 && !StringUtils.equalsAny(phase, "0", "1", "2")) {
@@ -317,7 +322,7 @@ public class Gff3Validator extends AbstractValidator
      */
     private void validateStartEndCoordinates(FeatureLine feature, long currentLineNum) {
         if (!NumberUtils.isParsable(feature.getStartCord())) {
-            String invalidStartCordMsg = "start coordinate value is not a number at line "
+            String invalidStartCordMsg = "start coordinate value is not a number,  at line "
                     + currentLineNum;
             validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
             if (validationResultStrategy.shouldStopAtFirstError()) {
