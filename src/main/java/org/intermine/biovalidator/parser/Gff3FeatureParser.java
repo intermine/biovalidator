@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.validator.gff3.FeatureLine;
-import org.intermine.biovalidator.validator.gff3.Gff3CommentLine;
+import org.intermine.biovalidator.validator.gff3.Gff3DirectiveLine;
 import org.intermine.biovalidator.validator.gff3.Gff3Line;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
         totalLineCount++;
         if (line != null) {
             if (line.startsWith("#")) {
-                return Optional.of(Gff3CommentLine.of(line));
+                return Optional.of(Gff3DirectiveLine.of(line));
             } else {
                 if (totalLineCount <= 1) {
                     throw new ParsingException(

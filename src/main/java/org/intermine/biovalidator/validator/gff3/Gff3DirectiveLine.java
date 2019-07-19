@@ -13,11 +13,11 @@ package org.intermine.biovalidator.validator.gff3;
 /**
  * @author deepak
  */
-public final class Gff3CommentLine implements Gff3Line
+public final class Gff3DirectiveLine implements Gff3Line
 {
     private String comment;
 
-    private Gff3CommentLine(String comment) {
+    private Gff3DirectiveLine(String comment) {
         this.comment = comment;
     }
 
@@ -26,8 +26,8 @@ public final class Gff3CommentLine implements Gff3Line
      * @param comment comment string
      * @return instance of CommentLine
      */
-    public static Gff3CommentLine of(String comment) {
-        return new Gff3CommentLine(comment);
+    public static Gff3DirectiveLine of(String comment) {
+        return new Gff3DirectiveLine(comment);
     }
 
     /**

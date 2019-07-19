@@ -20,6 +20,7 @@ import org.intermine.biovalidator.api.WarningMessage;
 import org.intermine.biovalidator.parser.Gff3FeatureParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 import org.intermine.biovalidator.validator.RuleValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3FeatureAttributeRuleValidator;
 import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3FeatureTypeRulValidator;
 import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3ScoreStrandAndPhaseRuleValidator;
 import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3SeqIdRuleValidator;
@@ -50,8 +51,6 @@ public class Gff3Validator extends AbstractValidator
     private static final String GFF3_HEADER = "##gff-version";
     private static final int GFF_VERSION = 3;
 
-    private static final Pattern SEQUENCE_ID_VALID_PATTERN =
-            Pattern.compile("[a-zA-Z0-9.:^*$@!+?-|\\-]+");
     private static final Pattern VERSION_NUMBER_PATTERN =
             Pattern.compile("(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)");
 
@@ -77,7 +76,10 @@ public class Gff3Validator extends AbstractValidator
         //store start/end coordinate all the ##sequence-region directives available in the file
         this.sequenceRegionDirectives = new HashMap<>();
 
-        //parse and store all the SO-Terms in a Set
+        /*
+         parse SequenceOntology terms from file 'processed_so_terms.obo'
+         and store all the SO-Terms in a Set
+        */
         try {
             this.sequenceOntologyFeatureTypes =
                     parseSequenceOntologyTypes(PROCESSED_SO_TERMS_FILENAME);
@@ -104,12 +106,12 @@ public class Gff3Validator extends AbstractValidator
             while (lineOpt.isPresent()) {
                 Gff3Line line = lineOpt.get();
 
-                if (line instanceof Gff3CommentLine) { //if line a comment line
-                    Gff3CommentLine comment = (Gff3CommentLine) line;
-                    if (comment.getComment().startsWith(FASTA_DIRECTIVE)) { //End of GFF3 content
+                if (line instanceof Gff3DirectiveLine) { //if line a directive line
+                    Gff3DirectiveLine directive = (Gff3DirectiveLine) line;
+                    if (directive.getComment().startsWith(FASTA_DIRECTIVE)) { //End of GFF3 content
                         return validationResult;
                     }
-                    processCommentLine(comment, currentLineNum);
+                    processDirectiveLine(directive, currentLineNum);
                 } else {
                     FeatureLine feature = (FeatureLine) line;
                     validateFeature(feature, currentLineNum);
@@ -126,7 +128,6 @@ public class Gff3Validator extends AbstractValidator
         } catch (IOException e) {
             addError(e.getMessage());
             return validationResult;
-            //throw new ValidationFailureException(e.getMessage());
         }
     }
 
@@ -138,16 +139,17 @@ public class Gff3Validator extends AbstractValidator
      */
     private List<RuleValidator<FeatureLine>> createGff3RuleValidator() {
         return Arrays.asList(
-                new GFF3SeqIdRuleValidator(),
-                new GFF3FeatureTypeRulValidator(sequenceOntologyFeatureTypes),
-                new GFF3StartAndEndCoordinateRulValidator(sequenceRegionDirectives),
-                new GFF3ScoreStrandAndPhaseRuleValidator()
+              new GFF3SeqIdRuleValidator(),
+              new GFF3FeatureTypeRulValidator(sequenceOntologyFeatureTypes),
+              new GFF3StartAndEndCoordinateRulValidator(sequenceRegionDirectives),
+              new GFF3ScoreStrandAndPhaseRuleValidator(),
+              new GFF3FeatureAttributeRuleValidator(uniqueIdAttributesSet, uniqueNameAttributeSet)
         );
     }
 
     private void validateFeature(FeatureLine feature, long currentLineNum) {
+        //iterate over each GFF3 rule validators
         for (RuleValidator<FeatureLine> ruleValidator: gff3RuleValidator) {
-
             boolean isValid = ruleValidator.validateAndAddError(feature,
                     validationResult, currentLineNum);
 
@@ -155,75 +157,13 @@ public class Gff3Validator extends AbstractValidator
                 return;
             }
         }
-
-        if (!sequenceOntologyFeatureTypes.contains(feature.getType())) {
-            addError("unknown feature type '" + feature.getType() + "' at line " + currentLineNum);
-        }
-
-
-        // Validating Attribute column
-        if (!isAttributesEncoded(feature.getAttributes())) {
-            addError("attribute is not encoded");
-        }
-
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
-
-        validateFeatureAttributes(feature, currentLineNum);
-
-        if (!validationResult.isValid() && validationResultStrategy.shouldStopAtFirstError()) {
-            return;
-        }
-
+        //add attribute 'ID' uniqueIdAttributesSet and 'Name' to uniqueNameAttributeSet if exist
         Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
         if (keyValPairAttributes.containsKey("ID")) {
             uniqueIdAttributesSet.add(keyValPairAttributes.get("ID"));
         }
         if (keyValPairAttributes.containsKey("Name")) {
             uniqueNameAttributeSet.add(keyValPairAttributes.get("Name"));
-        }
-    }
-
-    private boolean isValidPhaseValue(String phase) {
-        if (".".equals(phase)) {
-            return true;
-        }
-        if (isInteger(phase)) {
-            int phaseVal = Integer.parseInt(phase);
-            return phaseVal >= 0 && phaseVal < 3;
-        }
-        return false;
-    }
-
-    /**
-     * Check whether seqId is valid or not.
-     * Rules:
-     *  1. valid pattern for seqId is one or more of 'a-zA-Z0-9.:^*$@!+_?-|'
-     *  2. escaped '>' and space(' ') is allowed
-     * @param seqId seqId to be tested
-     * @return boolean representing valid or not
-     */
-    private boolean isValidSeqId(String seqId) {
-        seqId = StringUtils.replace(seqId, "\\>", "");
-        seqId = StringUtils.replace(seqId, "\\ ", "");
-        return SEQUENCE_ID_VALID_PATTERN.matcher(seqId).matches();
-    }
-
-    private void validateFeatureAttributes(FeatureLine feature, long currentLineNum) {
-        validateFeatureAttributesKeyAndValue(feature, currentLineNum);
-        if (!validationResult.isValid()) {
-            return;
-        }
-
-        //If feature has a parent key then check its parent exist or not
-        Map<String, String> keyValPairAttributes = feature.getAttributesMapping();
-        if (keyValPairAttributes.containsKey("Parent")) {
-            String parentVal = keyValPairAttributes.get("Parent");
-            if (!uniqueIdAttributesSet.contains(parentVal)
-                    && !uniqueNameAttributeSet.contains(parentVal)) {
-                addError("Parent '" + parentVal + "' not found at line " + currentLineNum);
-            }
         }
     }
 
@@ -237,13 +177,12 @@ public class Gff3Validator extends AbstractValidator
      * @return whether gff3 header is valid or not
      */
     private boolean isValidGff3HeaderLine(Gff3Line line) {
-        if (line instanceof Gff3CommentLine) {
-            Gff3CommentLine comment = (Gff3CommentLine) line;
+        if (line instanceof Gff3DirectiveLine) {
+            Gff3DirectiveLine comment = (Gff3DirectiveLine) line;
             String headerLine = comment.getComment();
             if (!headerLine.startsWith(GFF3_HEADER)) {
                 return false;
             }
-
             /*
                 check gff3 version 3 is valid or not
                 GFF3 version format: ##gff-version 3.#.#
@@ -262,55 +201,12 @@ public class Gff3Validator extends AbstractValidator
     }
 
     /**
-     * validates key and value of the attribute column of a feature
-     * @param feature feature to be validated
+     * Process GFF3 directives, directive start with '##' in GFF3
+     * @param directiveLine directive line instance
+     * @param currentLineNum current line number
      */
-    private void validateFeatureAttributesKeyAndValue(FeatureLine feature, long currentLineNum) {
-        Map<String, String> attributesMapping = feature.getAttributesMapping();
-        Set<String> uniqueKeys = new HashSet<>();
-        for (Map.Entry<String, String> entry: attributesMapping.entrySet()) {
-            String attrTag = entry.getKey();
-            String attrVal = entry.getValue();
-
-            if (StringUtils.isBlank(attrTag)) {
-                addWarning("attribute tag's key is missing or empty for value '"
-                        + attrVal + "' at line " + currentLineNum);
-            }
-            if (StringUtils.isBlank(attrVal)) {
-                addWarning("attribute value is missing or empty for key '"
-                        + attrTag + "' at line " + currentLineNum);
-            }
-            if (uniqueKeys.contains(attrTag)) {
-                addError("Tag '" + attrTag + "' is duplicated at line " + currentLineNum);
-            } else {
-                uniqueKeys.add(attrTag);
-            }
-            if (!validationResult.isValid()) {
-                return;
-            }
-        }
-    }
-
-    /**
-     * Test whether given attribute column's value is encoded|escaped or not
-     * @param attributes attribute string
-     * @return true or false
-     */
-    private boolean isAttributesEncoded(String attributes) {
-        return true; // TODO
-    }
-
-    /**
-     * checks whether string is number or not
-     * @param phase value to be tested
-     * @return true or false
-     */
-    private boolean isInteger(String phase) {
-        return phase.matches("[0-9]{1,9}"); //TODO need to be refactored
-    }
-
-    private void processCommentLine(Gff3CommentLine commentLine, long currentLineNum) {
-        String comment = commentLine.getComment();
+    private void processDirectiveLine(Gff3DirectiveLine directiveLine, long currentLineNum) {
+        String comment = directiveLine.getComment();
 
         // Process ##sequence-region directive
         if (comment.startsWith(SEQUENCE_REGION_DIRECTIVE)) {
@@ -330,7 +226,7 @@ public class Gff3Validator extends AbstractValidator
     }
 
     /**
-     * Parse ##sequence-region derective and returns a pair of seqId and SequenceRegion
+     * Parse ##sequence-region directive and returns a pair of seqId and SequenceRegion
      * Format of this directive is:
      *      ##sequence-region {@literal <seqId>} {@literal <start>} {@literal <end>}
      * @param comment comment to be parse
@@ -372,6 +268,12 @@ public class Gff3Validator extends AbstractValidator
         }
     }
 
+    /**
+     * Parse SequenceOntology terms from file and store all the terms in to a set
+     * @param filename filename from which SP terms to be parsed
+     * @return set of parsed SO terms
+     * @throws IOException if unable to parse
+     */
     private Set<String> parseSequenceOntologyTypes(String filename) throws IOException {
         Set<String> featureTypes = new HashSet<>();
         try (InputStream is = getClass().getResourceAsStream(filename);

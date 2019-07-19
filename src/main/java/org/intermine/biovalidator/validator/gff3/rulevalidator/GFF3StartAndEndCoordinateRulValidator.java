@@ -79,11 +79,17 @@ public class GFF3StartAndEndCoordinateRulValidator implements RuleValidator<Feat
             }
         }
 
-        /*
-         if ##sequence-region directive is defined for the current seqId then check
-         start and end coordinate of current feature is within the range of
-         defined ##sequence-region directive or not
-        */
+        return validateStartAndEndCoordinateWithinSequenceRegionBounds(
+                feature, startCord, endCord, validationResult, currentLineNum);
+    }
+
+    /**
+     * if ##sequence-region directive is defined for the current seqId then check
+     * start and end coordinate of current feature is within the range of
+     * defined ##sequence-region directive or not
+     */
+    private boolean validateStartAndEndCoordinateWithinSequenceRegionBounds(FeatureLine feature,
+            long startCord, long endCord, ValidationResult validationResult, long currentLineNum) {
         String seqId = feature.getSeqId();
         Map<String, String> featureAttributes = feature.getAttributesMapping();
 

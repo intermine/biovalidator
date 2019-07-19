@@ -22,6 +22,9 @@ import java.util.Set;
  */
 public class GFF3FeatureTypeRulValidator implements RuleValidator<FeatureLine>
 {
+    /**
+     * Set of all parsed SequenceOntology terms
+     */
     private Set<String> sequenceOntologyFeatureTypes;
 
     /**
