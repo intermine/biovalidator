@@ -290,7 +290,8 @@ public class Gff3Validator extends AbstractValidator
             String attrVal = entry.getValue();
 
             if (StringUtils.isBlank(attrTag)) {
-                addWarning("attribute key is missing or empty at line " + currentLineNum);
+                addWarning("attribute tag's key is missing or empty for value '"
+                        + attrVal + "' at line " + currentLineNum);
             }
             if (StringUtils.isBlank(attrVal)) {
                 addWarning("attribute value is missing or empty for key '"

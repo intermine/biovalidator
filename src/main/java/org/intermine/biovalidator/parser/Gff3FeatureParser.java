@@ -86,7 +86,7 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
         String phase = columns[7];
         String attributes = columns[8];
 
-        Map<String, String> keyValAttributeMapping = parseAttributes(attributes);
+        Map<String, String> keyValAttributeMapping = parseAttributes(attributes, totalLineCount);
 
         return new FeatureLine(seqId, source, type, startCord, endCord, score, strand, phase,
                 attributes, keyValAttributeMapping);
@@ -97,13 +97,19 @@ public class Gff3FeatureParser implements Parser<Optional<Gff3Line>>
      * @param attributes attribute string
      * @return Map attributes Key-Value
      */
-    private Map<String, String> parseAttributes(String attributes) {
+    private Map<String, String> parseAttributes(String attributes, long currentLineCount)
+            throws ParsingException {
         Map<String, String> attributeMapping = new HashMap<>();
         for (String attr: attributes.split(";")) {
             if (attr.contains("=")) {
                 String[] attrPair = attr.trim().split("=");
+                String key = attrPair[0];
                 String value = attrPair.length > 1 ? attrPair[1]: StringUtils.EMPTY;
-                attributeMapping.put(attrPair[0], value);
+                boolean isAdded = (attributeMapping.put(key, value) == null);
+                if (!isAdded) {
+                    throw new ParsingException("Tag '" + key + "' is duplicated at line "
+                            + currentLineCount);
+                }
             } else if (StringUtils.isNotBlank(attr)) {
                 attributeMapping.put(attr, StringUtils.EMPTY);
             }
