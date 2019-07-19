@@ -1,17 +1,31 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.6.2"
+    }
+}
+
 plugins {
+    id 'com.gradle.build-scan' version '1.16'
     id 'java'
     id 'checkstyle'
-    id 'com.gradle.build-scan' version '1.16'
     id 'maven'
+    id 'com.jfrog.bintray' version "1.8.0"
 }
 
 group 'org.intermine'
-version '1.0-SNAPSHOT'
+version '0.1.0'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -63,6 +77,47 @@ task createFatJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+// ------------------- For JCenter --------------------- //
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    dryRun = false //[Default: false] Whether to run this as dry-run, without deploying
+    publish = true //[Default: false] Whether version should be auto published after an upload
+    override = true //[Default: false] Whether to override version artifacts already published
+    pkg {
+        repo = 'biovalidator'
+        name = 'biovalidator'
+        userOrg = user
+        licenses = ['LGPL-2.1']
+        vcsUrl = 'https://github.com/intermine/biovalidator.git'
+        publicDownloadNumbers = true
+        version {
+            name = '0.1.0'
+            desc = 'BioValidator 0.1.0'
+            vcsTag = 'biovalidator-0.1.0'
+        }
+    }
+
+    configurations = ['archives']
+}
+
 
 task processSequenceOntologyTerms(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
