@@ -139,7 +139,7 @@ final class CommandLineRunner
                 names = {"-t", "--type"},
                 description = "ValidatorType, fasta is used as default if not provided\n"
                         + "possible values:\n fasta,\n fasta-dna,\n fasta-rna,\n fasta-protein,\n"
-                        + "gff3",
+                        + " gff3,\n csv",
                 defaultValue = "",
                 completionCandidates = ValidatorTypes.class)
         private String validatorType;
