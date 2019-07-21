@@ -152,5 +152,36 @@ public final class ValidatorHelper
         return validate(file, ValidatorType.GFF3, isStrict);
     }
 
+    /**
+     * Validate a gff3 file with a given mode(strict or permissive)
+     *
+     * @param file     file to be validated
+     * @param isStrict whether to validate in strict mode or permissive
+     * @return result of validation
+     * @throws ValidationFailureException if validation failes
+     */
+    public static ValidationResult validateCsv(@Nonnull String file, boolean isStrict)
+            throws ValidationFailureException {
+        return ValidatorBuilder.withFile(file, ValidatorType.CSV)
+                .enableWarnings()
+                .build()
+                .validate();
+    }
+
+    /**
+     * Validate a gff3 file with a given mode(strict or permissive)
+     *
+     * @param file      file to be validated
+     * @param isStrict  whether to validate in strict mode or permissive
+     * @param delimiter delimiter for column separator
+     * @return result of validation
+     * @throws ValidationFailureException if validation failes
+     */
+    public static ValidationResult validateCsv(@Nonnull String file,
+                                               String delimiter, boolean isStrict)
+            throws ValidationFailureException {
+        return validate(file, ValidatorType.CSV, isStrict);
+    }
+
 }
 
