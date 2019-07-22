@@ -61,6 +61,69 @@ public class Gff3StartEndCordTest extends BaseGff3ValidatorTest{
         assertTrue(result.isValid());
     }
 
+    // Test Un-parsable start and end coordinates //
+    // test un-parsable start cord
+    @Test
+    public void testWrongUnParsableStartCoordinates() throws ValidationFailureException {
+        String gff3Content = createGff3ContentWithStartAndEndCordAsString("-", "234");
+        String errMsg = "start coordinate value '-' is not a number at line 2";
+        assertInvalidGFF3ContentAndAssertErrMsg(gff3Content, errMsg);
+    }
+
+    @Test
+    public void testWrongUnParsableStringAsStartCoordinates() throws ValidationFailureException {
+        String gff3Content = createGff3ContentWithStartAndEndCordAsString("abhdas", "234");
+        String errMsg = "start coordinate value 'abhdas' is not a number at line 2";
+        assertInvalidGFF3ContentAndAssertErrMsg(gff3Content, errMsg);
+    }
+
+    @Test
+    public void testUnknownAsStartCoordinates() throws ValidationFailureException {
+        String gff3Content = createGff3ContentWithStartAndEndCordAsString(".", "234");
+        String errMsg = "start coordinate value '.' is not a number at line 2";
+        assertInvalidGFF3ContentAndAssertErrMsg(gff3Content, errMsg);
+    }
+
+    @Test
+    public void testWrongStartCoordinateFromFile() throws ValidationFailureException {
+        String file = getFullPath("gff3/invalid/wrong-start-coordinate.gff3");
+        ValidationResult result = ValidatorHelper.validateGff3(file);
+        assertFalse(result.isValid());
+        String errMsg = "start coordinate value 'abc123' is not a number at line 12";
+        assertEquals(errMsg, result.getErrorMessage());
+    }
+
+    // test un-parsable start cord
+    @Test
+    public void testWrongUnParsableEndCoordinates() throws ValidationFailureException {
+        String gff3Content = createGff3ContentWithStartAndEndCordAsString("1333", "-");
+        String errMsg = "end coordinate value '-' is not a number at line 2";
+        assertInvalidGFF3ContentAndAssertErrMsg(gff3Content, errMsg);
+    }
+
+    @Test
+    public void testWrongUnParsableStringAsEndCoordinates() throws ValidationFailureException {
+        String gff3Content = createGff3ContentWithStartAndEndCordAsString("243", "intermine");
+        String errMsg = "end coordinate value 'intermine' is not a number at line 2";
+        assertInvalidGFF3ContentAndAssertErrMsg(gff3Content, errMsg);
+    }
+
+    @Test
+    public void testUnknownAsEndCoordinates() throws ValidationFailureException {
+        String gff3Content = createGff3ContentWithStartAndEndCordAsString("6546", ".");
+        String errMsg = "end coordinate value '.' is not a number at line 2";
+        assertInvalidGFF3ContentAndAssertErrMsg(gff3Content, errMsg);
+    }
+
+    @Test
+    public void testWrongEndCoordinateFromFile() throws ValidationFailureException {
+        String file = getFullPath("gff3/invalid/wrong-end-coordinate.gff3");
+        ValidationResult result = ValidatorHelper.validateGff3(file);
+        assertFalse(result.isValid());
+        String errMsg = "end coordinate value 'biovalidator_wrong_end_cord' is not a number at line 13";
+        assertEquals(errMsg, result.getErrorMessage());
+    }
+
     @Test
     public void testWarningOnSequenceRegionDirectiveWithDuplicateSeqId() throws ValidationFailureException, FileNotFoundException {
         String file = getFullPath("gff3/invalid/sequence-region-with-duplicates-seqId.gff3");
@@ -77,6 +140,11 @@ public class Gff3StartEndCordTest extends BaseGff3ValidatorTest{
     }
 
     private String createGff3ContentWithStartAndEndCord(long start, long end) {
+        return "##gff-version 3" + System.lineSeparator()
+                + "NC.001\tRefSeq\tregion\t" + start +"\t" + end + "\t248956422\t.\t.\t.\tID=id0";
+    }
+
+    private String createGff3ContentWithStartAndEndCordAsString(String start, String end) {
         return "##gff-version 3" + System.lineSeparator()
                 + "NC.001\tRefSeq\tregion\t" + start +"\t" + end + "\t248956422\t.\t.\t.\tID=id0";
     }

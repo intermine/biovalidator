@@ -20,7 +20,7 @@ import java.util.Set;
  * Rule Validator for validating feature-types(column 3) against SequenceOntology terms
  * @author deepak
  */
-public class GFF3FeatureTypeRulValidator implements RuleValidator<FeatureLine>
+public class GFF3FeatureTypeRuleValidator implements RuleValidator<FeatureLine>
 {
     /**
      * Set of all parsed SequenceOntology terms
@@ -32,7 +32,7 @@ public class GFF3FeatureTypeRulValidator implements RuleValidator<FeatureLine>
      * Sequence-Ontology terms
      * @param sequenceOntologyFeatureTypes set of all SO terms
      */
-    public GFF3FeatureTypeRulValidator(Set<String> sequenceOntologyFeatureTypes) {
+    public GFF3FeatureTypeRuleValidator(Set<String> sequenceOntologyFeatureTypes) {
         this.sequenceOntologyFeatureTypes = sequenceOntologyFeatureTypes;
     }
 

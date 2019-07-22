@@ -21,10 +21,10 @@ import org.intermine.biovalidator.parser.Gff3FeatureParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 import org.intermine.biovalidator.validator.RuleValidator;
 import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3FeatureAttributeRuleValidator;
-import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3FeatureTypeRulValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3FeatureTypeRuleValidator;
 import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3ScoreStrandAndPhaseRuleValidator;
 import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3SeqIdRuleValidator;
-import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3StartAndEndCoordinateRulValidator;
+import org.intermine.biovalidator.validator.gff3.rulevalidator.GFF3StartAndEndCoordinateRuleValidator;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
@@ -140,8 +140,8 @@ public class Gff3Validator extends AbstractValidator
     private List<RuleValidator<FeatureLine>> createGff3RuleValidator() {
         return Arrays.asList(
               new GFF3SeqIdRuleValidator(),
-              new GFF3FeatureTypeRulValidator(sequenceOntologyFeatureTypes),
-              new GFF3StartAndEndCoordinateRulValidator(sequenceRegionDirectives),
+              new GFF3FeatureTypeRuleValidator(sequenceOntologyFeatureTypes),
+              new GFF3StartAndEndCoordinateRuleValidator(sequenceRegionDirectives),
               new GFF3ScoreStrandAndPhaseRuleValidator(),
               new GFF3FeatureAttributeRuleValidator(uniqueIdAttributesSet, uniqueNameAttributeSet)
         );

@@ -25,7 +25,7 @@ import java.util.Map;
  * Validates 'start' and 'end' coordinate(columns 4 and 5) of a feature
  * @author deepak
  */
-public class GFF3StartAndEndCoordinateRulValidator implements RuleValidator<FeatureLine>
+public class GFF3StartAndEndCoordinateRuleValidator implements RuleValidator<FeatureLine>
 {
     private static final String SEQUENCE_REGION_DIRECTIVE = "##sequence-region";
 
@@ -39,7 +39,7 @@ public class GFF3StartAndEndCoordinateRulValidator implements RuleValidator<Feat
      *                            SequenceRegion instance as value(representing both'start'
      *                            and 'end coordinates of the region')
      */
-    public GFF3StartAndEndCoordinateRulValidator(Map<String, SequenceRegion> seqRegionDirectives) {
+    public GFF3StartAndEndCoordinateRuleValidator(Map<String, SequenceRegion> seqRegionDirectives) {
         this.sequenceRegionDirectives = seqRegionDirectives;
     }
 
@@ -51,20 +51,25 @@ public class GFF3StartAndEndCoordinateRulValidator implements RuleValidator<Feat
 
         //Check whether 'start' and 'end' are numbers or not
         if (!NumberUtils.isParsable(feature.getStartCord())) {
-            String invalidStartCordMsg = "start coordinate value is not a number,  at line "
-                    + currentLineNum;
+            String invalidStartCordMsg = "start coordinate value '" + feature.getStartCord()
+                    + "' is not a number at line " + currentLineNum;
             validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
-            if (resultStrategy.shouldStopAtFirstError()) {
-                return false;
-            }
+
+            /*
+              return even if resultStrategy.shouldStopAtFirstError() is true, because if start
+              or end coordinates are not numbers then other validation cannot be performed if
+              those validation depends on parsing start and end cord
+            */
+            return false;
         }
         if (!NumberUtils.isParsable(feature.getEndCord())) {
-            String invalidStartCordMsg = "end coordinate value is not a number " + currentLineNum;
+            String invalidStartCordMsg = "end coordinate value '" + feature.getEndCord()
+                    + "' is not a number at line " + currentLineNum;
             validationResult.addError(ErrorMessage.of(invalidStartCordMsg));
-            if (resultStrategy.shouldStopAtFirstError()) {
-                return false;
-            }
+            return false;
         }
+
+        // proceed to other validation only if start and end is parsable
         long startCord = Long.parseLong(feature.getStartCord());
         long endCord = Long.parseLong(feature.getEndCord());
 
