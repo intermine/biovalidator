@@ -12,6 +12,7 @@ package org.intermine.biovalidator.api;
 
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import org.intermine.biovalidator.validator.ValidatorType;
+import org.intermine.biovalidator.validator.csv.CsvValidator;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
 import org.intermine.biovalidator.validator.gff3.Gff3Validator;
@@ -81,6 +82,8 @@ public final class ValidatorBuilder
                 return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
             case GFF3:
                 return ofType(new Gff3Validator(reader));
+            case CSV:
+                return ofType(new CsvValidator(reader));
             default:
                 throw new IllegalArgumentException("invalid validator type");
         }
