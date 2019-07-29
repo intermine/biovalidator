@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator.csv;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
@@ -26,6 +27,10 @@ import java.io.InputStreamReader;
 public class CsvValidator extends AbstractValidator
 {
     private static final double SUCCESS_SCORE_BAR = 0.5;
+    private InputStreamReader inputStreamReader;
+    private boolean allowComments;
+    private boolean shouldAutoDetectDelimiter;
+    private String delimiter;
     private CsvParser csvParser;
     private SimilarityScore similarityScore;
 
@@ -58,8 +63,13 @@ public class CsvValidator extends AbstractValidator
      */
     public CsvValidator(InputStreamReader inputStreamReader, boolean allowComments,
                         String delimiter) {
-        //this.inputStreamReader = inputStreamReader;
-        this.csvParser = new CsvParser(inputStreamReader, allowComments, delimiter);
+        this.inputStreamReader = inputStreamReader;
+        this.allowComments = allowComments;
+        if (StringUtils.isNotBlank(delimiter)) {
+            this.delimiter = delimiter;
+        } else {
+            this.shouldAutoDetectDelimiter = true;
+        }
         this.similarityScore = new SimilarityScore();
     }
 
@@ -78,6 +88,7 @@ public class CsvValidator extends AbstractValidator
     @Override
     public ValidationResult validate() throws ValidationFailureException {
         try {
+            this.csvParser = new CsvParser(inputStreamReader, allowComments, delimiter);
             if (!csvParser.hasNext()) {
                 return validationResult;
             }
@@ -117,6 +128,8 @@ public class CsvValidator extends AbstractValidator
             }
             return validationResult;
         } catch (ParsingException ex) {
+            validationResult.addError(ex.getMessage());
+            ex.printStackTrace();
             return validationResult;
         }
     }

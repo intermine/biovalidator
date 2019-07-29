@@ -13,6 +13,7 @@ package org.intermine.biovalidator.parser;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParserSettings;
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ParsingException;
 
@@ -65,7 +66,8 @@ public class CsvParser implements Parser<String[]>
 
     private com.univocity.parsers.csv.CsvParser createParser() {
         CsvParserSettings settings = new CsvParserSettings();
-        if (shouldAutoDetectDelimiter) {
+        //settings.setHeaderExtractionEnabled(true);
+        if (shouldAutoDetectDelimiter && delimiter.length() == 0) { //if no delimiter provided
             settings.detectFormatAutomatically();
         } else {
             settings.getFormat().setDelimiter(delimiter);
