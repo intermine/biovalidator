@@ -19,21 +19,21 @@ public class TestCsvValidator extends BaseValidatorTest {
     @Test
     public void testCsvValidator() {
         try {
-        /*String simple = "/home/deepak/Documents/Intermine/FILES/CSV/5d331a9794f6200004000040.csv";
-        String csv = "/home/deepak/Documents/Intermine/FILES/CSV/csv.csv";*/
+        //String simple = "/home/deepak/Documents/Intermine/FILES/CSV/5d331a9794f6200004000040.csv";
+            String csv = "/home/deepak/Documents/Intermine/FILES/CSV/cars.csv";
             String sample = "/home/deepak/Documents/Intermine/FILES/CSV/Drosophila_2.na25.annot.csv";
             String filePath = getFullPath("csv/variant_summary_sample.csv");
-            ValidationResult result = ValidatorHelper.validateCsv(sample, true);
+            ValidationResult result = ValidatorHelper.validateCsv(csv, true);
 
             System.out.println(result.getErrorMessage());
             if (result.getWarningMessages().size() > 0) {
                 result.getWarningMessages().forEach(System.out::println);
             }
             assertTrue(result.isValid());
-            assertEquals(13, result.getWarningMessages().size());
+            //assertEquals(13, result.getWarningMessages().size());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            //e.printStackTrace();
+            //System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

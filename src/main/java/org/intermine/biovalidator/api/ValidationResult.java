@@ -56,10 +56,16 @@ public interface ValidationResult
     List<Message> getWarningMessages();
 
     /**
-     * Return whether validator has valid result or not
-     * @return test result
+     * Test whether validator has valid result or not
+     * @return true if result is valid
      */
     boolean isValid();
+
+    /**
+     * Test whether is valid or not
+     * @return true if result is not valid
+     */
+    boolean isNotValid();
 
     /**
      * Add a error message

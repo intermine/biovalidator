@@ -32,9 +32,10 @@ public final class CsvColumnPattern
      * @param patternList pattern list (list of value type that constructs a patter)
      * @return immutable instance of CsvColumnPattern
      */
-    public CsvColumnPattern of(List<CsvColumnValueType> patternList) {
+    public static CsvColumnPattern of(List<CsvColumnValueType> patternList) {
         return new CsvColumnPattern(patternList);
     }
+
     @Override
     public boolean equals(Object thatObj) {
         if (this == thatObj) {

@@ -83,6 +83,11 @@ public class DefaultValidationResult implements ValidationResult
     }
 
     @Override
+    public boolean isNotValid() {
+        return !isValid;
+    }
+
+    @Override
     public void addError(@Nonnull ErrorMessage errorMessage) {
         this.isValid = false;
         if (resultStrategy.isErrorEnabled()) {

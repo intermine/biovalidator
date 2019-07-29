@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validator for validating csv/tsv data
@@ -89,62 +91,59 @@ public class CsvValidator extends AbstractValidator
     @Override
     public ValidationResult validate() throws ValidationFailureException {
         try {
-            boolean doesFileHasHeader = guessFileHasHeaderOrNot();
+            CsvSchema csvSchema = null;
+            boolean doesFileHasHeader = false; //guessFileHasHeaderOrNot();
 
             InputStreamReader inputStreamToFile = createInputStreamFrom(file);
             CsvParser csvParser = new CsvParser(
                     inputStreamToFile, doesFileHasHeader, allowComments, delimiter);
 
-            final CsvColumnMatrics[] columnMatrics;
-
-            //parsing the input file
+            //parsing the input file //TODO may not need this
             if (!csvParser.hasNext()) {
                 return validationResult;
             }
 
             // store first data
-            String[] firstRow = csvParser.parseNext();
-            int totalColumns = firstRow.length;
-            long currentLineNum = 1;
-
-            columnMatrics = new CsvColumnMatrics[totalColumns];
+            //String[] firstRow = csvParser.parseNext();
+            int columnsLength = 0;
+            long currentLineNum = 0;
 
             while (csvParser.hasNext()) {
                 currentLineNum++;
                 String[] currentRow = csvParser.parseNext();
 
+                if (currentLineNum <= 1) {
+                    //init column information
+                    columnsLength = currentRow.length;
+                    csvSchema = new CsvSchema(columnsLength);
+                }
                 //check number of column is same or not
-                if (currentRow.length != totalColumns) {
+                if (currentRow.length != columnsLength) {
                     String warningMsg = "Wrong number of columns at line " + currentLineNum;
                     validationResult.addError(warningMsg);
-                }
-
-                if (!validationResult.isValid()
-                        && validationResultStrategy.shouldStopAtFirstError()) {
-                    return validationResult;
-                }
-
-                /*check consistency of each column of current row with each column of the first row
-                for (int i = 0; i < totalColumns; i++) {
-                    double score = similarityScore.findSimilarityScore(firstRow[i], currentRow[i]);
-                    if (score < SUCCESS_SCORE_BAR) {
-                        String warningMsg = "Column " + (i + 1) + " at row " + currentLineNum
-                                + " '" + currentRow[i] + "' is not matching '" + firstRow[i] + "'";
-                        validationResult.addWarning(warningMsg);
+                    if (validationResult.isNotValid()
+                            && validationResultStrategy.shouldStopAtFirstError()) {
+                        return validationResult;
                     }
-                }*/
+                }
 
-                for (int colIndx = 0; colIndx < totalColumns; colIndx++) {
-                    if (isBoolean(currentRow[colIndx])) {
-                        columnMatrics[colIndx].incrementBooleanCount();
-                    } else if (isInteger(currentRow[colIndx])) {
-                        columnMatrics[colIndx].incrementIntegerCount();
-                    } else if (isFloat(currentRow[colIndx])) {
-                        columnMatrics[colIndx].incrementFloatsCount();
+                //check consistency of each column of current row with each column of the first row
+                for (int colIndx = 0; colIndx < columnsLength; colIndx++) {
+                    String currentColVal = currentRow[colIndx];
+                    if (StringUtils.isBlank(currentColVal)) {
+                        validationResult.addWarning("column " + colIndx + " at row "
+                                + currentLineNum + " is blank");
+                    }
+                    else if (isBoolean(currentColVal)) {
+                        csvSchema.incrementBooleansCountAtColumn(colIndx);
+                    } else if (isInteger(currentColVal)) {
+                        csvSchema.incrementIntegersCountAtColumn(colIndx);
+                    } else if (isFloat(currentColVal)) {
+                        csvSchema.incrementFloatsCountAtColumn(colIndx);
                     } else {
                         CsvColumnPattern pattern =
-                                createCsvColumnPatternFromString(currentRow[colIndx]);
-                        columnMatrics[colIndx].addColumnPattern(pattern);
+                                createCsvColumnPatternFromString(currentColVal);
+                        csvSchema.colAt(colIndx).put(pattern);
                     }
                 }
                 if (!validationResult.isValid()
@@ -153,7 +152,12 @@ public class CsvValidator extends AbstractValidator
                 }
             }
 
-            // Do analysis on column matrics
+            // Do analysis on column data analysis(it total rows are more than one)
+            if (currentLineNum > 1 && csvSchema != null) {
+                csvSchema.setTotalRows(currentLineNum);
+                new CsvSchemaValidator().validateAndAddError(
+                        csvSchema, validationResult, currentLineNum);
+            }
             return validationResult;
         } catch (ParsingException ex) {
             validationResult.addError(ex.getMessage());
@@ -162,20 +166,47 @@ public class CsvValidator extends AbstractValidator
         }
     }
 
+    private void analysizeColumnsSchemaAndWarningsIfFound(CsvSchema csvSchema) {
+
+    }
+
     private CsvColumnPattern createCsvColumnPatternFromString(String s) {
-        return null; //TODO
+        List<CsvColumnValueType> columnValuePattern = new ArrayList<>();
+        int len = s.length();
+        for (int i = 1; i < len; i++) {
+            CsvColumnValueType currentType = CsvColumnValueType.getType(s.charAt(i));
+            columnValuePattern.add(currentType);
+            //skip while type is same
+            while (i < len && currentType == CsvColumnValueType.getType(s.charAt(i))) {
+                i++;
+            }
+        }
+        return CsvColumnPattern.of(columnValuePattern);
     }
 
     private boolean isFloat(String s) {
-        return true;
+        try {
+            Float.parseFloat(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private boolean isInteger(String s) {
-        return true;
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private boolean isBoolean(String s) {
-        return true;
+        if (s == null) {
+            return false;
+        }
+        return "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s);
     }
 
     private boolean guessFileHasHeaderOrNot() throws ParsingException {

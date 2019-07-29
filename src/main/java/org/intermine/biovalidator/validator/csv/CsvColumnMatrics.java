@@ -24,13 +24,13 @@ public class CsvColumnMatrics
     private long integersCount;
     private long floatsCount;
 
-    private Map<CsvColumnPattern, Integer> columnPatternsMappingWithValueCount;
+    private Map<CsvColumnPattern, Integer> columnDataPatternsWithOccurrenceCount;
 
     /**
      * Construct a CsvColumnMatrics instance
      */
     public CsvColumnMatrics() {
-        this.columnPatternsMappingWithValueCount = new HashMap<>();
+        this.columnDataPatternsWithOccurrenceCount = new HashMap<>();
     }
 
     /**
@@ -38,14 +38,14 @@ public class CsvColumnMatrics
      * @param pattern instance of CsvColumnPattern
      * @return returns added or not
      */
-    public boolean addColumnPattern(CsvColumnPattern pattern) {
-        Integer count = columnPatternsMappingWithValueCount.get(pattern);
+    public boolean put(CsvColumnPattern pattern) {
+        Integer count = columnDataPatternsWithOccurrenceCount.get(pattern);
         if (count == null) {
-            count = 0;
+            count = 1;
         } else {
             count++;
         }
-        this.columnPatternsMappingWithValueCount.put(pattern, count);
+        this.columnDataPatternsWithOccurrenceCount.put(pattern, count);
         return true; // TODO return exactly what happened
     }
 
@@ -92,5 +92,13 @@ public class CsvColumnMatrics
      */
     public long getFloatsCount() {
         return floatsCount;
+    }
+
+    /**
+     * Gets all data patterns of the column
+     * @return data patterns
+     */
+    public Map<CsvColumnPattern, Integer> getColumnDataPatterns() {
+        return columnDataPatternsWithOccurrenceCount;
     }
 }

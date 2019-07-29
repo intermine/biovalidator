@@ -24,7 +24,7 @@ public enum CsvColumnValueType
      * 1. 12323
      * 2. 00231234
      */
-    DIGITS((short) 1),
+    DIGITS((byte) 1),
 
     /**
      * Represents one or more letters in a column value
@@ -32,34 +32,34 @@ public enum CsvColumnValueType
      * 1. abc
      * 2. biovalidator
      */
-    LETTERS((short) 2),
+    LETTERS((byte) 2),
 
     /**
      * Represents one or more symbols in a column value
      * Examples:
      * 1. symbols like '-',  '!', '@', '#', '$', '%', '^', '{@literal &}', '*', '(', ')', '+', '-'
      */
-    SYMBOLS((short) 3),
+    SYMBOLS((byte) 3),
 
     /**
      * Represents one or more spaces in a column value
      * Examples:
      * 1. any whitespace like ' ', '\t', '   ', '\r', '\n', etc..
      */
-    SPACES((short) 4),
+    SPACES((byte) 4),
 
     /**
      * Represents a random type in a column value
      */
-    RANDOM((short) 4);
+    RANDOM((byte) 4);
 
-    private short id;
+    private byte id;
 
     /**
      * Construct a csv column value type with its ID
      * @param id id of the type
      */
-    CsvColumnValueType(short id) {
+    CsvColumnValueType(byte id) {
         this.id = id;
     }
 
@@ -69,5 +69,22 @@ public enum CsvColumnValueType
      */
     public short getId() {
         return id;
+    }
+
+    /**
+     * returns type of a character
+     * @param c input character
+     * @return matching CsvColumnValueType of the character
+     */
+    public static CsvColumnValueType getType(char c) {
+        if (Character.isDigit(c)) {
+            return CsvColumnValueType.DIGITS;
+        } else if (Character.isLetter(c)) {
+            return CsvColumnValueType.LETTERS;
+        } else if (Character.isWhitespace(c)) {
+            return CsvColumnValueType.SPACES;
+        } else {
+            return CsvColumnValueType.SYMBOLS;
+        }
     }
 }
