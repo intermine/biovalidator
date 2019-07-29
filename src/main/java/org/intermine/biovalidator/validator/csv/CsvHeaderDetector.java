@@ -25,23 +25,20 @@ public class CsvHeaderDetector
 {
     private static final int SAMPLE_ROW = 10;
     private InputStreamReader inputStreamReader;
+    private boolean allowComments;
     private String delimiter;
 
     /**
-     * Create a constructor with input stream and by auto-detecting delimiter type
-     * @param inputStreamReader input-stream to the file
-     */
-    public CsvHeaderDetector(InputStreamReader inputStreamReader) {
-        this(inputStreamReader, "");
-    }
-
-    /**
      * input stream
-     * @param inputStreamReader input stream to the file
+     * @param inputStreamReader filepath
+     * @param allowComments allow comments preceded with '#' or not
      * @param delimiter delimiter for csv/tsv file
      */
-    public CsvHeaderDetector(InputStreamReader inputStreamReader, String delimiter) {
+    public CsvHeaderDetector(InputStreamReader inputStreamReader,
+                             boolean allowComments,
+                             String delimiter) {
         this.inputStreamReader = inputStreamReader;
+        this.allowComments = allowComments;
         this.delimiter = delimiter;
     }
 
@@ -52,7 +49,12 @@ public class CsvHeaderDetector
      * @return boolean
      */
     public boolean hasHeader() throws ParsingException {
-        CsvParser parser = new CsvParser(inputStreamReader, true, delimiter);
+        /*
+         tell the parse that file does not has header so it won't skip first line, as this
+         class wants to read first line in order to detect whether file has header or not.
+         So pass hasHeader=false in the CsvParser() constructor
+          */
+        CsvParser parser = new CsvParser(inputStreamReader, false, allowComments, delimiter);
 
         String[] header = parser.parseNext();
         int totalColumns = header.length;
@@ -70,19 +72,24 @@ public class CsvHeaderDetector
                 continue;
             }
 
-            columnTypes.forEach((colKeyIndex, colVal) -> {
-                if (NumberUtils.isCreatable(row[colKeyIndex])) {
-                    if (!(colVal instanceof Boolean)) {
-                        if (colVal == null) {
-                            columnTypes.put(colKeyIndex, true);
+            for (int i = 0; i < totalColumns; i++) {
+                if (NumberUtils.isCreatable(row[i])) {
+                    if (!(columnTypes.get(i) instanceof Boolean)) {
+                        if (columnTypes.get(i) == null) {
+                            columnTypes.put(i, true);
                         } else {
-                            columnTypes.remove(colKeyIndex);
+                            columnTypes.remove(i);
                         }
                     }
                 } else {
-                    columnTypes.put(colKeyIndex, row[colKeyIndex].length());
+                    if (row[i] == null) {
+                        columnTypes.put(i, 0);
+                    } else {
+                        columnTypes.put(i, row[i].length());
+                    }
+
                 }
-            });
+            }
             checked++;
         }
         int hasHeader = 0;
@@ -107,3 +114,15 @@ public class CsvHeaderDetector
         return hasHeader > 0;
     }
 }
+
+/*
+var sample = [
+    ['Usern',2323,'First_name', 'Last_Name'],
+    ['booker12',9012,'Rachel', 'Booker'],
+    ['grey07',2070,'Laura', 'Grey'],
+    ['johnson81',4081,'Craig', 'Johnson'],
+    ['jenkins46',9346,'Mary', 'Jenkins'],
+    ['smith79',5079,'Jamie', 'Smith']
+];
+
+ */

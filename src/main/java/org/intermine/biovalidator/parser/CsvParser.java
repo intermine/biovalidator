@@ -13,7 +13,6 @@ package org.intermine.biovalidator.parser;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParserSettings;
-import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.Parser;
 import org.intermine.biovalidator.api.ParsingException;
 
@@ -27,6 +26,7 @@ import java.io.InputStreamReader;
 public class CsvParser implements Parser<String[]>
 {
     private InputStreamReader inputStreamReader;
+    private boolean hasHeader;
     private boolean allowComments;
     private boolean shouldAutoDetectDelimiter;
     private String delimiter;
@@ -37,27 +37,29 @@ public class CsvParser implements Parser<String[]>
      * Construct CsvParser with a input source and whether to allow comments or not
      * and by auto-detecting delimiter
      * @param inputStreamReader input source
+     * @param hasHeader whether first line is a header line or not
      * @param allowComments whether to allow '#' based comments or not
      */
-    public CsvParser(InputStreamReader inputStreamReader, boolean allowComments) {
-        this(inputStreamReader, allowComments, true, "");
+    public CsvParser(InputStreamReader inputStreamReader,
+                     boolean hasHeader,
+                     boolean allowComments) {
+        this(inputStreamReader, hasHeader, allowComments, "");
     }
 
     /**
      * Construct CsvParser with a input source and a delimiter
      * @param inputStreamReader input source
+     * @param hasHeader whether first line is a header line or not
      * @param allowComments whether to allow '#' based comments or not
      * @param delimiter delimiter to separate columns
      */
-    public CsvParser(InputStreamReader inputStreamReader, boolean allowComments, String delimiter) {
-        this(inputStreamReader, allowComments, true, delimiter);
-    }
-
-    private CsvParser(InputStreamReader inputStreamReader, boolean allowComments,
-                     boolean shouldAutoDetectDelimiter, String delimiter) {
+    public CsvParser(InputStreamReader inputStreamReader,
+                     boolean hasHeader,
+                     boolean allowComments,
+                     String delimiter) {
         this.inputStreamReader = inputStreamReader;
+        this.hasHeader = hasHeader;
         this.allowComments = allowComments;
-        this.shouldAutoDetectDelimiter = shouldAutoDetectDelimiter;
         this.delimiter = delimiter;
 
         this.csvParser = createParser();
@@ -66,9 +68,11 @@ public class CsvParser implements Parser<String[]>
 
     private com.univocity.parsers.csv.CsvParser createParser() {
         CsvParserSettings settings = new CsvParserSettings();
-        //settings.setHeaderExtractionEnabled(true);
-        if (shouldAutoDetectDelimiter && delimiter.length() == 0) { //if no delimiter provided
-            settings.detectFormatAutomatically();
+        if (hasHeader) {
+            settings.setNumberOfRowsToSkip(1); // skip header line if present
+        }
+        if (shouldAutoDetectDelimiter && delimiter.length() == 0) {
+            settings.detectFormatAutomatically(); //if no delimiter provided
         } else {
             settings.getFormat().setDelimiter(delimiter);
         }

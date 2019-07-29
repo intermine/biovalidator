@@ -83,7 +83,7 @@ public final class ValidatorBuilder
             case GFF3:
                 return ofType(new Gff3Validator(reader));
             case CSV:
-                return ofType(new CsvValidator(reader));
+                return ofType(new CsvValidator(filename));
             default:
                 throw new IllegalArgumentException("invalid validator type");
         }

@@ -18,6 +18,9 @@ import org.intermine.biovalidator.parser.CsvParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
 
 import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 
 /**
@@ -27,43 +30,41 @@ import java.io.InputStreamReader;
 public class CsvValidator extends AbstractValidator
 {
     private static final double SUCCESS_SCORE_BAR = 0.5;
-    private InputStreamReader inputStreamReader;
+    private File file;
     private boolean allowComments;
     private boolean shouldAutoDetectDelimiter;
     private String delimiter;
-    private CsvParser csvParser;
     private SimilarityScore similarityScore;
 
     /**
      * Construct CsvParser with a input source by auto-detecting delimiter
      * and with allowed '#' based comments
      *
-     * @param inputStreamReader input source
+     * @param file input source
      */
-    public CsvValidator(InputStreamReader inputStreamReader) {
-        this(inputStreamReader, true);
+    public CsvValidator(File file) {
+        this(file, true);
     }
 
     /**
      * Construct CsvParser with a input source and whether to allow comments or not
      * and by auto-detecting delimiter
-     * @param inputStreamReader input source
+     * @param file input file
      * @param allowComments whether to allow '#' based comments or not
      */
-    public CsvValidator(InputStreamReader inputStreamReader, boolean allowComments) {
-        this(inputStreamReader, allowComments, "");
+    public CsvValidator(File file, boolean allowComments) {
+        this(file, allowComments, "");
     }
 
     /**
      * Construct CsvParser with a input source and whether to allow comments or not
      * and by auto-detecting delimiter
-     * @param inputStreamReader input source
+     * @param file input file
      * @param allowComments whether to allow '#' based comments or not
      * @param delimiter delimiter for column separator
      */
-    public CsvValidator(InputStreamReader inputStreamReader, boolean allowComments,
-                        String delimiter) {
-        this.inputStreamReader = inputStreamReader;
+    public CsvValidator(File file, boolean allowComments, String delimiter) {
+        this.file = file;
         this.allowComments = allowComments;
         if (StringUtils.isNotBlank(delimiter)) {
             this.delimiter = delimiter;
@@ -88,21 +89,32 @@ public class CsvValidator extends AbstractValidator
     @Override
     public ValidationResult validate() throws ValidationFailureException {
         try {
-            this.csvParser = new CsvParser(inputStreamReader, allowComments, delimiter);
+            boolean doesFileHasHeader = guessFileHasHeaderOrNot();
+
+            InputStreamReader inputStreamToFile = createInputStreamFrom(file);
+            CsvParser csvParser = new CsvParser(
+                    inputStreamToFile, doesFileHasHeader, allowComments, delimiter);
+
+            final CsvColumnMatrics[] columnMatrics;
+
+            //parsing the input file
             if (!csvParser.hasNext()) {
                 return validationResult;
             }
+
             // store first data
             String[] firstRow = csvParser.parseNext();
-            int firstRowColumnCount = firstRow.length;
+            int totalColumns = firstRow.length;
             long currentLineNum = 1;
+
+            columnMatrics = new CsvColumnMatrics[totalColumns];
 
             while (csvParser.hasNext()) {
                 currentLineNum++;
                 String[] currentRow = csvParser.parseNext();
 
                 //check number of column is same or not
-                if (currentRow.length != firstRowColumnCount) {
+                if (currentRow.length != totalColumns) {
                     String warningMsg = "Wrong number of columns at line " + currentLineNum;
                     validationResult.addError(warningMsg);
                 }
@@ -112,25 +124,72 @@ public class CsvValidator extends AbstractValidator
                     return validationResult;
                 }
 
-                //check consistency of each column of current row with each column of the first row
-                for (int i = 0; i < firstRowColumnCount; i++) {
+                /*check consistency of each column of current row with each column of the first row
+                for (int i = 0; i < totalColumns; i++) {
                     double score = similarityScore.findSimilarityScore(firstRow[i], currentRow[i]);
                     if (score < SUCCESS_SCORE_BAR) {
                         String warningMsg = "Column " + (i + 1) + " at row " + currentLineNum
                                 + " '" + currentRow[i] + "' is not matching '" + firstRow[i] + "'";
                         validationResult.addWarning(warningMsg);
                     }
+                }*/
+
+                for (int colIndx = 0; colIndx < totalColumns; colIndx++) {
+                    if (isBoolean(currentRow[colIndx])) {
+                        columnMatrics[colIndx].incrementBooleanCount();
+                    } else if (isInteger(currentRow[colIndx])) {
+                        columnMatrics[colIndx].incrementIntegerCount();
+                    } else if (isFloat(currentRow[colIndx])) {
+                        columnMatrics[colIndx].incrementFloatsCount();
+                    } else {
+                        CsvColumnPattern pattern =
+                                createCsvColumnPatternFromString(currentRow[colIndx]);
+                        columnMatrics[colIndx].addColumnPattern(pattern);
+                    }
                 }
-                /*if (!validationResult.isValid()
+                if (!validationResult.isValid()
                         && validationResultStrategy.shouldStopAtFirstError()) {
                     return validationResult;
-                }*/
+                }
             }
+
+            // Do analysis on column matrics
             return validationResult;
         } catch (ParsingException ex) {
             validationResult.addError(ex.getMessage());
             ex.printStackTrace();
             return validationResult;
+        }
+    }
+
+    private CsvColumnPattern createCsvColumnPatternFromString(String s) {
+        return null; //TODO
+    }
+
+    private boolean isFloat(String s) {
+        return true;
+    }
+
+    private boolean isInteger(String s) {
+        return true;
+    }
+
+    private boolean isBoolean(String s) {
+        return true;
+    }
+
+    private boolean guessFileHasHeaderOrNot() throws ParsingException {
+        InputStreamReader inputStreamToFile = createInputStreamFrom(file);
+        CsvHeaderDetector csvHeaderDetector =
+                new CsvHeaderDetector(inputStreamToFile, allowComments, delimiter);
+        return csvHeaderDetector.hasHeader();
+    }
+
+    private InputStreamReader createInputStreamFrom(File file) throws ParsingException {
+        try {
+            return new FileReader(file);
+        } catch (FileNotFoundException ex) {
+            throw new ParsingException("file not found!");
         }
     }
 }
