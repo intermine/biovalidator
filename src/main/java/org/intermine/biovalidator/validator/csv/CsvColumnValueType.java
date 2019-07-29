@@ -37,7 +37,7 @@ public enum CsvColumnValueType
     /**
      * Represents one or more symbols in a column value
      * Examples:
-     * 1. symbols like '-',  '!', '@', '#', '$', '%', '^', '{@literal &}', '*', '(', ')', '+', '-', etc..
+     * 1. symbols like '-',  '!', '@', '#', '$', '%', '^', '{@literal &}', '*', '(', ')', '+', '-'
      */
     SYMBOLS((short) 3),
 
