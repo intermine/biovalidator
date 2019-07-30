@@ -92,7 +92,7 @@ public class CsvValidator extends AbstractValidator
     public ValidationResult validate() throws ValidationFailureException {
         try {
             CsvSchema csvSchema = null;
-            boolean doesFileHasHeader = false; //guessFileHasHeaderOrNot();
+            boolean doesFileHasHeader = guessFileHasHeaderOrNot();
 
             InputStreamReader inputStreamToFile = createInputStreamFrom(file);
             CsvParser csvParser = new CsvParser(
@@ -166,10 +166,6 @@ public class CsvValidator extends AbstractValidator
         }
     }
 
-    private void analysizeColumnsSchemaAndWarningsIfFound(CsvSchema csvSchema) {
-
-    }
-
     private CsvColumnPattern createCsvColumnPatternFromString(String s) {
         List<CsvColumnValueType> columnValuePattern = new ArrayList<>();
         int len = s.length();
@@ -177,9 +173,14 @@ public class CsvValidator extends AbstractValidator
             CsvColumnValueType currentType = CsvColumnValueType.getType(s.charAt(i));
             columnValuePattern.add(currentType);
             //skip while type is same
-            while (i < len && currentType == CsvColumnValueType.getType(s.charAt(i))) {
+            while ((i + 1) < len && currentType == CsvColumnValueType.getType(s.charAt(i + 1))) {
                 i++;
             }
+        }
+        // if list of pattern in a single column value is greater than defined MAX pattern length,
+        // then it is assumed that, the given column value has a random or very mixed pattern
+        if (columnValuePattern.size() > CsvColumnPattern.MAX_PATTERN_LENGTH) {
+            return CsvColumnPattern.randomPattern();
         }
         return CsvColumnPattern.of(columnValuePattern);
     }

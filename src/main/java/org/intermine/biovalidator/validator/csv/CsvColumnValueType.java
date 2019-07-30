@@ -79,11 +79,11 @@ public enum CsvColumnValueType
     public static CsvColumnValueType getType(char c) {
         if (Character.isDigit(c)) {
             return CsvColumnValueType.DIGITS;
-        } else if (Character.isLetter(c)) {
+        } else if (Character.isLetter(c) || Character.isWhitespace(c)) {
             return CsvColumnValueType.LETTERS;
-        } else if (Character.isWhitespace(c)) {
+        } /*else if (Character.isWhitespace(c)) {
             return CsvColumnValueType.SPACES;
-        } else {
+        }*/ else {
             return CsvColumnValueType.SYMBOLS;
         }
     }

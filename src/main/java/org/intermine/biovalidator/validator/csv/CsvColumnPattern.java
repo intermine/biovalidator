@@ -11,6 +11,7 @@ package org.intermine.biovalidator.validator.csv;
  */
 
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +22,15 @@ import java.util.List;
  */
 public final class CsvColumnPattern
 {
+    /**
+     * Represents maximum length of a pattern
+     */
+    public static final int MAX_PATTERN_LENGTH = 9;
+
     private List<CsvColumnValueType> patternList;
+
+    private static final CsvColumnPattern RANDOM_PATTERN =
+            new CsvColumnPattern(Collections.singletonList(CsvColumnValueType.RANDOM));
 
     private CsvColumnPattern(List<CsvColumnValueType> patternList) {
         this.patternList = patternList;
@@ -34,6 +43,14 @@ public final class CsvColumnPattern
      */
     public static CsvColumnPattern of(List<CsvColumnValueType> patternList) {
         return new CsvColumnPattern(patternList);
+    }
+
+    /**
+     * Create and return a pattern representing a random or mixed string pattern
+     * @return pattern for a random or mixed string
+     */
+    public static CsvColumnPattern randomPattern() {
+        return RANDOM_PATTERN;
     }
 
     @Override
