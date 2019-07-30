@@ -92,7 +92,7 @@ public class CsvValidator extends AbstractValidator
     public ValidationResult validate() throws ValidationFailureException {
         try {
             CsvSchema csvSchema = null;
-            boolean doesFileHasHeader = guessFileHasHeaderOrNot();
+            boolean doesFileHasHeader = false; //guessFileHasHeaderOrNot();
 
             InputStreamReader inputStreamToFile = createInputStreamFrom(file);
             CsvParser csvParser = new CsvParser(

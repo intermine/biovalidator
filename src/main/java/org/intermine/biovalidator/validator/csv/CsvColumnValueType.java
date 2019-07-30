@@ -81,9 +81,7 @@ public enum CsvColumnValueType
             return CsvColumnValueType.DIGITS;
         } else if (Character.isLetter(c) || Character.isWhitespace(c)) {
             return CsvColumnValueType.LETTERS;
-        } /*else if (Character.isWhitespace(c)) {
-            return CsvColumnValueType.SPACES;
-        }*/ else {
+        } else {
             return CsvColumnValueType.SYMBOLS;
         }
     }

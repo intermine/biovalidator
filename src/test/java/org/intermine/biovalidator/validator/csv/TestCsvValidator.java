@@ -23,7 +23,7 @@ public class TestCsvValidator extends BaseValidatorTest {
             String csv = "/home/deepak/Documents/Intermine/FILES/CSV/cars.csv";
             String sample = "/home/deepak/Documents/Intermine/FILES/CSV/Drosophila_2.na25.annot.csv";
             String filePath = getFullPath("csv/variant_summary_sample.csv");
-            ValidationResult result = ValidatorHelper.validateCsv(csv, true);
+            ValidationResult result = ValidatorHelper.validateCsv(filePath, true);
 
             System.out.println(result.getErrorMessage());
             if (result.getWarningMessages().size() > 0) {
