@@ -176,6 +176,16 @@ public class CsvValidator extends AbstractValidator
             while ((i + 1) < len && currentType == CsvColumnValueType.getType(s.charAt(i + 1))) {
                 i++;
             }
+
+            /*
+                skip commonly used text symbols (such as ',', '(', ')', etc), if it is between two string text.
+                Example where symbols will be skipped:
+                    1. "Hi, deer"           -> skip ','
+                    2. "United State(US)"   -> skip '(', ')' as both are part of text
+                    3. "region & mRNA"      -> skip '&'
+                    3. ""
+
+             */
             if ((i + 1) < len && prevType != null
                     && isGenerallyAcceptedStringSymbol(s.charAt(i))
                     && prevType == CsvColumnValueType.LETTERS
