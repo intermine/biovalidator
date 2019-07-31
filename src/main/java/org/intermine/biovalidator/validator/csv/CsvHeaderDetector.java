@@ -98,7 +98,7 @@ public class CsvHeaderDetector
             Object colVal = entry.getValue();
             if (colVal instanceof Integer) {
                 int colValInt = (Integer) colVal;
-                if (header[colKey].length() == colValInt) {
+                if (header[colKey] != null && header[colKey].length() == colValInt) {
                     hasHeader--;
                 } else {
                     hasHeader++;

@@ -73,7 +73,7 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
             if (percentageOfSingleType > minSingleTypePercent && percentageOfSingleType < 100) {
                 String warningMsg  = String.format("data is not consistent in column "
                         + (columnIndex + 1) + ", %.2f%% of data is "
-                        + " float but few are not.", percentageOfSingleType);
+                        + "float but few are not.", percentageOfSingleType);
                 validationResult.addWarning(warningMsg);
             }
         }
@@ -101,7 +101,7 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
             totalPercentageError += calcPercentage(diff, estimatedSizeForEachPattern);
         }
         if ((totalPercentageError / size) > acceptablePercentageError) {
-            validationResult.addWarning("data in column " + columnIndex
+            validationResult.addWarning("data in column " + (columnIndex + 1)
                     + " does not confirms " + "to one or more pattern, look like "
                     + "this column has data with some random pattern");
         }

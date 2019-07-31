@@ -27,6 +27,8 @@ public final class CsvColumnPattern
      */
     public static final int MAX_PATTERN_LENGTH = 9;
 
+    private String patternValue;
+
     private List<CsvColumnValueType> patternList;
 
     private static final CsvColumnPattern RANDOM_PATTERN =
@@ -41,8 +43,10 @@ public final class CsvColumnPattern
      * @param patternList pattern list (list of value type that constructs a patter)
      * @return immutable instance of CsvColumnPattern
      */
-    public static CsvColumnPattern of(List<CsvColumnValueType> patternList) {
-        return new CsvColumnPattern(patternList);
+    public static CsvColumnPattern of(List<CsvColumnValueType> patternList, String patternValue) {
+        CsvColumnPattern pattern =  new CsvColumnPattern(patternList);
+        pattern.patternValue = patternValue;
+        return pattern;
     }
 
     /**
@@ -83,6 +87,10 @@ public final class CsvColumnPattern
         return patternVal;
     }
 
+    @Override
+    public String toString() {
+        return patternList.toString();
+    }
     /**
      * Gets pattern list
      * @return list of pattern of a column
