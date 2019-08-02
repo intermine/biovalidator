@@ -16,7 +16,9 @@ import org.intermine.biovalidator.parser.CsvParser;
 
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author deepak kumar
@@ -71,9 +73,23 @@ public class CsvHeaderDetector
             if (row.length != totalColumns) {
                 continue;
             }
-
-            for (int i = 0; i < totalColumns; i++) {
+            //Copy keys to avoid Modification Exception
+            Set<Integer> columnTypesKeys = new HashSet<>(columnTypes.keySet());
+            columnTypesKeys.forEach(i -> {
+                Object thisType;
                 if (NumberUtils.isCreatable(row[i])) {
+                    thisType = Boolean.TRUE;
+                } else {
+                    thisType = row[i] == null ? 0: row[i].length();
+                }
+                if (thisType !=  columnTypes.get(i)) {
+                    if (columnTypes.get(i) == null) {
+                        columnTypes.put(i, thisType);
+                    } else {
+                        columnTypes.remove(i);
+                    }
+                }
+                /*if (NumberUtils.isCreatable(row[i])) {
                     if (!(columnTypes.get(i) instanceof Boolean)) {
                         if (columnTypes.get(i) == null) {
                             columnTypes.put(i, true);
@@ -88,8 +104,8 @@ public class CsvHeaderDetector
                         columnTypes.put(i, row[i].length());
                     }
 
-                }
-            }
+                }*/
+            });
             checked++;
         }
         int hasHeader = 0;

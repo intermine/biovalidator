@@ -27,26 +27,36 @@ public final class CsvColumnPattern
      */
     public static final int MAX_PATTERN_LENGTH = 9;
 
-    private String patternValue;
-
-    private List<CsvColumnValueType> patternList;
+    private String data;
+    private String pattern;
 
     private static final CsvColumnPattern RANDOM_PATTERN =
-            new CsvColumnPattern(Collections.singletonList(CsvColumnValueType.RANDOM));
+            of(Collections.singletonList(CsvColumnValueType.RANDOM), null);
 
-    private CsvColumnPattern(List<CsvColumnValueType> patternList) {
-        this.patternList = patternList;
+    private CsvColumnPattern(String pattern, String data) {
+        this.pattern = pattern;
+        this.data = data;
     }
 
     /**
      * Construct an immutable column pattern for a csv column
      * @param patternList pattern list (list of value type that constructs a patter)
+     * @param patternData data
      * @return immutable instance of CsvColumnPattern
      */
-    public static CsvColumnPattern of(List<CsvColumnValueType> patternList, String patternValue) {
-        CsvColumnPattern pattern =  new CsvColumnPattern(patternList);
-        pattern.patternValue = patternValue;
-        return pattern;
+    public static CsvColumnPattern of(List<CsvColumnValueType> patternList, String patternData) {
+        String serializedPattern = PatternUtils.serializePatternList(patternList);
+        //String compressedStringPattern = PatternUtils.compressRepeatedPatterns(serializedPattern);
+        return new CsvColumnPattern(serializedPattern, patternData);
+    }
+
+    /**
+     * Create a pattern fom given string data
+     * @param data data from which pattern has to created
+     * @return immutable instance of CsvColumnPattern
+     */
+    public static CsvColumnPattern of(String data) {
+        return PatternUtils.createCsvColumnPatternFromString(data);
     }
 
     /**
@@ -69,14 +79,12 @@ public final class CsvColumnPattern
             return false;
         }
         CsvColumnPattern thatPattern = (CsvColumnPattern) thatObj;
-        return this.patternList.equals(thatPattern.patternList);
+        return this.pattern.equals(thatPattern.pattern);
     }
 
     @Override
     public int hashCode() {
-        int result = 1;
-        int val  = convertPatternToNumber(patternList);
-        return 31 * result * val;
+        return pattern.hashCode();
     }
 
     private int convertPatternToNumber(List<CsvColumnValueType> patternList) {
@@ -89,13 +97,14 @@ public final class CsvColumnPattern
 
     @Override
     public String toString() {
-        return patternList.toString();
+        return pattern;
     }
+
     /**
      * Gets pattern list
      * @return list of pattern of a column
      */
     public List<CsvColumnValueType> getPatternList() {
-        return patternList;
+        return null;
     }
 }

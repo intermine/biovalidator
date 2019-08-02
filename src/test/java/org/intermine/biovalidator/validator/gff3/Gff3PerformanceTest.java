@@ -40,7 +40,7 @@ public class Gff3PerformanceTest {
         });
     }
 
-    private static void simpleBenchmark(Runnable codeToBeValidated){
+    public static void simpleBenchmark(Runnable codeToBeValidated){
         long start = System.nanoTime();
         long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 

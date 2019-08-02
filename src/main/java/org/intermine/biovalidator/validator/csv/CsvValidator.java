@@ -142,7 +142,7 @@ public class CsvValidator extends AbstractValidator
                         csvSchema.incrementFloatsCountAtColumn(colIndx);
                     } else {
                         CsvColumnPattern pattern =
-                                createCsvColumnPatternFromString(currentColVal);
+                                PatternUtils.createCsvColumnPatternFromString(currentColVal);
                         csvSchema.colAt(colIndx).put(pattern);
                     }
                 }
@@ -166,52 +166,6 @@ public class CsvValidator extends AbstractValidator
         }
     }
 
-    private CsvColumnPattern createCsvColumnPatternFromString(String s) {
-        List<CsvColumnValueType> columnValuePattern = new ArrayList<>();
-        int len = s.length();
-        CsvColumnValueType prevType = null;
-        for (int i = 1; i < len; i++) {
-            CsvColumnValueType currentType = CsvColumnValueType.getType(s.charAt(i));
-            //skip while type is same
-            while ((i + 1) < len && currentType == CsvColumnValueType.getType(s.charAt(i + 1))) {
-                i++;
-            }
-
-            /*
-                skip commonly used text symbols (such as ',', '(', ')', etc), if it is between two string text.
-                Example where symbols will be skipped:
-                    1. "Hi, deer"           -> skip ','
-                    2. "United State(US)"   -> skip '(', ')' as both are part of text
-                    3. "region & mRNA"      -> skip '&'
-                    3. ""
-
-             */
-            if ((i + 1) < len && prevType != null
-                    && isGenerallyAcceptedStringSymbol(s.charAt(i))
-                    && prevType == CsvColumnValueType.LETTERS
-                    && CsvColumnValueType.getType(s.charAt(i + 1)) == CsvColumnValueType.LETTERS) {
-                continue;
-            } if ((i + 1) == len && (prevType == CsvColumnValueType.LETTERS)) {
-                continue;
-            } else {
-                if (currentType != prevType) {
-                    columnValuePattern.add(currentType);
-                }
-            }
-            prevType = currentType;
-        }
-        // if list of pattern in a single column value is greater than defined MAX pattern length,
-        // then it is assumed that, the given column value has a random or very mixed pattern
-        if (columnValuePattern.size() > CsvColumnPattern.MAX_PATTERN_LENGTH) {
-            return CsvColumnPattern.randomPattern();
-        }
-        return CsvColumnPattern.of(columnValuePattern, s);
-    }
-
-    private boolean isGenerallyAcceptedStringSymbol(char c) {
-        return c == ',' || c == '(' || c == ')' || c == '\'' || c == '\"' || c == '&';
-    }
-
     private boolean isFloat(String s) {
         try {
             Float.parseFloat(s);
@@ -221,13 +175,29 @@ public class CsvValidator extends AbstractValidator
         }
     }
 
-    private boolean isInteger(String s) {
+    /*private boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
             return true;
         } catch (NumberFormatException e) {
             return false;
         }
+    }*/
+
+    private static boolean isInteger(String s) {
+        return isInteger(s,10);
+    }
+
+    private static boolean isInteger(String s, int radix) {
+        if(s.isEmpty()) return false;
+        for(int i = 0; i < s.length(); i++) {
+            if(i == 0 && s.charAt(i) == '-') {
+                if(s.length() == 1) return false;
+                else continue;
+            }
+            if(Character.digit(s.charAt(i), radix) < 0) return false;
+        }
+        return true;
     }
 
     private boolean isBoolean(String s) {

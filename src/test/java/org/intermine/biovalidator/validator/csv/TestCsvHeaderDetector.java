@@ -19,8 +19,9 @@ public class TestCsvHeaderDetector extends BaseValidatorTest {
     public void testHeaderDetector() throws FileNotFoundException, ParsingException {
         String file = "/home/deepak/Documents/Intermine/FILES/CSV/emp.csv";
         String file2 = "/home/deepak/Documents/Intermine/FILES/CSV/record.csv";
+        String sample = "/home/deepak/Documents/Intermine/FILES/CSV/anotation/U133AGNF1B.gcrma.avg.csv";
 
-        CsvHeaderDetector detector = new CsvHeaderDetector(new FileReader(file), true, "");
+        CsvHeaderDetector detector = new CsvHeaderDetector(new FileReader(sample), true, "");
         System.out.println(detector.hasHeader());
         //assertTrue(detector.hasHeader());
     }

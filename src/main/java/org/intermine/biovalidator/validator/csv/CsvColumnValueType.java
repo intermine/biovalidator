@@ -24,7 +24,7 @@ public enum CsvColumnValueType
      * 1. 12323
      * 2. 00231234
      */
-    DIGITS((byte) 1),
+    DIGITS('D'),
 
     /**
      * Represents one or more letters in a column value
@@ -32,34 +32,34 @@ public enum CsvColumnValueType
      * 1. abc
      * 2. biovalidator
      */
-    LETTERS((byte) 2),
+    LETTERS('L'),
 
     /**
      * Represents one or more symbols in a column value
      * Examples:
      * 1. symbols like '-',  '!', '@', '#', '$', '%', '^', '{@literal &}', '*', '(', ')', '+', '-'
      */
-    SYMBOLS((byte) 3),
+    SYMBOLS('S'),
 
     /**
      * Represents one or more spaces in a column value
      * Examples:
      * 1. any whitespace like ' ', '\t', '   ', '\r', '\n', etc..
      */
-    SPACES((byte) 4),
+    SPACES(' '),
 
     /**
      * Represents a random type in a column value
      */
-    RANDOM((byte) 4);
+    RANDOM('R');
 
-    private byte id;
+    private char id;
 
     /**
      * Construct a csv column value type with its ID
      * @param id id of the type
      */
-    CsvColumnValueType(byte id) {
+    CsvColumnValueType(char id) {
         this.id = id;
     }
 
@@ -67,7 +67,7 @@ public enum CsvColumnValueType
      * Gets id of the value type
      * @return id of the value type
      */
-    public short getId() {
+    public char getId() {
         return id;
     }
 
