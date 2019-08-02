@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Validator for validating csv/tsv data
@@ -31,6 +29,8 @@ import java.util.List;
  */
 public class CsvValidator extends AbstractValidator
 {
+    private static final String BOOLEAN_TRUE = "true";
+    private static final String BOOLEAN_FALSE = "false";
     private static final double SUCCESS_SCORE_BAR = 0.5;
     private File file;
     private boolean allowComments;
@@ -141,8 +141,7 @@ public class CsvValidator extends AbstractValidator
                     } else if (isFloat(currentColVal)) {
                         csvSchema.incrementFloatsCountAtColumn(colIndx);
                     } else {
-                        CsvColumnPattern pattern =
-                                PatternUtils.createCsvColumnPatternFromString(currentColVal);
+                        CsvColumnPattern pattern = CsvColumnPattern.of(currentColVal);
                         csvSchema.colAt(colIndx).put(pattern);
                     }
                 }
@@ -179,23 +178,28 @@ public class CsvValidator extends AbstractValidator
         try {
             Integer.parseInt(s);
             return true;
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {"true"
             return false;
         }
     }*/
 
     private static boolean isInteger(String s) {
-        return isInteger(s,10);
-    }
-
-    private static boolean isInteger(String s, int radix) {
-        if(s.isEmpty()) return false;
-        for(int i = 0; i < s.length(); i++) {
-            if(i == 0 && s.charAt(i) == '-') {
-                if(s.length() == 1) return false;
-                else continue;
+        final int radix = 10;
+        if (s.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 && s.charAt(i) == '-') {
+                if (s.length() == 1) {
+                    return false;
+                }
+                else {
+                    continue;
+                }
             }
-            if(Character.digit(s.charAt(i), radix) < 0) return false;
+            if (Character.digit(s.charAt(i), radix) < 0) {
+                return false;
+            }
         }
         return true;
     }
@@ -204,7 +208,7 @@ public class CsvValidator extends AbstractValidator
         if (s == null) {
             return false;
         }
-        return "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s);
+        return BOOLEAN_TRUE.equalsIgnoreCase(s) || BOOLEAN_FALSE.equalsIgnoreCase(s);
     }
 
     private boolean guessFileHasHeaderOrNot() throws ParsingException {

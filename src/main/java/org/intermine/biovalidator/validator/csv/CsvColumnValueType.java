@@ -85,4 +85,18 @@ public enum CsvColumnValueType
             return CsvColumnValueType.SYMBOLS;
         }
     }
+
+    /**
+     * Create and return type from char id
+     * @param c id
+     * @return equivalent type
+     */
+    public static CsvColumnValueType of(char c) {
+        for (CsvColumnValueType type : CsvColumnValueType.values()) {
+            if (type.getId() == c) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("unable to find type of pattern");
+    }
 }

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * Utilities for creating and manipulating csv column-value patterns
  * @author deepak kumar
  */
-public class PatternUtils
+public final class PatternUtils
 {
     private static final Pattern COMPRESS_PATTERN = Pattern.compile("(.+?)\\1+");
     private PatternUtils() { }
@@ -26,18 +26,19 @@ public class PatternUtils
     /**
      * Create a pattern for a given string
      * Examples:
-     *     1. "abc"             ->  [LETTERS]
-     *     2. "bio101"          ->  [LETTERS, DIGITS]
-     *     3. "SO:3347"         ->  [LETTERS, SYMBOL, DIGITS]
-     *     4. "amino-acid (RNA)"->  [LETTERS] symbols between text (string) are not considered
+     *     1. "abc"             -{@literal >}  [LETTERS]
+     *     2. "bio101"          -{@literal >}  [LETTERS, DIGITS]
+     *     3. "SO:3347"         -{@literal >}  [LETTERS, SYMBOL, DIGITS]
+     *     4. "amino-acid (RNA)"-{@literal >}  [LETTERS] symbols between text(string)
+     *     are not considered
      * @param s a string
      * @return CsvColumnPattern
      */
-    public static CsvColumnPattern createCsvColumnPatternFromString(String s) {
-        List<CsvColumnValueType> columnValuePattern = new ArrayList<>();
+    public static String createCsvColumnPatternFromString(String s) {
+        StringBuilder columnValuePattern = new StringBuilder();
         int len = s.length();
         CsvColumnValueType prevType = null;
-        for (int i = 1; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             CsvColumnValueType currentType = CsvColumnValueType.getType(s.charAt(i));
             //skip while type is same
             while ((i + 1) < len && currentType == CsvColumnValueType.getType(s.charAt(i + 1))) {
@@ -59,21 +60,23 @@ public class PatternUtils
                     && prevType == CsvColumnValueType.LETTERS
                     && CsvColumnValueType.getType(s.charAt(i + 1)) == CsvColumnValueType.LETTERS) {
                 continue;
-            } if ((i + 1) == len && (prevType == CsvColumnValueType.LETTERS)) {
+            }
+            if ((i + 1) == len && (prevType == CsvColumnValueType.LETTERS)
+                    && currentType == CsvColumnValueType.SYMBOLS) {
                 continue;
             } else {
                 if (currentType != prevType) {
-                    columnValuePattern.add(currentType);
+                    columnValuePattern.append(currentType.getId());
                 }
             }
             prevType = currentType;
         }
         // if list of pattern in a single column value is greater than defined MAX pattern length,
         // then it is assumed that, the given column value has a random or very mixed pattern
-        if (columnValuePattern.size() > CsvColumnPattern.MAX_PATTERN_LENGTH) {
+        /*if (columnValuePattern.size() > CsvColumnPattern.MAX_PATTERN_LENGTH) {
             return CsvColumnPattern.randomPattern();
-        }
-        return CsvColumnPattern.of(columnValuePattern, s);
+        }*/
+        return columnValuePattern.toString();
     }
 
     private static boolean isGenerallyAcceptedStringSymbol(char c) {
@@ -103,7 +106,7 @@ public class PatternUtils
         int len = serializedPattern.length();
         List<CsvColumnValueType> pattern = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
-            pattern.add(CsvColumnValueType.getType(serializedPattern.charAt(i)));
+            pattern.add(CsvColumnValueType.of(serializedPattern.charAt(i)));
         }
         return pattern;
     }
@@ -112,9 +115,9 @@ public class PatternUtils
      * Replace repeated patterns in string to single occurrence, it replace consecutive repeated
      * pattern in a string to its single occurrence
      * Example :
-     *  1. "AAAAAAB"        -> "AB"
-     *  2. "ABAB"           -> AB
-     *  3. "ABCXYZABCXYZ"   -> ABCXYZ
+     *  1. "AAAAAAB"        -{@literal >} "AB"
+     *  2. "ABAB"           -{@literal >} AB
+     *  3. "ABCXYZABCXYZ"   -{@literal >} ABCXYZ
      * @param patternStr string to compress
      * @return compressed string with replaced repeated pattern with single occurrence
      */

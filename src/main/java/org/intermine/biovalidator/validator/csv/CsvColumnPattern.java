@@ -11,7 +11,6 @@ package org.intermine.biovalidator.validator.csv;
  */
 
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,32 +30,32 @@ public final class CsvColumnPattern
     private String pattern;
 
     private static final CsvColumnPattern RANDOM_PATTERN =
-            of(Collections.singletonList(CsvColumnValueType.RANDOM), null);
+            new CsvColumnPattern(String.valueOf(CsvColumnValueType.RANDOM.getId()), null);
 
     private CsvColumnPattern(String pattern, String data) {
         this.pattern = pattern;
         this.data = data;
     }
 
-    /**
-     * Construct an immutable column pattern for a csv column
-     * @param patternList pattern list (list of value type that constructs a patter)
-     * @param patternData data
-     * @return immutable instance of CsvColumnPattern
-     */
-    public static CsvColumnPattern of(List<CsvColumnValueType> patternList, String patternData) {
-        String serializedPattern = PatternUtils.serializePatternList(patternList);
-        //String compressedStringPattern = PatternUtils.compressRepeatedPatterns(serializedPattern);
-        return new CsvColumnPattern(serializedPattern, patternData);
-    }
 
     /**
-     * Create a pattern fom given string data
+     * Create a pattern fom given string data, if created pattern are duplicated consecutively
+     * then it will replace multiple occurrence of same pattern with one(i.e compress patterns)
      * @param data data from which pattern has to created
      * @return immutable instance of CsvColumnPattern
      */
     public static CsvColumnPattern of(String data) {
-        return PatternUtils.createCsvColumnPatternFromString(data);
+        String pattern = PatternUtils.createCsvColumnPatternFromString(data);
+        return new CsvColumnPattern(PatternUtils.compressRepeatedPatterns(pattern), data);
+    }
+
+    /**
+     * Create a pattern fom given string data without any compression
+     * @param data data from which pattern has to created
+     * @return immutable instance of CsvColumnPattern
+     */
+    public static CsvColumnPattern withoutCompression(String data) {
+        return new CsvColumnPattern(PatternUtils.createCsvColumnPatternFromString(data), data);
     }
 
     /**
@@ -87,14 +86,6 @@ public final class CsvColumnPattern
         return pattern.hashCode();
     }
 
-    private int convertPatternToNumber(List<CsvColumnValueType> patternList) {
-        int patternVal = 0;
-        for (CsvColumnValueType valueType: patternList) {
-            patternVal = (patternVal * 10) + valueType.getId();
-        }
-        return patternVal;
-    }
-
     @Override
     public String toString() {
         return pattern;
@@ -105,6 +96,22 @@ public final class CsvColumnPattern
      * @return list of pattern of a column
      */
     public List<CsvColumnValueType> getPatternList() {
-        return null;
+        return PatternUtils.deSerializePatternList(pattern);
+    }
+
+    /**
+     * Returns data from pattern has been created
+     * @return data of the pattern
+     */
+    public String getData() {
+        return data;
+    }
+
+    /**
+     * Gets pattern
+     * @return pattern
+     */
+    public String getPattern() {
+        return pattern;
     }
 }

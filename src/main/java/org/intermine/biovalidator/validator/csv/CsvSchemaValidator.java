@@ -9,12 +9,15 @@ package org.intermine.biovalidator.validator.csv;
  * information or http://www.gnu.org/copyleft/lesser.html.
  *
  */
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import org.intermine.biovalidator.validator.RuleValidator;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Schema rule validator, to validate consistency of columns
@@ -79,10 +82,46 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         }
         if (!isSingleType) {
             // data in the column does not contain single type but rather has mixed data
+            normalizeColumnPatterns(column);
             validateColumnPattern(column, validationResult, totalRows, columnIndex);
         }
     }
 
+    private void normalizeColumnPatterns(CsvColumnMatrics column) {
+        Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
+        Iterator<Map.Entry<CsvColumnPattern, Integer>> itr = patterns.entrySet().iterator();
+        while (itr.hasNext()) {
+            Map.Entry<CsvColumnPattern, Integer> entry = itr.next();
+            findBestMatchingEntry(column, entry).ifPresent(e -> {
+                e.setValue(entry.getValue() + e.getValue());
+                itr.remove();
+            });
+        }
+    }
+
+    private Optional<Map.Entry<CsvColumnPattern, Integer>> findBestMatchingEntry(
+            CsvColumnMatrics column, Map.Entry<CsvColumnPattern, Integer> entryToMatch) {
+        org.apache.commons.text.similarity.SimilarityScore<Double> similarityScore =
+                new JaroWinklerSimilarity();
+        double maxScore = Double.MIN_VALUE;
+        Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
+        Map.Entry<CsvColumnPattern, Integer> mostSimilarPattern = null;
+        for (Map.Entry<CsvColumnPattern, Integer> entry: patterns.entrySet()) {
+            if (!entry.equals(entryToMatch)) {
+                double currentScore  = similarityScore.apply(
+                        entry.getKey().getPattern(), entryToMatch.getKey().getPattern());
+                if (currentScore > maxScore) {
+                    maxScore = currentScore;
+                    mostSimilarPattern = entry;
+                }
+            }
+        }
+        if (maxScore > 0.85) {
+            return Optional.of(mostSimilarPattern);
+        } else {
+            return Optional.empty();
+        }
+    }
     private void validateColumnPattern(CsvColumnMatrics column,
                                        ValidationResult validationResult,
                                        long totalRows,

@@ -42,6 +42,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
     compile group: 'com.univocity', name: 'univocity-parsers', version: '2.8.2'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.7'
+
 }
 
 task myJavadocs(type: Javadoc) {

@@ -52,9 +52,9 @@ public class CsvHeaderDetector
      */
     public boolean hasHeader() throws ParsingException {
         /*
-         tell the parse that file does not has header so it won't skip first line, as this
+         Tell the parse that file does not has header so it won't skip first line, as this
          class wants to read first line in order to detect whether file has header or not.
-         So pass hasHeader=false in the CsvParser() constructor
+         So passing hasHeader=false in the CsvParser() constructor
           */
         CsvParser parser = new CsvParser(inputStreamReader, false, allowComments, delimiter);
 
