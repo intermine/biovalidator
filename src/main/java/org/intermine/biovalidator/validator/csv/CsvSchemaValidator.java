@@ -9,6 +9,8 @@ package org.intermine.biovalidator.validator.csv;
  * information or http://www.gnu.org/copyleft/lesser.html.
  *
  */
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ValidationResult;
@@ -25,6 +27,8 @@ import java.util.Optional;
  */
 public class CsvSchemaValidator implements RuleValidator<CsvSchema>
 {
+    private static final int MIN_SINGLE_TYPE_PERCENT = 80;
+
     @Override
     public boolean validateAndAddError(CsvSchema csvSchema,
                                        ValidationResult validationResult,
@@ -44,47 +48,53 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
                                    int columnIndex) {
         final int minSingleTypePercent = 80;
         boolean isSingleType = false;
-        if (column.getBooleansCount() > 0) {
-            double percentageOfSingleType = calcPercentage(column.getBooleansCount(), totalRows);
-            if (percentageOfSingleType >= minSingleTypePercent) {
-                isSingleType = true;
-            }
-            if (percentageOfSingleType > minSingleTypePercent && percentageOfSingleType < 100) {
-                String warningMsg  = String.format("data is not consistent in column "
-                        + (columnIndex + 1) + ", %.2f of data is "
-                        + "boolean but few are not.", percentageOfSingleType);
-                validationResult.addWarning(warningMsg);
-            }
-        }
-        if (column.getIntegersCount() > 0) {
-            double percentageOfSingleType = calcPercentage(column.getIntegersCount(), totalRows);
-            if (percentageOfSingleType >= minSingleTypePercent) {
-                isSingleType = true;
-            }
-            if (percentageOfSingleType > minSingleTypePercent && percentageOfSingleType < 100) {
-                String warningMsg  = String.format("data is not consistent in column "
-                        + (columnIndex + 1) + ", %.2f of data is "
-                        + "integer but few are not.", percentageOfSingleType);
-                validationResult.addWarning(warningMsg);
-            }
-        }
-        if (column.getFloatsCount() > 0) {
-            double percentageOfSingleType = calcPercentage(column.getFloatsCount(), totalRows);
-            if (percentageOfSingleType >= minSingleTypePercent) {
-                isSingleType = true;
-            }
-            if (percentageOfSingleType > minSingleTypePercent && percentageOfSingleType < 100) {
-                String warningMsg  = String.format("data is not consistent in column "
-                        + (columnIndex + 1) + ", %.2f%% of data is "
-                        + "float but few are not.", percentageOfSingleType);
-                validationResult.addWarning(warningMsg);
-            }
-        }
-        if (!isSingleType) {
+
+        boolean isBooleanType = addWarningIfIncosistenceSingleTypeData(
+                validationResult, totalRows, column.getBooleansCount(), columnIndex, "boolean");
+
+        boolean isIntegerType = addWarningIfIncosistenceSingleTypeData(validationResult, totalRows,
+                column.getIntegersCount(), columnIndex, "integer");
+
+        boolean isFloatType = addWarningIfIncosistenceSingleTypeData(validationResult, totalRows,
+                column.getFloatsCount(), columnIndex, "float");
+
+
+        if (allFalse(isBooleanType, isIntegerType, isFloatType)) {
             // data in the column does not contain single type but rather has mixed data
             normalizeColumnPatterns(column);
             validateColumnPattern(column, validationResult, totalRows, columnIndex);
         }
+    }
+
+    private boolean allFalse(final boolean...types) {
+        if (types == null) {
+            throw new IllegalArgumentException("type array must not be null");
+        }
+        for (boolean element: types) {
+            if (element) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean addWarningIfIncosistenceSingleTypeData(ValidationResult validationResult,
+                                                        long totalRows,
+                                                        long singleTypeCount,
+                                                        int columnIndex,
+                                                        String typeName) {
+        if (singleTypeCount > 0) {
+            double percentageOfSingleType = calcPercentage(singleTypeCount, totalRows);
+            if (percentageOfSingleType > MIN_SINGLE_TYPE_PERCENT && percentageOfSingleType < 100) {
+                long unmatchedRows = totalRows - singleTypeCount;
+                String warningMsg  = "data is not consistent in column " + (columnIndex + 1)
+                        + ", " + singleTypeCount +  " rows have " + typeName + " but "
+                        + unmatchedRows + " rows has non-" + typeName + " values(s)";
+                validationResult.addWarning(warningMsg);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void normalizeColumnPatterns(CsvColumnMatrics column) {
@@ -116,7 +126,7 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
                 }
             }
         }
-        if (maxScore > 0.85) {
+        if (maxScore > 8.0) {
             return Optional.of(mostSimilarPattern);
         } else {
             return Optional.empty();
@@ -140,10 +150,57 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
             totalPercentageError += calcPercentage(diff, estimatedSizeForEachPattern);
         }
         if ((totalPercentageError / size) > acceptablePercentageError) {
-            validationResult.addWarning("data in column " + (columnIndex + 1)
-                    + " does not confirms " + "to one or more pattern, look like "
-                    + "this column has data with some random pattern");
+            validationResult.addWarning(createWarningMsg(columnDataPatterns, columnIndex));
         }
+    }
+
+    private String createWarningMsg(Map<CsvColumnPattern, Integer> columnDataPatterns,
+                                    int columnIndex) {
+        StringBuilder patternWarningMsg = new StringBuilder();
+        patternWarningMsg.append("\ndata in column ")
+                .append(columnIndex + 1)
+                .append(" does not confirms " + "to one or more pattern, look like "
+                        + "this column has data with some random pattern:\n");
+
+        ImmutablePair<CsvColumnPattern, CsvColumnPattern> maxAndMinPatterns =
+                findMaxAndMinOccurrencePattern(columnDataPatterns);
+        CsvColumnPattern maxPattern = maxAndMinPatterns.getLeft();
+        CsvColumnPattern minPattern = maxAndMinPatterns.getRight();
+
+        patternWarningMsg.append("\tvalues similar to this pattern(")
+                .append(maxPattern.getPattern()).append(") ").append(" '")
+                .append(maxPattern.getData()).append("' has ")
+                .append(columnDataPatterns.get(maxPattern)).append(" counts\n");
+
+        patternWarningMsg.append("\tvalues similar to this pattern(")
+                .append(minPattern.getPattern()).append(") ").append(" '")
+                .append(minPattern.getData()).append("' has ")
+                .append(columnDataPatterns.get(minPattern)).append(" counts\n");
+        return patternWarningMsg.toString();
+    }
+
+    /**
+     * Find maximum and minimum key pairs in a Map
+     * @param columnDataPatterns key-value pair map
+     * @return pair of max and min keys
+     */
+    private ImmutablePair<CsvColumnPattern, CsvColumnPattern> findMaxAndMinOccurrencePattern(
+            Map<CsvColumnPattern, Integer> columnDataPatterns) {
+        CsvColumnPattern patternWithMaxOccurrence = null;
+        CsvColumnPattern patternWithMinOccurrence = null;
+        long maxOccurrence = Long.MIN_VALUE;
+        long minOccurrence = Long.MAX_VALUE;
+        for (Map.Entry<CsvColumnPattern, Integer> entry: columnDataPatterns.entrySet()) {
+            if (entry.getValue() > maxOccurrence) {
+                maxOccurrence = entry.getValue();
+                patternWithMaxOccurrence = entry.getKey();
+            }
+            if (entry.getValue() < minOccurrence) {
+                minOccurrence = entry.getValue();
+                patternWithMinOccurrence = entry.getKey();
+            }
+        }
+        return ImmutablePair.of(patternWithMaxOccurrence, patternWithMinOccurrence);
     }
 
     private double calcPercentage(long typeCount, long totalRows) {

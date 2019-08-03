@@ -11,6 +11,7 @@ package org.intermine.biovalidator.validator.csv;
  */
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
@@ -36,7 +37,6 @@ public class CsvValidator extends AbstractValidator
     private boolean allowComments;
     private boolean shouldAutoDetectDelimiter;
     private String delimiter;
-    private SimilarityScore similarityScore;
 
     /**
      * Construct CsvParser with a input source by auto-detecting delimiter
@@ -73,7 +73,6 @@ public class CsvValidator extends AbstractValidator
         } else {
             this.shouldAutoDetectDelimiter = true;
         }
-        this.similarityScore = new SimilarityScore();
     }
 
     /**
@@ -98,13 +97,6 @@ public class CsvValidator extends AbstractValidator
             CsvParser csvParser = new CsvParser(
                     inputStreamToFile, doesFileHasHeader, allowComments, delimiter);
 
-            //parsing the input file //TODO may not need this
-            if (!csvParser.hasNext()) {
-                return validationResult;
-            }
-            csvParser.parseNext(); //*
-            // store first data
-            //String[] firstRow = csvParser.parseNext();
             int columnsLength = 0;
             long currentLineNum = 0;
 
@@ -166,12 +158,13 @@ public class CsvValidator extends AbstractValidator
     }
 
     private boolean isFloat(String s) {
-        try {
+        /*try {
             Float.parseFloat(s);
             return true;
         } catch (NumberFormatException e) {
             return false;
-        }
+        }*/
+        return NumberUtils.isCreatable(s);
     }
 
     /*private boolean isInteger(String s) {

@@ -80,7 +80,8 @@ public final class PatternUtils
     }
 
     private static boolean isGenerallyAcceptedStringSymbol(char c) {
-        return c == ',' || c == '(' || c == ')' || c == '\'' || c == '\"' || c == '&' || c == '_';
+        return c == ',' || c == '(' || c == ')' || c == '\'' || c == '\"' || c == '&'
+                || c == '_' || c == '-';
     }
 
     /**

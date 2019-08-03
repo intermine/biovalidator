@@ -16,7 +16,8 @@ public class CsvPatternTest {
     @Test
     public void testPatternCreation() {
         CsvColumnPattern pattern = CsvColumnPattern.of("GRCh38/hg38 1p21.1-13.2(chr1:105468292-112190626)x1");
-        System.out.println(pattern);
+        CsvColumnPattern pattern2 = CsvColumnPattern.of("BSP--0-?100");
+        System.out.println(pattern2);
     }
 
     @Test
@@ -72,7 +73,9 @@ public class CsvPatternTest {
         assertEqualsPattern("1,2,3,4,5,6,8,10,230,", listOf(DIGITS, SYMBOLS));
     }
 
-    private <T> List<T> listOf(T...types) {
+
+    @SafeVarargs
+    private static <T> List<T> listOf(final T...types) {
         return Arrays.stream(types)
                 .collect(Collectors.toList());
     }
