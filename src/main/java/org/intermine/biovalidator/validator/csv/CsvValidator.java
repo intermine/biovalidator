@@ -13,7 +13,6 @@ package org.intermine.biovalidator.validator.csv;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.intermine.biovalidator.api.ParsingException;
-import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.parser.CsvParser;
 import org.intermine.biovalidator.validator.AbstractValidator;
@@ -78,10 +77,11 @@ public class CsvValidator extends AbstractValidator
     /**
      * <p>Validates a csv/tsv data</p>
      * <p>
-     *     In-order to check consistency of a particular column, validator matches columns of first
-     *     row to all other row in the data/file(current implementation for now).
-     *     For each row and for each column, it find approximate similarity between columns of
-     *     first and nth row, and based on the score it decide whether data is consistent or not.
+     *   this method build a type schema for each file's column,
+     *   InOrder to check consistency of each column this CsvValidator performs two type of Checks:
+     *   1. Check whether column is of single type or not (ex. integer, boolean, etc)
+     *   2. If column's data does not have a single type value then it creates patterns from the,
+     *      data and test whether data is evenly distributes among found patterns or not.
      * </p>
      * @return validation result
      */
@@ -89,7 +89,7 @@ public class CsvValidator extends AbstractValidator
     @Override
     public ValidationResult validate() {
         try {
-            CsvSchema csvSchema = null;
+            CsvSchema csvSchema = null; // stores type and pattern information of csv column data
             boolean doesFileHasHeader = guessFileHasHeaderOrNot();
 
             InputStreamReader inputStreamToFile = createInputStreamFrom(file);
@@ -155,6 +155,11 @@ public class CsvValidator extends AbstractValidator
         }
     }
 
+    /**
+     * Tests whether a string is float or not
+     * @param s string value
+     * @return boolean, whether given string an float or not
+     */
     private boolean isFloat(String s) {
         /*try {
             Float.parseFloat(s);
@@ -165,15 +170,11 @@ public class CsvValidator extends AbstractValidator
         return NumberUtils.isCreatable(s);
     }
 
-    /*private boolean isInteger(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e) {"true"
-            return false;
-        }
-    }*/
-
+    /**
+     * Tests whether a string is integer or not
+     * @param s string value
+     * @return boolean, whether given string an integer or not
+     */
     private static boolean isInteger(String s) {
         final int radix = 10;
         if (s.isEmpty()) {
@@ -202,6 +203,11 @@ public class CsvValidator extends AbstractValidator
         return BOOLEAN_TRUE.equalsIgnoreCase(s) || BOOLEAN_FALSE.equalsIgnoreCase(s);
     }
 
+    /**
+     * Guess whether file has a header line or not
+     * @return boolean csv representing file has a header line or not
+     * @throws ParsingException if fails
+     */
     private boolean guessFileHasHeaderOrNot() throws ParsingException {
         InputStreamReader inputStreamToFile = createInputStreamFrom(file);
         CsvHeaderDetector csvHeaderDetector =

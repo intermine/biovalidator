@@ -11,6 +11,7 @@ package org.intermine.biovalidator.api;
  */
 
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
+import org.intermine.biovalidator.utils.BioValidatorUtils;
 import org.intermine.biovalidator.validator.ValidatorType;
 import org.intermine.biovalidator.validator.csv.CsvValidator;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
@@ -21,6 +22,8 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Builder class to instantiate a Validator with customization
@@ -112,7 +115,14 @@ public final class ValidatorBuilder
      */
     public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull String validatorType)
             throws IllegalArgumentException {
-        return withFile(new File(file), ValidatorType.of(validatorType));
+        Optional<ValidatorType> validatorTypeOpt =
+                BioValidatorUtils.getOrGuessValidatorType(file, validatorType);
+        if (!validatorTypeOpt.isPresent()) {
+            String errMsg = "Invalid Validator type! It must be one of ("
+                    + Arrays.toString(ValidatorType.values()) + "), case-insensitive.";
+            throw new IllegalArgumentException(errMsg);
+        }
+        return withFile(new File(file), validatorTypeOpt.get());
     }
 
     /**

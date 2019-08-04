@@ -33,7 +33,7 @@ public class TestCsvValidator extends BaseValidatorTest {
             String variant_summary = "/home/deepak/Documents/Intermine/FILES/CSV/variant_summary_sample.csv";
             String filePath = getFullPath("csv/variant_summary_sample.csv");
             String anotation = "/home/deepak/Documents/Intermine/FILES/CSV/U133AGNF1B.gcrma.avg.csv";
-            ValidationResult result = ValidatorHelper.validateCsv("/home/deepak/Documents/Intermine/FILES/CSV/anotation/U133AGNF1B.gcrma.avg.csv", true);
+            ValidationResult result = ValidatorHelper.validateCsv("/home/deepak/Documents/Intermine/FILES/CSV/Pseudomonas_aeruginosa_PAO1_107_orthologs.csv", true);
 
             System.out.println(result.getErrorMessage());
             if (result.getWarningMessages().size() > 0) {

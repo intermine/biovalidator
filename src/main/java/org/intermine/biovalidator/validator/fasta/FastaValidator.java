@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
-import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.WarningMessage;
 import org.intermine.biovalidator.parser.GenericLineByLineParser;

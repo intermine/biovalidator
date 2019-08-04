@@ -16,16 +16,59 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Represents schema of cvs file/data, meaning it stores information of columns of csv data,
+ * Represents schema of cvs file/data, meaning it stores information about columns of csv data,
  * like the number of columns exists, type of each column(single-type/mixed-type), and patterns
- * of data of columns
+ * of data of columns.
+ *
+ * It two kind of information about a column:
+ * 1. Total number of booleans, integer and float counts
+ * 2. Create patterns from column data and count their occurrence
+ *
+ * <strong>PATTERN CREATION PROCESS</strong>
+ * In Order to detect pattern and measuring consistency, A pattern is defined for each column-value
+ * based on the data, and then putting all the column value that conforms to one pattern into
+ * one bucket, so one bucket for each pattern, then at the end analyze that all the buckets have
+ * roughly equal amount of data or not.
+ *
+ * Process For Pattern CREATION:
+ * Value of a column into five types: ENUM [DIGITS, LETTERS, SYMBOLS, SPACES, RANDOM].
+ * then, for each column value, A pattern(which is a list defined ENUM above) is created based on
+ * the data of column value.
+ *
+ * Example of pattern creation:
+ * ------------------------------------------------------------------
+ * "abc"             = PATTERN [LETTERS]
+ * "abs123"          = PATTERN [LETTERS, DIGITS]
+ * "SO:12736"        = PATTERN [LETTERS, SYMBOL, DIGITS]
+ * "region-1029-abc" = PATTERN [LETTERS, SYMBOL, DIGITS, LETTERS]
+ * etc...
+ * ------------------------------------------------------------------
+ *
+ * On the implementation side, InOrder to divide these pattern into different buckets, hash value
+ * of each pattern is calculated, and then put all of them into a hashtable and count the
+ * occurrence of each pattern.
+ *
+ * As a column can have many pattern so, few constraints followed by this class is:
+ * 1. Each pattern is compressed:
+ *    If a pattern has similar pattern-value then all the consecutively duplicated patterns are
+ *    removed, ex: 'LDLDLD' is compressed to 'LD' (consecutively duplicated are removed).
+ *
+ * 2. If two patterns are almost similar then are merged into one pattern, currently in-order
+ *    <a href="https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance">'Jaro–Winkler distance'
+ *    </a> is used to detect similarity between two patterns.
+ *
+ * 3. If a created pattern is longer that 30 characters(after compression) then it is assumed that
+ *    pattern is random.
+ *
+ * 4. If a column has more that 30 patterns then it assumed that column has some random data.
+ *
  * @author deepak kumar
  */
 public class CsvSchema implements Iterable<CsvColumnMatrics>
 {
     private int columnLength;
     private long totalRows;
-    private List<CsvColumnMatrics> columns;
+    private List<CsvColumnMatrics> columns; //stores matrics for each column
 
     /**
      * Construct an empty schema with specified number of columns

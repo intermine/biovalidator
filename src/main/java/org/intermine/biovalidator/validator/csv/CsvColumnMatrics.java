@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents metrics of a columns of a csv file
- *
+ * Represents metrics of a columns of a csv file.
+ * For each column value it count total number of booleans, integer, floats and patterns.
  * @author deepak kumar
  */
 public class CsvColumnMatrics

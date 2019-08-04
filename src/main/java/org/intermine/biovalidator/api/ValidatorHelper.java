@@ -10,11 +10,10 @@ package org.intermine.biovalidator.api;
  *
  */
 
-import org.apache.commons.lang3.StringUtils;
+import org.intermine.biovalidator.utils.BioValidatorUtils;
 import org.intermine.biovalidator.validator.ValidatorType;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -72,21 +71,15 @@ public final class ValidatorHelper
     public static ValidationResult validate(@Nonnull String file,
                                             @Nonnull String validatorType,
                                             boolean isStrict) {
-        ValidatorType type = null;
-        try {
-            type = ValidatorType.of(validatorType);
-        } catch (IllegalArgumentException e) {
-            // try to guess validator type from given filename
-            Optional<ValidatorType> typeOptional = guessValidatorType(file);
-            if (typeOptional.isPresent()) {
-                type = typeOptional.get();
-            } else {
-                String errMsg = "Invalid Validator type! It must be one of ("
-                        + Arrays.toString(ValidatorType.values()) + "), case-insensitive.";
-                return createValidationResultWithError(errMsg);
-            }
+        Optional<ValidatorType> validatorTypeOpt =
+                BioValidatorUtils.getOrGuessValidatorType(file, validatorType);
+        if (validatorTypeOpt.isPresent()) {
+            return validate(file, validatorTypeOpt.get(), isStrict);
+        } else {
+            String errMsg = "Invalid Validator type! It must be one of ("
+                    + Arrays.toString(ValidatorType.values()) + "), case-insensitive.";
+            return createValidationResultWithError(errMsg);
         }
-        return validate(file, type, isStrict);
     }
 
     /**
@@ -167,7 +160,7 @@ public final class ValidatorHelper
     public static ValidationResult validateCsv(@Nonnull String file, boolean isStrict) {
         try {
             return ValidatorBuilder.withFile(file, ValidatorType.CSV)
-                    .enableWarnings()
+                    //.enableWarnings()
                     .build()
                     .validate();
         } catch (RuntimeException e) {
@@ -195,41 +188,6 @@ public final class ValidatorHelper
                 new DefaultValidationResultStrategy());
         result.addError(message);
         return result;
-    }
-
-
-    /**
-     * Guess validator type from filename(i.e. filename's extension) if available
-     * @param filename absolute file path
-     * @return optional of validator type
-     */
-    private static Optional<ValidatorType> guessValidatorType(String filename) {
-        Optional<String> extensionOpt = getFileExtension(filename);
-        if (!extensionOpt.isPresent()) {
-            return Optional.empty();
-        }
-        String foundExtension = extensionOpt.get();
-        //try to match found extension with supported-extensions of all available validator types
-        for (ValidatorType validatorType : ValidatorType.values()) {
-            if (validatorType.getSupportedFileExtensions().contains(foundExtension)) {
-                return Optional.of(validatorType);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Gets extension of a file
-     * @param filename filename
-     * @return optional of file extension
-     */
-    private static Optional<String> getFileExtension(String filename) {
-        int extensionIndex = filename.lastIndexOf(".");
-        int separatorIndex = filename.lastIndexOf(File.separator);
-        if (extensionIndex == -1 || extensionIndex < separatorIndex) {
-            return Optional.empty();
-        }
-        return Optional.of(filename.substring(extensionIndex + 1));
     }
 }
 

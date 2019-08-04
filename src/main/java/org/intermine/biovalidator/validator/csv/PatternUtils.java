@@ -26,10 +26,10 @@ public final class PatternUtils
     /**
      * Create a pattern for a given string
      * Examples:
-     *     1. "abc"             -{@literal >}  [LETTERS]
-     *     2. "bio101"          -{@literal >}  [LETTERS, DIGITS]
-     *     3. "SO:3347"         -{@literal >}  [LETTERS, SYMBOL, DIGITS]
-     *     4. "amino-acid (RNA)"-{@literal >}  [LETTERS] symbols between text(string)
+     *     1. "abc"                 =  [LETTERS]
+     *     2. "bio101"              =  [LETTERS, DIGITS]
+     *     3. "SO:3347"             =  [LETTERS, SYMBOL, DIGITS]
+     *     4. "amino-acid (RNA)"    =  [LETTERS] symbols between text(string)
      *     are not considered
      * @param s a string
      * @return CsvColumnPattern
@@ -116,9 +116,9 @@ public final class PatternUtils
      * Replace repeated patterns in string to single occurrence, it replace consecutive repeated
      * pattern in a string to its single occurrence
      * Example :
-     *  1. "AAAAAAB"        -{@literal >} "AB"
-     *  2. "ABAB"           -{@literal >} AB
-     *  3. "ABCXYZABCXYZ"   -{@literal >} ABCXYZ
+     *  1. "AAAAAAB"        = "AB"
+     *  2. "ABAB"           = "AB"
+     *  3. "ABCXYZABCXYZ"   = "ABCXYZ"
      * @param patternStr string to compress
      * @return compressed string with replaced repeated pattern with single occurrence
      */

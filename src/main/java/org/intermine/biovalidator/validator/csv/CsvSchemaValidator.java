@@ -157,7 +157,7 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
     private String createWarningMsg(Map<CsvColumnPattern, Integer> columnDataPatterns,
                                     int columnIndex) {
         StringBuilder patternWarningMsg = new StringBuilder();
-        patternWarningMsg.append("\ndata in column ")
+        patternWarningMsg.append("data in column ")
                 .append(columnIndex + 1)
                 .append(" does not confirms " + "to one or more pattern, look like "
                         + "this column has data with some random pattern:\n");

@@ -14,9 +14,11 @@ package org.intermine.biovalidator.validator.csv;
 import java.util.List;
 
 /**
- * Represents an immutable pattern of value in a csv column
- *Example:
- * Pattern : [DIGIT, LETTER, DIGIT]
+ * Represents an immutable pattern of value of a csv-column
+ * Example:
+ *      "abc"        = PATTERN [LETTERS]
+ *      "abs123"     = PATTERN [LETTERS, DIGITS]
+ *      "SO:12736"   = PATTERN [LETTERS, SYMBOL, DIGITS]
  * @author deepak kumar
  */
 public final class CsvColumnPattern
@@ -24,7 +26,7 @@ public final class CsvColumnPattern
     /**
      * Represents maximum length of a pattern
      */
-    public static final int MAX_PATTERN_LENGTH = 9;
+    public static final int MAX_PATTERN_LENGTH = 30;
 
     private String data;
     private String pattern;

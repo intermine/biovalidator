@@ -31,7 +31,7 @@ public enum ValidatorType {
     /**
      * Represents a validator of type GFF3
      */
-    GFF("gff", Arrays.asList("gff", "gff3")), GFF3("gff3",  Arrays.asList("gff", "gff3")),
+    GFF("gff", Collections.singletonList("gff")), GFF3("gff3",  Arrays.asList("gff", "gff3")),
 
     /**
      * Represents a validator of type CSV/TSV

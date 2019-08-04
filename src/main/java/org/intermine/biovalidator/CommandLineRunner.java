@@ -10,17 +10,25 @@ package org.intermine.biovalidator;
  *
  */
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Message;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.ValidatorBuilder;
+import org.intermine.biovalidator.utils.BioValidatorUtils;
+import org.intermine.biovalidator.validator.ValidatorType;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Command Line Runner for 'biovalidator'
@@ -30,6 +38,12 @@ import java.util.List;
 final class CommandLineRunner
 {
     private static final PrintWriter WRITER;
+    private static final String BASE_DOCS_URL = "/validator_rules/";
+    private static final String FASTA_DOC_FILE_NAME = "Fasta-Validator.md";
+    private static final String GFF3_DOC_FILE_NAME = "GFF3-Validator.md";
+    private static final String FASTA = "fatsa";
+    private static final String GFF = "gff";
+    private static final String GFF3 = "gff3";
 
     static {
         WRITER = new PrintWriter(System.out, true);
@@ -42,9 +56,10 @@ final class CommandLineRunner
      */
     public static void main(String[] args) {
 
-        /*args = Arrays.asList("-t", "fasta-dna",
-            "-f", "/home/deepak/Downloads/FASTA_FILES/protein.fa"
-            , "-w-d").toArray(new String[]{});*/
+        args = Arrays.asList("-f",
+        "/home/deepak/Documents/Intermine/FILES/CSV/Pseudomonas_aeruginosa_PAO1_107_orthologs.csv",
+        "-w").toArray(new String[]{});
+
         try {
             CommandLine commandLine = new CommandLine(new BioValidatorCommand());
             commandLine.parseArgs(args);
@@ -56,24 +71,28 @@ final class CommandLineRunner
                 commandLine.printVersionHelp(System.out);
                 return;
             }
-
             BioValidatorCommand command = CommandLine.populateCommand(
                 new BioValidatorCommand(), args);
 
-            if (command.isDocsEnabled()) {
+            if (command.isDocsEnabled()) { //print docs if requested
                 printDocsFor(command.getDocs());
                 return;
             }
-
+            if (!ArrayUtils.contains(args, "-f")) {
+                WRITER.println("Missing required option '--file=<filename>'");
+                return;
+            }
+            if (StringUtils.isBlank(command.getFilename())) { //check file is provided or not
+                WRITER.println("Missing required parameter for option '--file' (<filename>)");
+                return;
+            }
+            String file = command.getFilename();
             String validatorType = command.getValidatorType();
 
-            /* set fasta as default validator type if not provided */
-            validatorType = StringUtils.isBlank(validatorType) ? "fasta" : validatorType;
-
-            WRITER.println("Validating " + validatorType + " file...");
+            WRITER.println("Validating " + getValidatorTypeName(file, validatorType) + " file...");
 
             ValidatorBuilder builder = ValidatorBuilder
-                    .withFile(command.getFilename(), validatorType); //strict validation by-default
+                    .withFile(file, validatorType); //strict validation by-default
 
             if (command.isContinueOnError()) {
                 builder.disableStopAtFirstError();
@@ -106,16 +125,38 @@ final class CommandLineRunner
         WRITER.close();
     }
 
+    /**
+     * returns validator verbose name form validator type, or guess from filename
+     * @return validator name
+     */
+    private static String getValidatorTypeName(String filename, String validatorType) {
+        Optional<ValidatorType> opt = BioValidatorUtils.getOrGuessValidatorType(
+                filename, validatorType);
+        return opt.isPresent() ? opt.get().getName(): StringUtils.EMPTY;
+    }
+
     private static void printDocsFor(String docs) {
         String filename = StringUtils.EMPTY;
-        if (docs.equalsIgnoreCase("fasta")) {
-
-        } else if (StringUtils.equalsAnyIgnoreCase(docs, "gff", "gff3")) {
-
-        } else if (StringUtils.equalsAnyIgnoreCase(docs, "csv", "tsv")) {
-
+        if (FASTA.equalsIgnoreCase(docs)) {
+            filename = FASTA_DOC_FILE_NAME;
+        } else if (StringUtils.equalsAnyIgnoreCase(docs, GFF, GFF3)) {
+            filename = GFF3_DOC_FILE_NAME;
         } else {
             WRITER.println("Invalid docs type, argument must be one of(fasta, gff3, csv)");
+            return;
+        }
+        InputStream inputStream = CommandLineRunner.class
+                .getResourceAsStream(BASE_DOCS_URL + filename);
+        printInputStreamToConsole(inputStream);
+    }
+
+    private static void printInputStreamToConsole(InputStream inputStream) {
+        try (BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(inputStream))) {
+            bufferedReader.lines()
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            WRITER.println("Unable to show documentation!");
         }
     }
 
@@ -164,7 +205,7 @@ final class CommandLineRunner
 
         @CommandLine.Option(names = {"-f", "--file"},
             description = "file to be validated",
-            required = true)
+            required = false)
         private String filename;
 
         @CommandLine.Option(names = {"-d", "--disable-errors"}, description = "disable errors")
@@ -180,7 +221,7 @@ final class CommandLineRunner
             description = "continue validation if error encountered")
         private boolean continueOnError;
 
-        @CommandLine.Option(names = {"--docs"},
+        @CommandLine.Option(names = {"-m", "--docs"},
                 description = "documentation, ex: --docs fasta")
         private String docs;
 
@@ -245,6 +286,10 @@ final class CommandLineRunner
             return validatorType;
         }
 
+        /**
+         * Return whether docs is enabled or not
+         * @return boolean
+         */
         public boolean isDocsEnabled() {
             return StringUtils.isNotBlank(docs);
         }
