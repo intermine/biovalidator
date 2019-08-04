@@ -77,7 +77,7 @@ public class FastaValidator extends AbstractValidator
 
     @Nonnull
     @Override
-    public ValidationResult validate() throws ValidationFailureException {
+    public ValidationResult validate() {
         Set<String> uniqueSequenceIds = new HashSet<>();
         DefaultValidationResult defaultValidationResult =
                 (DefaultValidationResult) validationResult;
@@ -136,7 +136,8 @@ public class FastaValidator extends AbstractValidator
                 validationResult.addError(ErrorMessage.of(msg));
             }
         } catch (IOException e) {
-            throw new ValidationFailureException(e.getMessage());
+            validationResult.addError(e.getMessage());
+            //throw new ValidationFailureException(e.getMessage());
         }
         return validationResult;
     }

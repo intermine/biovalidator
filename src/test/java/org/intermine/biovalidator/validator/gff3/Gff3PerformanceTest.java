@@ -13,31 +13,33 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public class Gff3PerformanceTest {
 
+    private static void run() {
+        //String file = "/home/deepak/Documents/FASTA_FILES/GFF/ref_GRCh38.p12_top_level.gff3";
+        String file = "/home/deepak/Documents/FASTA_FILES/GFF/Homo_sapiens.GRCh38.97.gff3";
+        //String file = "/home/deepak/Documents/FASTA_FILES/GFF/Homo_sapiens.GRCh38.97.chromosome.1.gff3";
+
+        Validator validator = ValidatorBuilder.withFile(file, "gff3")
+                //.enableWarnings()
+                //.disableStopAtFirstError()
+                .build();
+        ValidationResult result = validator.validate();
+        if (result.isValid()) {
+            System.out.println("Valid File");
+        } else {
+            System.out.println("Invalid File!");
+            result.getErrorMessages().forEach(System.out::println);
+        }
+        result.getWarningMessages().forEach(System.out::println);
+    }
+
     @Test
     @Ignore
     public void test1GBGff3File() {
-        simpleBenchmark(() -> {
-            try {
-                //String file = "/home/deepak/Documents/FASTA_FILES/GFF/ref_GRCh38.p12_top_level.gff3";
-                String file = "/home/deepak/Documents/FASTA_FILES/GFF/Homo_sapiens.GRCh38.97.gff3";
-                //String file = "/home/deepak/Documents/FASTA_FILES/GFF/Homo_sapiens.GRCh38.97.chromosome.1.gff3";
-
-                Validator validator = ValidatorBuilder.withFile(file, "gff3")
-                        //.enableWarnings()
-                        //.disableStopAtFirstError()
-                        .build();
-                ValidationResult result = validator.validate();
-                if (result.isValid()) {
-                    System.out.println("Valid File");
-                } else {
-                    System.out.println("Invalid File!");
-                    result.getErrorMessages().forEach(System.out::println);
-                }
-                result.getWarningMessages().forEach(System.out::println);
-            } catch (ValidationFailureException e) {
-                e.printStackTrace();
-            }
-        });
+        simpleBenchmark(//String file = "/home/deepak/Documents/FASTA_FILES/GFF/ref_GRCh38.p12_top_level.gff3";
+//String file = "/home/deepak/Documents/FASTA_FILES/GFF/Homo_sapiens.GRCh38.97.chromosome.1.gff3";
+//.enableWarnings()
+//.disableStopAtFirstError()
+                Gff3PerformanceTest::run);
     }
 
     public static void simpleBenchmark(Runnable codeToBeValidated){

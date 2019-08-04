@@ -13,7 +13,6 @@ package org.intermine.biovalidator;
 import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Message;
-import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.ValidatorBuilder;
 import picocli.CommandLine;
@@ -60,6 +59,12 @@ final class CommandLineRunner
 
             BioValidatorCommand command = CommandLine.populateCommand(
                 new BioValidatorCommand(), args);
+
+            if (command.isDocsEnabled()) {
+                printDocsFor(command.getDocs());
+                return;
+            }
+
             String validatorType = command.getValidatorType();
 
             /* set fasta as default validator type if not provided */
@@ -95,10 +100,23 @@ final class CommandLineRunner
                     displayMessages("Warning", result.getWarningMessages());
                 }
             }
-        } catch (ValidationFailureException |  RuntimeException e) {
+        } catch (RuntimeException e) {
             WRITER.println(e.getMessage());
         }
         WRITER.close();
+    }
+
+    private static void printDocsFor(String docs) {
+        String filename = StringUtils.EMPTY;
+        if (docs.equalsIgnoreCase("fasta")) {
+
+        } else if (StringUtils.equalsAnyIgnoreCase(docs, "gff", "gff3")) {
+
+        } else if (StringUtils.equalsAnyIgnoreCase(docs, "csv", "tsv")) {
+
+        } else {
+            WRITER.println("Invalid docs type, argument must be one of(fasta, gff3, csv)");
+        }
     }
 
     private static void displayMessages(String messageType, List<Message> messages) {
@@ -162,6 +180,10 @@ final class CommandLineRunner
             description = "continue validation if error encountered")
         private boolean continueOnError;
 
+        @CommandLine.Option(names = {"--docs"},
+                description = "documentation, ex: --docs fasta")
+        private String docs;
+
 
         private BioValidatorCommand() {
         }
@@ -221,6 +243,19 @@ final class CommandLineRunner
          */
         public String getValidatorType() {
             return validatorType;
+        }
+
+        public boolean isDocsEnabled() {
+            return StringUtils.isNotBlank(docs);
+        }
+
+        /**
+         * Gets validatorType.
+         *
+         * @return Value of validatorType.
+         */
+        public String getDocs() {
+            return docs;
         }
     }
 }

@@ -69,7 +69,7 @@ public final class ValidatorBuilder
         try {
             reader = new FileReader(filename);
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("file not found");
+            throw new IllegalArgumentException(e.getMessage());
         }
         switch (type) {
             case FASTA:
@@ -80,12 +80,13 @@ public final class ValidatorBuilder
                 return ofType(new FastaValidator(reader, SequenceType.RNA));
             case FASTA_PROTEIN:
                 return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
+            case GFF:
             case GFF3:
-                return ofType(new Gff3Validator(reader));
+                return ofType(new Gff3Validator(reader)); // GFF3 validator for both GFF and GFF3
             case CSV:
                 return ofType(new CsvValidator(filename));
             default:
-                throw new IllegalArgumentException("invalid validator type");
+                throw new IllegalArgumentException("invalid validator type " + type.getName());
         }
     }
 

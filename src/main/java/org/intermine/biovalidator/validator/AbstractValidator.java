@@ -45,8 +45,7 @@ public abstract class AbstractValidator implements Validator
     }
 
     @Override
-    public void validate(Consumer<ValidationResult> resultConsumer)
-                                            throws ValidationFailureException {
+    public void validate(Consumer<ValidationResult> resultConsumer) {
         resultConsumer.accept(validate());
     }
 

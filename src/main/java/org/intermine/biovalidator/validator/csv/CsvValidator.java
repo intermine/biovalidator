@@ -84,11 +84,10 @@ public class CsvValidator extends AbstractValidator
      *     first and nth row, and based on the score it decide whether data is consistent or not.
      * </p>
      * @return validation result
-     * @throws ValidationFailureException if validation or parsing fails
      */
     @Nonnull
     @Override
-    public ValidationResult validate() throws ValidationFailureException {
+    public ValidationResult validate() {
         try {
             CsvSchema csvSchema = null;
             boolean doesFileHasHeader = guessFileHasHeaderOrNot();
@@ -152,7 +151,6 @@ public class CsvValidator extends AbstractValidator
             return validationResult;
         } catch (ParsingException ex) {
             validationResult.addError(ex.getMessage());
-            ex.printStackTrace();
             return validationResult;
         }
     }
