@@ -8,8 +8,13 @@
  *
  */
 
-BioValidator 0.1.1 (July 2019)
+BioValidator 0.1.2 (July 2019)
 
 1. Add GFF3 validator
 2. Add a getErrorMessage method in ValidationResult
-2. Add Csv/Tsv validator
+3. Add Csv/Tsv validator
+4. Added validationResult.getErrorMessage() to return single error message, Fixes #13
+5. Validation rules are available through command line utility(using '--docs' parameter), Fixes #18
+6. Verbose error messages in-case file not found or invalid type, Fixes #19
+7. Guess validator type(i.e. file type) from filename if not provided, Fixes #24
+8. Now, Validator does not throw any exception, always return ValidationResult, even in exception occurred,  Fixes #25
