@@ -118,11 +118,13 @@ public class CsvSchema implements Iterable<CsvColumnMatrics>
 
     /**
      * Gets a column at a given index,
-     * Note: assumes given column index is a valid index
      * @param i index of the column
      * @return instance of CsvColumnMatrics at a given index
      */
     public CsvColumnMatrics colAt(int i) {
+        if (i < 0 || i >= columns.size()) {
+            throw new IndexOutOfBoundsException("column index out of bounds!");
+        }
         return columns.get(i);
     }
 

@@ -160,7 +160,8 @@ public final class ValidatorHelper
     public static ValidationResult validateCsv(@Nonnull String file, boolean isStrict) {
         try {
             return ValidatorBuilder.withFile(file, ValidatorType.CSV)
-                    //.enableWarnings()
+                    .enableWarnings()
+                    .withStrictValidation(isStrict)
                     .build()
                     .validate();
         } catch (RuntimeException e) {

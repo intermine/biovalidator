@@ -56,9 +56,9 @@ final class CommandLineRunner
      */
     public static void main(String[] args) {
 
-        args = Arrays.asList("-f",
+       /* args = Arrays.asList("-f",
         "/home/deepak/Documents/Intermine/FILES/CSV/Pseudomonas_aeruginosa_PAO1_107_orthologs.csv",
-        "-w").toArray(new String[]{});
+        "-w").toArray(new String[]{});*/
 
         try {
             CommandLine commandLine = new CommandLine(new BioValidatorCommand());

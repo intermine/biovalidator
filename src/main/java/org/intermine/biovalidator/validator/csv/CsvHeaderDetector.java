@@ -21,11 +21,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * This header detector is a port of python standard library csv module (csv.Sniffer.has_header)'.
+ *  <pre>
+ *      See original python's implementation <a href="https://bit.ly/2LYHR6l"> here </a>
+ *  </pre>
  * @author deepak kumar
  */
 public class CsvHeaderDetector
 {
-    private static final int SAMPLE_ROW = 10;
+    private static final int SAMPLE_ROW = 15;
     private InputStreamReader inputStreamReader;
     private boolean allowComments;
     private String delimiter;
@@ -46,7 +50,10 @@ public class CsvHeaderDetector
 
 
     /**
-     * test whether a csv data has a header or not
+     * Test whether a csv data has a header or not.
+     * port of python csv module's 'has_header()' method, see link to the code at the top of the
+     * file for description about approach being uses here.
+     *
      * @throws ParsingException if failed
      * @return boolean
      */
@@ -89,22 +96,6 @@ public class CsvHeaderDetector
                         columnTypes.remove(i);
                     }
                 }
-                /*if (NumberUtils.isCreatable(row[i])) {
-                    if (!(columnTypes.get(i) instanceof Boolean)) {
-                        if (columnTypes.get(i) == null) {
-                            columnTypes.put(i, true);
-                        } else {
-                            columnTypes.remove(i);
-                        }
-                    }
-                } else {
-                    if (row[i] == null) {
-                        columnTypes.put(i, 0);
-                    } else {
-                        columnTypes.put(i, row[i].length());
-                    }
-
-                }*/
             });
             checked++;
         }

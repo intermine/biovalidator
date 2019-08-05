@@ -12,9 +12,7 @@ package org.intermine.biovalidator.validator.csv;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ValidationResult;
-import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 import org.intermine.biovalidator.validator.RuleValidator;
 
 import java.util.Iterator;
@@ -33,8 +31,6 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
     public boolean validateAndAddError(CsvSchema csvSchema,
                                        ValidationResult validationResult,
                                        long currentLineOfInput) {
-        ValidationResultStrategy strategy =
-                ((DefaultValidationResult) validationResult).getResultStrategy();
         // iterate over each column
         for (int i = 0; i < csvSchema.getColumnLength(); i++) {
             validateCsvColumn(csvSchema.colAt(i), validationResult, csvSchema.getTotalRows(), i);

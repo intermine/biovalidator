@@ -132,8 +132,8 @@ public class CsvValidator extends AbstractValidator
                     } else if (isFloat(currentColVal)) {
                         csvSchema.incrementFloatsCountAtColumn(colIndx);
                     } else {
-                        CsvColumnPattern pattern = CsvColumnPattern.of(currentColVal);
-                        csvSchema.colAt(colIndx).put(pattern);
+                        CsvColumnPattern pattern = CsvColumnPattern.valueOf(currentColVal);
+                        csvSchema.colAt(colIndx).addPattern(pattern);
                     }
                 }
                 if (!validationResult.isValid()

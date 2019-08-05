@@ -10,6 +10,8 @@ package org.intermine.biovalidator.validator.csv;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -31,51 +33,51 @@ public final class PatternUtils
      *     3. "SO:3347"             =  [LETTERS, SYMBOL, DIGITS]
      *     4. "amino-acid (RNA)"    =  [LETTERS] symbols between text(string)
      *     are not considered
+     *
+     * Skip commonly used text symbols (such as ',', '(', ')', etc), if it is
+     * between two string text.
+     * Example where symbols will be skipped:
+     *    1. "Hi, deer"           = skip ','
+     *    2. "United State(US)"   = skip '(', ')' as both are part of text
+     *    3. "region {@literal &} mRNA"      = skip {@literal '&'}
+     *    4. "1234-abc"           = '-' won't be skipped, because it's not between two string
+     *
      * @param s a string
      * @return CsvColumnPattern
      */
     public static String createCsvColumnPatternFromString(String s) {
+        if (s == null) {
+            return StringUtils.EMPTY;
+        }
         StringBuilder columnValuePattern = new StringBuilder();
         int len = s.length();
         CsvColumnValueType prevType = null;
         for (int i = 0; i < len; i++) {
             CsvColumnValueType currentType = CsvColumnValueType.getType(s.charAt(i));
+
             //skip while type is same
             while ((i + 1) < len && currentType == CsvColumnValueType.getType(s.charAt(i + 1))) {
                 i++;
             }
 
-            /*
-                skip commonly used text symbols (such as ',', '(', ')', etc), if it is
-                between two string text.
-                Example where symbols will be skipped:
-                    1. "Hi, deer"           -> skip ','
-                    2. "United State(US)"   -> skip '(', ')' as both are part of text
-                    3. "region & mRNA"      -> skip '&'
-                    4. "1234-abc"           -> '-' won't be skipped, because it's not between
-                                               two string
-             */
+            // skip commonly used text symbols if it is between two LETTERS(text or string)
             if ((i + 1) < len && prevType != null
                     && isGenerallyAcceptedStringSymbol(s.charAt(i))
                     && prevType == CsvColumnValueType.LETTERS
                     && CsvColumnValueType.getType(s.charAt(i + 1)) == CsvColumnValueType.LETTERS) {
                 continue;
             }
+            //skip again if symbol is the last character and previous character was LETTERS
             if ((i + 1) == len && (prevType == CsvColumnValueType.LETTERS)
                     && currentType == CsvColumnValueType.SYMBOLS) {
                 continue;
             } else {
-                if (currentType != prevType) {
+                if (currentType != prevType) { // if prev and current pattern is not same
                     columnValuePattern.append(currentType.getId());
                 }
             }
             prevType = currentType;
         }
-        // if list of pattern in a single column value is greater than defined MAX pattern length,
-        // then it is assumed that, the given column value has a random or very mixed pattern
-        /*if (columnValuePattern.size() > CsvColumnPattern.MAX_PATTERN_LENGTH) {
-            return CsvColumnPattern.randomPattern();
-        }*/
         return columnValuePattern.toString();
     }
 

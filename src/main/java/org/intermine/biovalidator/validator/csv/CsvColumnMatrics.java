@@ -20,9 +20,15 @@ import java.util.Map;
  */
 public class CsvColumnMatrics
 {
+    /**
+     * Represents maximum number of patterns allowed in a column
+     */
+    public static final int MAX_ALLOWED_PATTERNS_IN_A_COLUMN = 30;
     private long booleansCount;
     private long integersCount;
     private long floatsCount;
+
+    private boolean isMaxPatternAllowedExceed;
 
     private Map<CsvColumnPattern, Integer> columnDataPatternsWithOccurrenceCount;
 
@@ -38,15 +44,22 @@ public class CsvColumnMatrics
      * @param pattern instance of CsvColumnPattern
      * @return returns added or not
      */
-    public boolean put(CsvColumnPattern pattern) {
-        Integer count = columnDataPatternsWithOccurrenceCount.get(pattern);
-        if (count == null) {
-            count = 1;
-        } else {
-            count++;
+    public boolean addPattern(CsvColumnPattern pattern) {
+        if (columnDataPatternsWithOccurrenceCount.size() >= MAX_ALLOWED_PATTERNS_IN_A_COLUMN) {
+            isMaxPatternAllowedExceed = true;
         }
-        this.columnDataPatternsWithOccurrenceCount.put(pattern, count);
-        return true; // TODO return exactly what happened
+        if (!isMaxPatternAllowedExceed) {
+            Integer count = columnDataPatternsWithOccurrenceCount.get(pattern);
+            if (count == null) {
+                count = 1;
+            } else {
+                count++;
+            }
+            this.columnDataPatternsWithOccurrenceCount.put(pattern, count);
+            return true; // TODO return exactly what happened
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -100,5 +113,13 @@ public class CsvColumnMatrics
      */
     public Map<CsvColumnPattern, Integer> getColumnDataPatterns() {
         return columnDataPatternsWithOccurrenceCount;
+    }
+
+    /**
+     * Gets isMaxPatternAllowedExceed
+     * @return boolean, representing whether column has more than allowed pattern or not
+     */
+    public boolean isMaxPatternAllowedExceed() {
+        return isMaxPatternAllowedExceed;
     }
 }
