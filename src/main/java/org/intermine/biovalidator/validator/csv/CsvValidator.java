@@ -10,6 +10,7 @@ package org.intermine.biovalidator.validator.csv;
  *
  */
 
+import com.univocity.parsers.common.TextParsingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.intermine.biovalidator.api.ParsingException;
@@ -19,8 +20,8 @@ import org.intermine.biovalidator.validator.AbstractValidator;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
@@ -92,7 +93,7 @@ public class CsvValidator extends AbstractValidator
             CsvSchema csvSchema = null; // stores type and pattern information of csv column data
             boolean doesFileHasHeader = guessFileHasHeaderOrNot();
 
-            InputStreamReader inputStreamToFile = createInputStreamFrom(file);
+            InputStreamReader inputStreamToFile = new FileReader(file);
             CsvParser csvParser = new CsvParser(
                     inputStreamToFile, doesFileHasHeader, allowComments, delimiter);
 
@@ -149,10 +150,13 @@ public class CsvValidator extends AbstractValidator
                         csvSchema, validationResult, currentLineNum);
             }
             return validationResult;
-        } catch (ParsingException ex) {
+        } catch (TextParsingException ex) {
+            String errMsg = StringUtils.substringBetween(ex.getMessage(), "Hint", ".");
+            validationResult.addError("Unable to parse given file: " + file + "; Hint" + errMsg);
+        } catch (IOException ex) {
             validationResult.addError(ex.getMessage());
-            return validationResult;
         }
+        return validationResult;
     }
 
     /**
@@ -208,18 +212,11 @@ public class CsvValidator extends AbstractValidator
      * @return boolean csv representing file has a header line or not
      * @throws ParsingException if fails
      */
-    private boolean guessFileHasHeaderOrNot() throws ParsingException {
-        InputStreamReader inputStreamToFile = createInputStreamFrom(file);
-        CsvHeaderDetector csvHeaderDetector =
-                new CsvHeaderDetector(inputStreamToFile, allowComments, delimiter);
-        return csvHeaderDetector.hasHeader();
-    }
-
-    private InputStreamReader createInputStreamFrom(File file) throws ParsingException {
-        try {
-            return new FileReader(file);
-        } catch (FileNotFoundException ex) {
-            throw new ParsingException("file not found!");
+    private boolean guessFileHasHeaderOrNot() throws IOException {
+        try (InputStreamReader inputStreamToFile = new FileReader(file)) {
+            CsvHeaderDetector csvHeaderDetector =
+                    new CsvHeaderDetector(inputStreamToFile, allowComments, delimiter);
+            return csvHeaderDetector.hasHeader();
         }
     }
 }

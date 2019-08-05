@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 import static org.junit.Assert.assertFalse;
 
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 public class TestCsvHeaderDetector extends BaseValidatorTest {
 
     @Test
-    public void testHeaderDetector() throws FileNotFoundException, ParsingException {
+    public void testHeaderDetector() throws IOException {
         String sample = getFullPath("csv/variant_summary_sample.csv");
 
         CsvHeaderDetector detector = new CsvHeaderDetector(new FileReader(sample), true, "");
@@ -22,7 +23,7 @@ public class TestCsvHeaderDetector extends BaseValidatorTest {
     }
 
     @Test
-    public void testAutodetection() throws FileNotFoundException, ParsingException {
+    public void testAutodetection() throws IOException {
         String carsCsv = getFullPath("csv/variant_summary_sample_without_comments.csv");
         FileReader reader = new FileReader(carsCsv);
         CsvHeaderDetector headerDetector = new CsvHeaderDetector(reader, false, "");

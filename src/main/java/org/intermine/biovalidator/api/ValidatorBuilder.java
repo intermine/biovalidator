@@ -118,7 +118,7 @@ public final class ValidatorBuilder
         Optional<ValidatorType> validatorTypeOpt =
                 BioValidatorUtils.getOrGuessValidatorType(file, validatorType);
         if (!validatorTypeOpt.isPresent()) {
-            String errMsg = "Invalid Validator type! It must be one of ("
+            String errMsg = "Missing or Invalid Validator type! It must be one of ("
                     + Arrays.toString(ValidatorType.values()) + "), case-insensitive.";
             throw new IllegalArgumentException(errMsg);
         }

@@ -95,6 +95,13 @@ public class CsvParser implements Parser<String[]>
 
     @Override
     public void close() throws IOException {
-
+        if (inputStreamReader == null) {
+            return;
+        }
+        try {
+            inputStreamReader.close();
+        } finally {
+            inputStreamReader = null;
+        }
     }
 }

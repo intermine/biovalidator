@@ -11,9 +11,9 @@ package org.intermine.biovalidator.validator.csv;
  */
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.parser.CsvParser;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,71 +54,71 @@ public class CsvHeaderDetector
      * port of python csv module's 'has_header()' method, see link to the code at the top of the
      * file for description about approach being uses here.
      *
-     * @throws ParsingException if failed
+     * @throws IOException if failed parsing
      * @return boolean
      */
-    public boolean hasHeader() throws ParsingException {
+    public boolean hasHeader() throws IOException {
         /*
          Tell the parse that file does not has header so it won't skip first line, as this
          class wants to read first line in order to detect whether file has header or not.
          So passing hasHeader=false in the CsvParser() constructor
           */
-        CsvParser parser = new CsvParser(inputStreamReader, false, allowComments, delimiter);
+        try (CsvParser parser = new CsvParser(inputStreamReader, false, allowComments, delimiter)) {
+            String[] header = parser.parseNext();
+            int totalColumns = header.length;
 
-        String[] header = parser.parseNext();
-        int totalColumns = header.length;
+            Map<Integer, Object> columnTypes = new HashMap<>();
 
-        Map<Integer, Object> columnTypes = new HashMap<>();
-
-        for (int i = 0; i < totalColumns; i++) {
-            columnTypes.put(i, null);
-        }
-        int checked = 0;
-        while (parser.hasNext() && checked < SAMPLE_ROW) {
-            String[] row = parser.parseNext();
-
-            if (row.length != totalColumns) {
-                continue;
+            for (int i = 0; i < totalColumns; i++) {
+                columnTypes.put(i, null);
             }
-            //Copy keys to avoid Modification Exception
-            Set<Integer> columnTypesKeys = new HashSet<>(columnTypes.keySet());
-            columnTypesKeys.forEach(i -> {
-                Object thisType;
-                if (NumberUtils.isCreatable(row[i])) {
-                    thisType = Boolean.TRUE;
-                } else {
-                    thisType = row[i] == null ? 0: row[i].length();
+            int checked = 0;
+            while (parser.hasNext() && checked < SAMPLE_ROW) {
+                String[] row = parser.parseNext();
+
+                if (row.length != totalColumns) {
+                    continue;
                 }
-                if (thisType !=  columnTypes.get(i)) {
-                    if (columnTypes.get(i) == null) {
-                        columnTypes.put(i, thisType);
+                //Copy keys to avoid Modification Exception
+                Set<Integer> columnTypesKeys = new HashSet<>(columnTypes.keySet());
+                columnTypesKeys.forEach(i -> {
+                    Object thisType;
+                    if (NumberUtils.isCreatable(row[i])) {
+                        thisType = Boolean.TRUE;
                     } else {
-                        columnTypes.remove(i);
+                        thisType = row[i] == null ? 0 : row[i].length();
+                    }
+                    if (thisType != columnTypes.get(i)) {
+                        if (columnTypes.get(i) == null) {
+                            columnTypes.put(i, thisType);
+                        } else {
+                            columnTypes.remove(i);
+                        }
+                    }
+                });
+                checked++;
+            }
+            int hasHeader = 0;
+            for (Map.Entry<Integer, Object> entry : columnTypes.entrySet()) {
+                int colKey = entry.getKey();
+                Object colVal = entry.getValue();
+                if (colVal instanceof Integer) {
+                    int colValInt = (Integer) colVal;
+                    if (header[colKey] != null && header[colKey].length() == colValInt) {
+                        hasHeader--;
+                    } else {
+                        hasHeader++;
+                    }
+                } else if (colVal instanceof Boolean) {
+                    if (NumberUtils.isCreatable(header[colKey])) {
+                        hasHeader--;
+                    } else {
+                        hasHeader++;
                     }
                 }
-            });
-            checked++;
-        }
-        int hasHeader = 0;
-        for (Map.Entry<Integer, Object> entry: columnTypes.entrySet()) {
-            int colKey = entry.getKey();
-            Object colVal = entry.getValue();
-            if (colVal instanceof Integer) {
-                int colValInt = (Integer) colVal;
-                if (header[colKey] != null && header[colKey].length() == colValInt) {
-                    hasHeader--;
-                } else {
-                    hasHeader++;
-                }
-            } else if (colVal instanceof Boolean) {
-                if (NumberUtils.isCreatable(header[colKey])) {
-                    hasHeader--;
-                } else {
-                    hasHeader++;
-                }
             }
+            return hasHeader > 0;
         }
-        return hasHeader > 0;
     }
 }
 

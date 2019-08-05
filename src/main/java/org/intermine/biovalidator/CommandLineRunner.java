@@ -41,7 +41,7 @@ final class CommandLineRunner
     private static final String BASE_DOCS_URL = "/validator_rules/";
     private static final String FASTA_DOC_FILE_NAME = "Fasta-Validator.md";
     private static final String GFF3_DOC_FILE_NAME = "GFF3-Validator.md";
-    private static final String FASTA = "fatsa";
+    private static final String FASTA = "fasta";
     private static final String GFF = "gff";
     private static final String GFF3 = "gff3";
 
@@ -56,8 +56,8 @@ final class CommandLineRunner
      */
     public static void main(String[] args) {
 
-       /* args = Arrays.asList("-f",
-        "/home/deepak/Documents/Intermine/FILES/CSV/Pseudomonas_aeruginosa_PAO1_107_orthologs.csv",
+        /*args = Arrays.asList("-f",
+        "/home/deepak/Documents/Intermine/FILES/CSV/Drosophila_2.na25.annot.csv",
         "-w").toArray(new String[]{});*/
 
         try {
@@ -78,6 +78,8 @@ final class CommandLineRunner
                 printDocsFor(command.getDocs());
                 return;
             }
+
+            //check --file arg is provided or not, as it is a required argument
             if (!ArrayUtils.contains(args, "-f")) {
                 WRITER.println("Missing required option '--file=<filename>'");
                 return;
@@ -142,7 +144,7 @@ final class CommandLineRunner
         } else if (StringUtils.equalsAnyIgnoreCase(docs, GFF, GFF3)) {
             filename = GFF3_DOC_FILE_NAME;
         } else {
-            WRITER.println("Invalid docs type, argument must be one of(fasta, gff3, csv)");
+            WRITER.println("Invalid docs type, argument must be one of(fasta, gff3)");
             return;
         }
         InputStream inputStream = CommandLineRunner.class

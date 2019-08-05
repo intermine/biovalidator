@@ -40,7 +40,7 @@ public class ValidatorHelperTest {
         ValidationResult result = ValidatorHelper.validate("src/test/resources/fasta/fasta_rules",
                 "fastaQ", true);
         assertTrue(result.isNotValid());
-        String errMsg = "Invalid Validator type! It must be one of ([FASTA, "
+        String errMsg = "Missing or Invalid Validator type! It must be one of ([FASTA, "
                 + "FASTA_DNA, FASTA_RNA, FASTA_PROTEIN, GFF, GFF3, CSV]), case-insensitive.";
         assertEquals(errMsg, result.getErrorMessage());
     }

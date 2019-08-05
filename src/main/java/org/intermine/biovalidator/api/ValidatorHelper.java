@@ -76,7 +76,7 @@ public final class ValidatorHelper
         if (validatorTypeOpt.isPresent()) {
             return validate(file, validatorTypeOpt.get(), isStrict);
         } else {
-            String errMsg = "Invalid Validator type! It must be one of ("
+            String errMsg = "Missing or Invalid Validator type! It must be one of ("
                     + Arrays.toString(ValidatorType.values()) + "), case-insensitive.";
             return createValidationResultWithError(errMsg);
         }
