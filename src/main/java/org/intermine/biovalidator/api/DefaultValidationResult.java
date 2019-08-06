@@ -32,6 +32,7 @@ public class DefaultValidationResult implements ValidationResult
     private List<Message> warningMessages;
     private boolean isValid;
     private ValidationResultStrategy resultStrategy;
+    private int maxWarningMessageAllowed;
 
     /**
      * Default DefaultValidationResult Constructor
@@ -42,6 +43,7 @@ public class DefaultValidationResult implements ValidationResult
         this.errorMessages = new ArrayList<>();
         this.warningMessages = new ArrayList<>();
         this.isValid = true;
+        this.maxWarningMessageAllowed = 50;
     }
 
     @Override
@@ -97,7 +99,8 @@ public class DefaultValidationResult implements ValidationResult
 
     @Override
     public void addWarning(@Nonnull WarningMessage warningMessage) {
-        if (resultStrategy.isWarningEnabled()) {
+        if (resultStrategy.isWarningEnabled()
+                && warningMessages.size() < maxWarningMessageAllowed) {
             this.warningMessages.add(warningMessage);
         }
     }
