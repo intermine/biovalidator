@@ -24,7 +24,7 @@ public class TestCsvValidator extends BaseValidatorTest {
             String anotation = "/home/deepak/Documents/Intermine/FILES/CSV/U133AGNF1B.gcrma.avg.csv";
             ValidationResult result = ValidatorBuilder.withFile(filePath, ValidatorType.CSV)
                     .enableWarnings()
-                    .withStrictValidation(true)
+                    //.withStrictValidation(false)
                     .build()
                     .validate();
             System.out.println(result.getErrorMessage());

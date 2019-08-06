@@ -27,7 +27,17 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
 {
     private static final int MIN_SINGLE_TYPE_PERCENT = 80;
     private static final double PATTERN_SIMILARITY_STRICT_RATE = 0.85; // between 0 and 1
+    private static final double PATTERN_SIMILARITY_PERMISSIVE_RATE = 0.7; // between 0 and 1
 
+    private boolean isStrictValidation;
+
+    /**
+     * Construct CsvSchemaValidator with whether to validate strictly or not
+     * @param isStrictValidation whether to validate strictly or not
+     */
+    public CsvSchemaValidator(boolean isStrictValidation) {
+        this.isStrictValidation = isStrictValidation;
+    }
 
     @Override
     public boolean validateAndAddError(CsvSchema csvSchema,
@@ -181,21 +191,22 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
             CsvColumnMatrics column, Map.Entry<CsvColumnPattern, Integer> entryToMatch) {
         org.apache.commons.text.similarity.SimilarityScore<Double> similarityScore =
                 new JaroWinklerSimilarity();
-        double maxScore = Double.MIN_VALUE;
+        double maxSimilarityScore = Double.MIN_VALUE;
         Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
         Map.Entry<CsvColumnPattern, Integer> mostSimilarPattern = null;
         for (Map.Entry<CsvColumnPattern, Integer> entry: patterns.entrySet()) {
             if (!entry.equals(entryToMatch)) {
                 double currentScore  = similarityScore.apply(
                         entry.getKey().getPattern(), entryToMatch.getKey().getPattern());
-                if (currentScore > maxScore) {
-                    maxScore = currentScore;
+                if (currentScore > maxSimilarityScore) {
+                    maxSimilarityScore = currentScore;
                     mostSimilarPattern = entry;
                 }
             }
         }
-        double definedPatternSimilarityRate = PATTERN_SIMILARITY_STRICT_RATE;
-        if (maxScore > definedPatternSimilarityRate) {
+        final double definedPatternSimilarityRate =
+            isStrictValidation ? PATTERN_SIMILARITY_STRICT_RATE: PATTERN_SIMILARITY_PERMISSIVE_RATE;
+        if (maxSimilarityScore > definedPatternSimilarityRate) {
             return Optional.ofNullable(mostSimilarPattern);
         } else {
             return Optional.empty();

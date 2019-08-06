@@ -32,7 +32,6 @@ public class CsvValidator extends AbstractValidator
 {
     private File file;
     private boolean allowComments;
-    private boolean shouldAutoDetectDelimiter;
     private String delimiter;
 
     /**
@@ -67,8 +66,6 @@ public class CsvValidator extends AbstractValidator
         this.allowComments = allowComments;
         if (StringUtils.isNotBlank(delimiter)) {
             this.delimiter = delimiter;
-        } else {
-            this.shouldAutoDetectDelimiter = true;
         }
     }
 
@@ -90,63 +87,63 @@ public class CsvValidator extends AbstractValidator
             CsvSchema csvSchema = null; // stores type and pattern information of csv column data
             boolean doesFileHasHeader = guessFileHasHeaderOrNot();
 
-            InputStreamReader inputStreamToFile = new FileReader(file);
-            CsvParser csvParser = new CsvParser(
-                    inputStreamToFile, doesFileHasHeader, allowComments, delimiter);
+            try (CsvParser csvParser = new CsvParser(
+                    new FileReader(file), doesFileHasHeader, allowComments, delimiter)) {
 
-            int columnsLength = 0;
-            long currentLineNum = 0;
+                int columnsLength = 0;
+                long currentLineNum = 0;
 
-            while (csvParser.hasNext()) {
-                currentLineNum++;
-                String[] currentRow = csvParser.parseNext();
+                while (csvParser.hasNext()) {
+                    currentLineNum++;
+                    String[] currentRow = csvParser.parseNext();
 
-                if (currentLineNum <= 1) {
-                    //init column information
-                    columnsLength = currentRow.length;
-                    csvSchema = new CsvSchema(columnsLength);
-                }
-                //check number of column is same or not
-                if (currentRow.length != columnsLength) {
-                    String warningMsg = "Wrong number of columns at line " + currentLineNum;
-                    validationResult.addError(warningMsg);
-                    if (validationResult.isNotValid()
+                    if (currentLineNum <= 1) {
+                        //init column information
+                        columnsLength = currentRow.length;
+                        csvSchema = new CsvSchema(columnsLength);
+                    }
+                    //check number of column is same or not
+                    if (currentRow.length != columnsLength) {
+                        String warningMsg = "Wrong number of columns at line " + currentLineNum;
+                        validationResult.addError(warningMsg);
+                        if (validationResult.isNotValid()
+                                && validationResultStrategy.shouldStopAtFirstError()) {
+                            return validationResult;
+                        }
+                    }
+
+                    // check consistency of each column of current row with each column
+                    // of the first row
+                    for (int colIndx = 0; colIndx < columnsLength; colIndx++) {
+                        String currentColVal = currentRow[colIndx];
+                        if (StringUtils.isBlank(currentColVal)) {
+                            validationResult.addWarning("column " + colIndx + " at row "
+                                    + currentLineNum + " is blank");
+                        } else if (BioValidatorUtils.isBoolean(currentColVal)) {
+                            csvSchema.incrementBooleansCountAtColumn(colIndx);
+                        } else if (isStrict && BioValidatorUtils.isInteger(currentColVal)) {
+                            csvSchema.incrementIntegersCountAtColumn(colIndx);
+                        } else if (BioValidatorUtils.isFloat(currentColVal)) {
+                            csvSchema.incrementFloatsCountAtColumn(colIndx);
+                        } else {
+                            CsvColumnPattern pattern = CsvColumnPattern.valueOf(currentColVal);
+                            csvSchema.colAt(colIndx).addPattern(pattern);
+                        }
+                    }
+                    if (!validationResult.isValid()
                             && validationResultStrategy.shouldStopAtFirstError()) {
                         return validationResult;
                     }
                 }
 
-                //check consistency of each column of current row with each column of the first row
-                for (int colIndx = 0; colIndx < columnsLength; colIndx++) {
-                    String currentColVal = currentRow[colIndx];
-                    if (StringUtils.isBlank(currentColVal)) {
-                        validationResult.addWarning("column " + colIndx + " at row "
-                                + currentLineNum + " is blank");
-                    }
-                    else if (BioValidatorUtils.isBoolean(currentColVal)) {
-                        csvSchema.incrementBooleansCountAtColumn(colIndx);
-                    } else if (BioValidatorUtils.isInteger(currentColVal)) {
-                        csvSchema.incrementIntegersCountAtColumn(colIndx);
-                    } else if (BioValidatorUtils.isFloat(currentColVal)) {
-                        csvSchema.incrementFloatsCountAtColumn(colIndx);
-                    } else {
-                        CsvColumnPattern pattern = CsvColumnPattern.valueOf(currentColVal);
-                        csvSchema.colAt(colIndx).addPattern(pattern);
-                    }
+                // Do analysis on column data analysis(it total rows are more than one)
+                if (currentLineNum > 1 && csvSchema != null) {
+                    csvSchema.setTotalRows(currentLineNum);
+                    new CsvSchemaValidator(isStrict).validateAndAddError(
+                            csvSchema, validationResult, currentLineNum);
                 }
-                if (!validationResult.isValid()
-                        && validationResultStrategy.shouldStopAtFirstError()) {
-                    return validationResult;
-                }
+                return validationResult;
             }
-
-            // Do analysis on column data analysis(it total rows are more than one)
-            if (currentLineNum > 1 && csvSchema != null) {
-                csvSchema.setTotalRows(currentLineNum);
-                new CsvSchemaValidator().validateAndAddError(
-                        csvSchema, validationResult, currentLineNum);
-            }
-            return validationResult;
         } catch (TextParsingException ex) {
             String errMsg = StringUtils.substringBetween(ex.getMessage(), "Hint", ".");
             validationResult.addError("Unable to parse given file: " + file + "; Hint" + errMsg);

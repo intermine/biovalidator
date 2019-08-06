@@ -105,6 +105,9 @@ final class CommandLineRunner
             if (command.isEnableWarning()) { //enable warning
                 builder.enableWarnings();
             }
+            if (command.isStrict()) {
+                builder.enableStrictValidation();
+            }
             if (command.isPermissive()) { //allow permissive validation
                 builder.disableStrictValidation();
             }
@@ -138,7 +141,7 @@ final class CommandLineRunner
     }
 
     private static void printDocsFor(String docs) {
-        String filename = StringUtils.EMPTY;
+        String filename;
         if (FASTA.equalsIgnoreCase(docs)) {
             filename = FASTA_DOC_FILE_NAME;
         } else if (StringUtils.equalsAnyIgnoreCase(docs, GFF, GFF3)) {
@@ -218,6 +221,9 @@ final class CommandLineRunner
 
         @CommandLine.Option(names = {"-p", "--permissive"}, description = "permissive validation")
         private boolean permissive;
+
+        @CommandLine.Option(names = {"-s", "--strict"}, description = "strict validation")
+        private boolean strict;
 
         @CommandLine.Option(names = {"-z", "--continue-on-error"},
             description = "continue validation if error encountered")
@@ -303,6 +309,15 @@ final class CommandLineRunner
          */
         public String getDocs() {
             return docs;
+        }
+
+        /**
+         * Gets isStrict.
+         *
+         * @return Value of isStrict.
+         */
+        public boolean isStrict() {
+            return strict;
         }
     }
 }
