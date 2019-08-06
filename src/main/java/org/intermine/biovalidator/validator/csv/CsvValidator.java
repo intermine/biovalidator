@@ -12,10 +12,10 @@ package org.intermine.biovalidator.validator.csv;
 
 import com.univocity.parsers.common.TextParsingException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.intermine.biovalidator.api.ParsingException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.parser.CsvParser;
+import org.intermine.biovalidator.utils.BioValidatorUtils;
 import org.intermine.biovalidator.validator.AbstractValidator;
 
 import javax.annotation.Nonnull;
@@ -30,9 +30,6 @@ import java.io.InputStreamReader;
  */
 public class CsvValidator extends AbstractValidator
 {
-    private static final String BOOLEAN_TRUE = "true";
-    private static final String BOOLEAN_FALSE = "false";
-    private static final double SUCCESS_SCORE_BAR = 0.5;
     private File file;
     private boolean allowComments;
     private boolean shouldAutoDetectDelimiter;
@@ -126,11 +123,11 @@ public class CsvValidator extends AbstractValidator
                         validationResult.addWarning("column " + colIndx + " at row "
                                 + currentLineNum + " is blank");
                     }
-                    else if (isBoolean(currentColVal)) {
+                    else if (BioValidatorUtils.isBoolean(currentColVal)) {
                         csvSchema.incrementBooleansCountAtColumn(colIndx);
-                    } else if (isInteger(currentColVal)) {
+                    } else if (BioValidatorUtils.isInteger(currentColVal)) {
                         csvSchema.incrementIntegersCountAtColumn(colIndx);
-                    } else if (isFloat(currentColVal)) {
+                    } else if (BioValidatorUtils.isFloat(currentColVal)) {
                         csvSchema.incrementFloatsCountAtColumn(colIndx);
                     } else {
                         CsvColumnPattern pattern = CsvColumnPattern.valueOf(currentColVal);
@@ -157,54 +154,6 @@ public class CsvValidator extends AbstractValidator
             validationResult.addError(ex.getMessage());
         }
         return validationResult;
-    }
-
-    /**
-     * Tests whether a string is float or not
-     * @param s string value
-     * @return boolean, whether given string an float or not
-     */
-    private boolean isFloat(String s) {
-        /*try {
-            Float.parseFloat(s);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }*/
-        return NumberUtils.isCreatable(s);
-    }
-
-    /**
-     * Tests whether a string is integer or not
-     * @param s string value
-     * @return boolean, whether given string an integer or not
-     */
-    private static boolean isInteger(String s) {
-        final int radix = 10;
-        if (s.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < s.length(); i++) {
-            if (i == 0 && s.charAt(i) == '-') {
-                if (s.length() == 1) {
-                    return false;
-                }
-                else {
-                    continue;
-                }
-            }
-            if (Character.digit(s.charAt(i), radix) < 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isBoolean(String s) {
-        if (s == null) {
-            return false;
-        }
-        return BOOLEAN_TRUE.equalsIgnoreCase(s) || BOOLEAN_FALSE.equalsIgnoreCase(s);
     }
 
     /**

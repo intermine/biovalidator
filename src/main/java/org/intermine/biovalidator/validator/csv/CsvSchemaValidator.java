@@ -26,6 +26,8 @@ import java.util.Optional;
 public class CsvSchemaValidator implements RuleValidator<CsvSchema>
 {
     private static final int MIN_SINGLE_TYPE_PERCENT = 80;
+    private static final double PATTERN_SIMILARITY_STRICT_RATE = 0.85; // between 0 and 1
+
 
     @Override
     public boolean validateAndAddError(CsvSchema csvSchema,
@@ -38,27 +40,40 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         return true;
     }
 
+    /**
+     * Validates a single csv-schema column
+     */
     private void validateCsvColumn(CsvColumnMatrics column,
                                    ValidationResult validationResult,
                                    long totalRows,
                                    int columnIndex) {
-        final int minSingleTypePercent = 80;
-        boolean isSingleType = false;
-
-        boolean isBooleanType = addWarningIfIncosistenceSingleTypeData(
+        boolean isBooleanType = addWarningIfInconsistentSingleTypeData(
                 validationResult, totalRows, column.getBooleansCount(), columnIndex, "boolean");
 
-        boolean isIntegerType = addWarningIfIncosistenceSingleTypeData(validationResult, totalRows,
+        boolean isIntegerType = addWarningIfInconsistentSingleTypeData(validationResult, totalRows,
                 column.getIntegersCount(), columnIndex, "integer");
 
-        boolean isFloatType = addWarningIfIncosistenceSingleTypeData(validationResult, totalRows,
+        boolean isFloatType = addWarningIfInconsistentSingleTypeData(validationResult, totalRows,
                 column.getFloatsCount(), columnIndex, "float");
 
-
+        // If data in the column does not contain single type values but rather has mixed data,
+        // then check for inconsistency from the patterns created from column data
         if (allFalse(isBooleanType, isIntegerType, isFloatType)) {
-            // data in the column does not contain single type but rather has mixed data
-            normalizeColumnPatterns(column);
-            validateColumnPattern(column, validationResult, totalRows, columnIndex);
+            // if there are booleans or integers in the column and column is not recognized
+            // as a single-type, then create a equivalent pattern representing the values
+            // and add the created pattern into column's pattern list, in-order to be validated
+            // for consistency check.
+            if (column.getBooleansCount() > 0) {
+                column.addPattern(CsvColumnPattern.valueOf("true")); //pattern representing booleans
+            }
+            if (column.getIntegersCount() > 0) {
+                column.addPattern(CsvColumnPattern.digitattern());
+            }
+            normalizeColumnPatterns(column); // merge similar pattern into one.
+            if (column.getColumnDataPatterns().size() > 1) {
+                //validate only if there are more than one type of pattern in the column
+                validateColumnPattern(column, validationResult, totalRows, columnIndex);
+            }
         }
     }
 
@@ -74,11 +89,16 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         return true;
     }
 
-    private boolean addWarningIfIncosistenceSingleTypeData(ValidationResult validationResult,
-                                                        long totalRows,
-                                                        long singleTypeCount,
-                                                        int columnIndex,
-                                                        String typeName) {
+    /**
+     * Check whether a column is of single-type(e.g. integer, boolean, floats) or not.
+     * It add warning if it found most of the values are single-types but few are not.
+     * @return whether column is of single-typed or not
+     */
+    private boolean addWarningIfInconsistentSingleTypeData(ValidationResult validationResult,
+                                                           long totalRows,
+                                                           long singleTypeCount,
+                                                           int columnIndex,
+                                                           String typeName) {
         if (singleTypeCount > 0) {
             double percentageOfSingleType = calcPercentage(singleTypeCount, totalRows);
             if (percentageOfSingleType > MIN_SINGLE_TYPE_PERCENT && percentageOfSingleType < 100) {
@@ -93,41 +113,9 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         return false;
     }
 
-    private void normalizeColumnPatterns(CsvColumnMatrics column) {
-        Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
-        Iterator<Map.Entry<CsvColumnPattern, Integer>> itr = patterns.entrySet().iterator();
-        while (itr.hasNext()) {
-            Map.Entry<CsvColumnPattern, Integer> entry = itr.next();
-            findBestMatchingEntry(column, entry).ifPresent(e -> {
-                e.setValue(entry.getValue() + e.getValue());
-                itr.remove();
-            });
-        }
-    }
-
-    private Optional<Map.Entry<CsvColumnPattern, Integer>> findBestMatchingEntry(
-            CsvColumnMatrics column, Map.Entry<CsvColumnPattern, Integer> entryToMatch) {
-        org.apache.commons.text.similarity.SimilarityScore<Double> similarityScore =
-                new JaroWinklerSimilarity();
-        double maxScore = Double.MIN_VALUE;
-        Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
-        Map.Entry<CsvColumnPattern, Integer> mostSimilarPattern = null;
-        for (Map.Entry<CsvColumnPattern, Integer> entry: patterns.entrySet()) {
-            if (!entry.equals(entryToMatch)) {
-                double currentScore  = similarityScore.apply(
-                        entry.getKey().getPattern(), entryToMatch.getKey().getPattern());
-                if (currentScore > maxScore) {
-                    maxScore = currentScore;
-                    mostSimilarPattern = entry;
-                }
-            }
-        }
-        if (maxScore > 8.0) {
-            return Optional.of(mostSimilarPattern);
-        } else {
-            return Optional.empty();
-        }
-    }
+    /**
+     * Validates pattern consistency of a column
+     */
     private void validateColumnPattern(CsvColumnMatrics column,
                                        ValidationResult validationResult,
                                        long totalRows,
@@ -150,6 +138,70 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         }
     }
 
+    /**
+     * For a given column, It checks for pattern that are approximately same, for each pattern
+     * in a column, it check whether a similar pattern exist in the column or not, if similar
+     * pattern is found, then it merge two similar pattern into one and also combine
+     * the count of both pattern.
+     * @param column instance of CsvColumnMatrics
+     */
+    private void normalizeColumnPatterns(CsvColumnMatrics column) {
+        Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
+        Iterator<Map.Entry<CsvColumnPattern, Integer>> itr = patterns.entrySet().iterator();
+        while (itr.hasNext()) {
+            Map.Entry<CsvColumnPattern, Integer> entry = itr.next();
+            findBestMatchingEntry(column, entry).ifPresent(e -> {
+                e.setValue(entry.getValue() + e.getValue());
+                itr.remove();
+            });
+        }
+    }
+
+    /**
+     * Finds best matching entry(i.e. Pattern) in a CsvColumnMatrics, matching is defined by text
+     * similarity between the given pattern and the patterns in the column,
+     * For similarity Matching, this method uses 'Jaro–Winkler distance'.
+     *
+     * <p>
+     *     Note: As the length of each pattern is max up to 30, then using a edit-distance
+     *     measure(Jaro–Winkler distance) should not not create much performance issue.
+     * </p>
+     *  <pre>
+     *  @see
+     *  <a href="https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance">
+     *     Jaro–Winkler distance</a>
+     *  <a href="https://commons.apache.org/proper/commons-text/apidocs/org/apache/
+     *  commons/text/similarity/JaroWinklerDistance.html">Apache commans implementation</a>
+     *  </pre>
+     * @param column CsvColumnMatrics consist of all patterns of a column
+     * @param entryToMatch pattern that is to be matched
+     * @return best matching pattern entry from given column
+     */
+    private Optional<Map.Entry<CsvColumnPattern, Integer>> findBestMatchingEntry(
+            CsvColumnMatrics column, Map.Entry<CsvColumnPattern, Integer> entryToMatch) {
+        org.apache.commons.text.similarity.SimilarityScore<Double> similarityScore =
+                new JaroWinklerSimilarity();
+        double maxScore = Double.MIN_VALUE;
+        Map<CsvColumnPattern, Integer> patterns = column.getColumnDataPatterns();
+        Map.Entry<CsvColumnPattern, Integer> mostSimilarPattern = null;
+        for (Map.Entry<CsvColumnPattern, Integer> entry: patterns.entrySet()) {
+            if (!entry.equals(entryToMatch)) {
+                double currentScore  = similarityScore.apply(
+                        entry.getKey().getPattern(), entryToMatch.getKey().getPattern());
+                if (currentScore > maxScore) {
+                    maxScore = currentScore;
+                    mostSimilarPattern = entry;
+                }
+            }
+        }
+        double definedPatternSimilarityRate = PATTERN_SIMILARITY_STRICT_RATE;
+        if (maxScore > definedPatternSimilarityRate) {
+            return Optional.ofNullable(mostSimilarPattern);
+        } else {
+            return Optional.empty();
+        }
+    }
+
     private String createWarningMsg(Map<CsvColumnPattern, Integer> columnDataPatterns,
                                     int columnIndex) {
         StringBuilder patternWarningMsg = new StringBuilder();
@@ -163,12 +215,12 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         CsvColumnPattern maxPattern = maxAndMinPatterns.getLeft();
         CsvColumnPattern minPattern = maxAndMinPatterns.getRight();
 
-        patternWarningMsg.append("\tvalues similar to this pattern(")
+        patternWarningMsg.append("\tvalues similar to pattern(")
                 .append(maxPattern.getPattern()).append(") ").append(" '")
                 .append(maxPattern.getData()).append("' has ")
                 .append(columnDataPatterns.get(maxPattern)).append(" counts\n");
 
-        patternWarningMsg.append("\tvalues similar to this pattern(")
+        patternWarningMsg.append("\tvalues similar to pattern(")
                 .append(minPattern.getPattern()).append(") ").append(" '")
                 .append(minPattern.getData()).append("' has ")
                 .append(columnDataPatterns.get(minPattern)).append(" counts\n");

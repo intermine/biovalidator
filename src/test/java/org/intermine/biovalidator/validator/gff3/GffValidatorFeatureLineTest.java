@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -18,10 +17,8 @@ public class GffValidatorFeatureLineTest extends BaseValidatorTest {
 	@Test
 	@Ignore
 	public void testGff3Feature() throws FileNotFoundException, ValidationFailureException {
-		String path = "/home/deepak/Documents/FASTA_FILES/sample1.gff3";
-		String file = "gff3/valid/sample1.gff3";
-		String filePath = path;//getFullPath(file);
-		FileReader reader = new FileReader(filePath);
+		String path = "gff3/valid/sample.gff3";
+		FileReader reader = new FileReader(getFullPath(path));
 
 		Validator validator = ValidatorBuilder.ofType(new Gff3Validator(reader)).build();
 		validator.validate(result -> {

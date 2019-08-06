@@ -46,6 +46,9 @@ public final class CsvColumnPattern
     private static final CsvColumnPattern EMPTY_PATTERN =
         new CsvColumnPattern(StringUtils.EMPTY, StringUtils.EMPTY);
 
+    private static final CsvColumnPattern DIGIT_PATTERN =
+            new CsvColumnPattern("1233", "123");
+
     private CsvColumnPattern(String pattern, String data) {
         this.pattern = pattern;
 
@@ -101,6 +104,14 @@ public final class CsvColumnPattern
      */
     public static CsvColumnPattern emptyPattern() {
         return EMPTY_PATTERN;
+    }
+
+    /**
+     * Create and return a pattern consist of digits
+     * @return pattern for a integer string
+     */
+    public static CsvColumnPattern digitattern() {
+        return DIGIT_PATTERN;
     }
 
     @Override
