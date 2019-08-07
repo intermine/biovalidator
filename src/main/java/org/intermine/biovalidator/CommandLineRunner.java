@@ -41,9 +41,11 @@ final class CommandLineRunner
     private static final String BASE_DOCS_URL = "/validator_rules/";
     private static final String FASTA_DOC_FILE_NAME = "Fasta-Validator.md";
     private static final String GFF3_DOC_FILE_NAME = "GFF3-Validator.md";
+    private static final String CSV_DOC_FILE_NAME = "Csv-Validator.md";
     private static final String FASTA = "fasta";
     private static final String GFF = "gff";
     private static final String GFF3 = "gff3";
+    private static final String CSV = "csv";
 
     static {
         WRITER = new PrintWriter(System.out, true);
@@ -146,8 +148,10 @@ final class CommandLineRunner
             filename = FASTA_DOC_FILE_NAME;
         } else if (StringUtils.equalsAnyIgnoreCase(docs, GFF, GFF3)) {
             filename = GFF3_DOC_FILE_NAME;
+        } else if (CSV.equalsIgnoreCase(docs)) {
+            filename = CSV_DOC_FILE_NAME;
         } else {
-            WRITER.println("Invalid docs type, argument must be one of(fasta, gff3)");
+            WRITER.println("Invalid docs type, argument must be one of(fasta, gff, gff3 or csv)");
             return;
         }
         InputStream inputStream = CommandLineRunner.class

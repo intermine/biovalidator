@@ -26,7 +26,7 @@ import java.util.Optional;
 public class CsvSchemaValidator implements RuleValidator<CsvSchema>
 {
     private static final int MIN_SINGLE_TYPE_PERCENT = 80;
-    private static final double PATTERN_SIMILARITY_STRICT_RATE = 0.85; // between 0 and 1
+    private static final double PATTERN_SIMILARITY_STRICT_RATE = 0.9; // between 0 and 1
     private static final double PATTERN_SIMILARITY_PERMISSIVE_RATE = 0.7; // between 0 and 1
 
     private boolean isStrictValidation;
@@ -114,7 +114,7 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
             if (percentageOfSingleType > MIN_SINGLE_TYPE_PERCENT && percentageOfSingleType < 100) {
                 long unmatchedRows = totalRows - singleTypeCount;
                 String warningMsg  = "data is not consistent in column " + (columnIndex + 1)
-                        + ", " + singleTypeCount +  " rows have " + typeName + " but "
+                        + " and row " + singleTypeCount +  ", most rows have " + typeName + " but "
                         + unmatchedRows + " rows has non-" + typeName + " values(s)";
                 validationResult.addWarning(warningMsg);
                 return true;
