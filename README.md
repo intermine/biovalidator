@@ -91,3 +91,6 @@ Setp 2: run as an executable jar file
 ```shell
 java -jar biovalidator-0.1.0.jar --help
 ```
+
+### BioValidator Documentation 
+Documentation about BioValidator uses and validation rules: [https://github.com/intermine/biovalidator/wiki](https://github.com/intermine/biovalidator/wiki)

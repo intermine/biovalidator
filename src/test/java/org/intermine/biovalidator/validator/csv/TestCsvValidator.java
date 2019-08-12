@@ -16,12 +16,7 @@ public class TestCsvValidator extends BaseValidatorTest {
     @Test
     public void testCsvValidator() {
         simpleBenchmark(() -> {
-            //String simple = "/home/deepak/Documents/Intermine/FILES/CSV/5d331a9794f6200004000040.csv";
-            String csv = "/home/deepak/Documents/Intermine/FILES/CSV/cars.csv";
-            String sample = "/home/deepak/Documents/Intermine/FILES/CSV/Drosophila_2.na25.annot.csv";
-            String variant_summary = "/home/deepak/Documents/Intermine/FILES/CSV/variant_summary_sample.csv";
             String filePath = getFullPath("csv/variant_summary_sample.csv");
-            String anotation = "/home/deepak/Documents/Intermine/FILES/CSV/U133AGNF1B.gcrma.avg.csv";
             ValidationResult result = ValidatorBuilder.withFile(filePath, ValidatorType.CSV)
                     .enableWarnings()
                     //.withStrictValidation(false)
