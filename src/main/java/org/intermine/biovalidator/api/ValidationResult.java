@@ -42,7 +42,8 @@ public interface ValidationResult
     List<Message> getErrorMessages();
 
     /**
-     * Returns a single error message as string describing the cause of validation failure
+     * Returns a single error message as string describing the cause of validation failure,
+     * if there are more than one error message then it returns the first error message.
      * if validator failed or else it returns an empty string
      * @return string containing error message or empty string
      */

@@ -82,8 +82,8 @@ final class CommandLineRunner
             }
 
             //check --file arg is provided or not, as it is a required argument
-            if (!ArrayUtils.contains(args, "-f")) {
-                WRITER.println("Missing required option '--file=<filename>'");
+            if (!ArrayUtils.contains(args, "-f") && !ArrayUtils.contains(args, "--file")) {
+                WRITER.println("Missing required option '-f=<filename>' OR '--file=<filename>'");
                 return;
             }
             if (StringUtils.isBlank(command.getFilename())) { //check file is provided or not
@@ -205,7 +205,7 @@ final class CommandLineRunner
 
         @CommandLine.Option(
                 names = {"-t", "--type"},
-                description = "ValidatorType, fasta is used as default if not provided\n"
+                description = "ValidatorType, "
                         + "possible values:\n fasta,\n fasta-dna,\n fasta-rna,\n fasta-protein,\n"
                         + " gff3,\n csv",
                 defaultValue = "",

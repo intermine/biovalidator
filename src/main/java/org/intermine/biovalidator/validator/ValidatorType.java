@@ -36,7 +36,7 @@ public enum ValidatorType {
     /**
      * Represents a validator of type CSV/TSV
      */
-    CSV("csv",  Arrays.asList("csv", "tsv"));
+    CSV("csv",  Arrays.asList("csv", "tsv", "txt"));
 
     private String name;
     private List<String> supportedFileExtensions;

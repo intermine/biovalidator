@@ -83,13 +83,13 @@ compile 'org.intermine:biovalidator:0.1.0'
 
 ### Using biovalidator as a command line utility
 Step 1: Get biovalidator Fat-Jar(either build from source or dirctly download from [bintray](https://bintray.com/intermineorg/biovalidator/biovalidator#files/org%2Fintermine%2Fbiovalidator%2F0.1.0))
-* Build from source : $ gradle createFatJar
+* Build from source : $ ./gradlew createFatJar
 
 * Or Download fat-jar version of biovalidator from [bintray](https://bintray.com/intermineorg/biovalidator/biovalidator#files/org%2Fintermine%2Fbiovalidator%2F0.1.0)
 
 Setp 2: run as an executable jar file
 ```shell
-java -jar biovalidator-0.1.0.jar --help
+java -jar biovalidator-fat-0.1.2.jar --help
 ```
 
 ### BioValidator Documentation 
