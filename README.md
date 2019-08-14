@@ -71,19 +71,20 @@ Maven dependency
 <dependency>
   <groupId>org.intermine</groupId>
   <artifactId>biovalidator</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.2</version>
   <type>pom</type>
 </dependency>
 ```
 
 Gradle dependency
 ```groovy
-compile 'org.intermine:biovalidator:0.1.0'
+compile 'org.intermine:biovalidator:0.1.2'
 ```
 
 ### Using biovalidator as a command line utility
-Step 1: Get biovalidator Fat-Jar(either build from source or dirctly download from [bintray](https://bintray.com/intermineorg/biovalidator/biovalidator#files/org%2Fintermine%2Fbiovalidator%2F0.1.0))
+Step 1: Get biovalidator Fat-Jar(either build from source or dirctly download from bintray
 * Build from source : $ ./gradlew createFatJar
+    * this will generate a jar named 'biovalidator-fat-x.x.x.jar' in 'build/libs' directory
 
 * Or Download fat-jar version of biovalidator from [bintray](https://bintray.com/intermineorg/biovalidator/biovalidator#files/org%2Fintermine%2Fbiovalidator%2F0.1.0)
 

@@ -63,8 +63,13 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         boolean isIntegerType = addWarningIfInconsistentSingleTypeData(validationResult, totalRows,
                 column.getIntegersCount(), columnIndex, "integer");
 
+        String floatTypeName = "float";
+        if (!isStrictValidation) {
+            // in permissive validation both float and integers are considered same as numbers
+            floatTypeName = "number";
+        }
         boolean isFloatType = addWarningIfInconsistentSingleTypeData(validationResult, totalRows,
-                column.getFloatsCount(), columnIndex, "float");
+                column.getFloatsCount(), columnIndex, floatTypeName);
 
         // If data in the column does not contain single type values but rather has mixed data,
         // then check for inconsistency from the patterns created from column data
@@ -114,8 +119,8 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
             if (percentageOfSingleType > MIN_SINGLE_TYPE_PERCENT && percentageOfSingleType < 100) {
                 long unmatchedRows = totalRows - singleTypeCount;
                 String warningMsg  = "data is not consistent in column " + (columnIndex + 1)
-                        + " and row " + singleTypeCount +  ", most rows have " + typeName + " but "
-                        + unmatchedRows + " rows has non-" + typeName + " values(s)";
+                        + ", most rows have " + typeName + " but "
+                        + unmatchedRows + " row(s) has non-" + typeName + " values(s)";
                 validationResult.addWarning(warningMsg);
                 return true;
             }
@@ -218,7 +223,7 @@ public class CsvSchemaValidator implements RuleValidator<CsvSchema>
         StringBuilder patternWarningMsg = new StringBuilder();
         patternWarningMsg.append("data in column ")
                 .append(columnIndex + 1)
-                .append(" does not confirms " + "to one or more pattern, look like "
+                .append(" does not conforms " + "to one or more pattern, look like "
                         + "this column has data with some random pattern:\n");
 
         ImmutablePair<CsvColumnPattern, CsvColumnPattern> maxAndMinPatterns =

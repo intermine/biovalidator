@@ -70,7 +70,7 @@ public final class BioValidatorUtils
      * @param filename filename
      * @return optional of file extension
      */
-    private static Optional<String> getFileExtension(String filename) {
+    public static Optional<String> getFileExtension(String filename) {
         int extensionIndex = filename.lastIndexOf(".");
         int separatorIndex = filename.lastIndexOf(File.separator);
         if (extensionIndex == -1 || extensionIndex < separatorIndex) {

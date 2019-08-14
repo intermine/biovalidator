@@ -47,7 +47,7 @@ public final class CsvColumnPattern
         new CsvColumnPattern(StringUtils.EMPTY, StringUtils.EMPTY);
 
     private static final CsvColumnPattern DIGIT_PATTERN =
-            new CsvColumnPattern("1233", "123");
+            new CsvColumnPattern("D", "123");
 
     private CsvColumnPattern(String pattern, String data) {
         this.pattern = pattern;

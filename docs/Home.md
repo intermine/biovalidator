@@ -15,14 +15,14 @@ Maven dependency
 <dependency>
   <groupId>org.intermine</groupId>
   <artifactId>biovalidator</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.2</version>
   <type>pom</type>
 </dependency>
 ```
 
 Gradle dependency
 ```groovy
-compile 'org.intermine:biovalidator:0.1.0'
+compile 'org.intermine:biovalidator:0.1.2'
 ```
 
 

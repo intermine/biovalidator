@@ -139,7 +139,18 @@ final class CommandLineRunner
     private static String getValidatorTypeName(String filename, String validatorType) {
         Optional<ValidatorType> opt = BioValidatorUtils.getOrGuessValidatorType(
                 filename, validatorType);
-        return opt.isPresent() ? opt.get().getName(): StringUtils.EMPTY;
+        // find verbose name for validator type currently being used by validator
+        if (opt.isPresent()) {
+            ValidatorType foundValidatorType = opt.get();
+            if (foundValidatorType.getName().equalsIgnoreCase(validatorType)) {
+                return validatorType; //if validator type was provided by user explicitly
+            } else {
+                //else returns fileExtension from which validator type was guessed
+                Optional<String> fileExtension = BioValidatorUtils.getFileExtension(filename);
+                return fileExtension.orElse(StringUtils.EMPTY);
+            }
+        }
+        return StringUtils.EMPTY; // if validator type not-found or guessed
     }
 
     private static void printDocsFor(String docs) {
@@ -207,7 +218,7 @@ final class CommandLineRunner
                 names = {"-t", "--type"},
                 description = "ValidatorType, "
                         + "possible values:\n fasta,\n fasta-dna,\n fasta-rna,\n fasta-protein,\n"
-                        + " gff3,\n csv",
+                        + " gff3,\n csv,\n tsv,\n tab",
                 defaultValue = "",
                 completionCandidates = ValidatorTypes.class)
         private String validatorType;
