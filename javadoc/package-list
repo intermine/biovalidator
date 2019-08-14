@@ -1,6 +1,10 @@
 org.intermine.biovalidator.api
 org.intermine.biovalidator.api.strategy
 org.intermine.biovalidator.parser
+org.intermine.biovalidator.utils
 org.intermine.biovalidator.validator
+org.intermine.biovalidator.validator.csv
 org.intermine.biovalidator.validator.fasta
 org.intermine.biovalidator.validator.fasta.sequencevalidator
+org.intermine.biovalidator.validator.gff3
+org.intermine.biovalidator.validator.gff3.rulevalidator
