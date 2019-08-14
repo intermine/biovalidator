@@ -97,6 +97,7 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
     }
 
     @Test
+    @Ignore //Validator should accept ValidationStrategy through constructor args
     public void testWarningOnExceedingDefinedSequenceLengthOnALine()
                                                 throws ValidationFailureException {
         String data = ">seq1\n" +
@@ -104,6 +105,7 @@ public class FastaValidatorRuleTest extends BaseValidatorTest {
           "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATATGCG";
         Validator validator = new FastaValidator(createInMemoryInputStream(data), SequenceType.ALL);
         validator.disableStrictValidation();
+        //validator.
         ValidationResult result = validator.validate();
 
         assertTrue(result.isValid());

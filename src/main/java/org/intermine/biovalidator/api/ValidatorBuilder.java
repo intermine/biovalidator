@@ -11,14 +11,19 @@ package org.intermine.biovalidator.api;
  */
 
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
+import org.intermine.biovalidator.utils.BioValidatorUtils;
 import org.intermine.biovalidator.validator.ValidatorType;
+import org.intermine.biovalidator.validator.csv.CsvValidator;
 import org.intermine.biovalidator.validator.fasta.FastaValidator;
 import org.intermine.biovalidator.validator.fasta.SequenceType;
+import org.intermine.biovalidator.validator.gff3.Gff3Validator;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Builder class to instantiate a Validator with customization
@@ -67,7 +72,7 @@ public final class ValidatorBuilder
         try {
             reader = new FileReader(filename);
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("file not found");
+            throw new IllegalArgumentException(e.getMessage());
         }
         switch (type) {
             case FASTA:
@@ -78,8 +83,13 @@ public final class ValidatorBuilder
                 return ofType(new FastaValidator(reader, SequenceType.RNA));
             case FASTA_PROTEIN:
                 return ofType(new FastaValidator(reader, SequenceType.PROTEIN));
+            case GFF:
+            case GFF3:
+                return ofType(new Gff3Validator(reader)); // GFF3 validator for both GFF and GFF3
+            case CSV:
+                return ofType(new CsvValidator(filename));
             default:
-                throw new IllegalArgumentException("invalid validator type");
+                throw new IllegalArgumentException("invalid validator type " + type.getName());
         }
     }
 
@@ -105,7 +115,14 @@ public final class ValidatorBuilder
      */
     public static ValidatorBuilder withFile(@Nonnull String file, @Nonnull String validatorType)
             throws IllegalArgumentException {
-        return withFile(new File(file), ValidatorType.of(validatorType));
+        Optional<ValidatorType> validatorTypeOpt =
+                BioValidatorUtils.getOrGuessValidatorType(file, validatorType);
+        if (!validatorTypeOpt.isPresent()) {
+            String errMsg = "Missing or Invalid Validator type! It must be one of ("
+                    + Arrays.toString(ValidatorType.values()) + "), case-insensitive.";
+            throw new IllegalArgumentException(errMsg);
+        }
+        return withFile(new File(file), validatorTypeOpt.get());
     }
 
     /**
@@ -177,7 +194,7 @@ public final class ValidatorBuilder
      * @return ValidatorBuilder
      */
     public ValidatorBuilder enableErrors() {
-        this.validationResultStrategy.enableWarnings();
+        this.validationResultStrategy.enableErrors();
         return this;
     }
 

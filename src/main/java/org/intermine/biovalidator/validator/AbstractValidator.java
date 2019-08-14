@@ -12,7 +12,6 @@ package org.intermine.biovalidator.validator;
 
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.DefaultValidationResultStrategy;
-import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.Validator;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
@@ -45,8 +44,7 @@ public abstract class AbstractValidator implements Validator
     }
 
     @Override
-    public void validate(Consumer<ValidationResult> resultConsumer)
-                                            throws ValidationFailureException {
+    public void validate(Consumer<ValidationResult> resultConsumer) {
         resultConsumer.accept(validate());
     }
 

@@ -10,6 +10,7 @@ package org.intermine.biovalidator.api;
  *
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.strategy.ValidationResultStrategy;
 
 import javax.annotation.Nonnull;
@@ -31,6 +32,7 @@ public class DefaultValidationResult implements ValidationResult
     private List<Message> warningMessages;
     private boolean isValid;
     private ValidationResultStrategy resultStrategy;
+    private int maxWarningMessageAllowed;
 
     /**
      * Default DefaultValidationResult Constructor
@@ -41,6 +43,7 @@ public class DefaultValidationResult implements ValidationResult
         this.errorMessages = new ArrayList<>();
         this.warningMessages = new ArrayList<>();
         this.isValid = true;
+        this.maxWarningMessageAllowed = 50;
     }
 
     @Override
@@ -60,6 +63,18 @@ public class DefaultValidationResult implements ValidationResult
     }
 
     @Override
+    public String getErrorMessage() {
+        //return first error msg its in invalid state else return empty string
+        if (!isValid && errorMessages.size() > 0) {
+            Message errMsg = errorMessages.get(0);
+            if (errMsg != null) {
+                return errMsg.getMessage();
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    @Override
     public List<Message> getWarningMessages() {
         return Collections.unmodifiableList(warningMessages);
     }
@@ -67,6 +82,11 @@ public class DefaultValidationResult implements ValidationResult
     @Override
     public boolean isValid() {
         return isValid;
+    }
+
+    @Override
+    public boolean isNotValid() {
+        return !isValid;
     }
 
     @Override
@@ -79,13 +99,32 @@ public class DefaultValidationResult implements ValidationResult
 
     @Override
     public void addWarning(@Nonnull WarningMessage warningMessage) {
-        if (resultStrategy.isWarningEnabled()) {
+        if (resultStrategy.isWarningEnabled()
+                && warningMessages.size() < maxWarningMessageAllowed) {
             this.warningMessages.add(warningMessage);
         }
     }
 
+    @Override
+    public void addError(String errorMessage) {
+        addError(ErrorMessage.of(errorMessage));
+    }
+
+    @Override
+    public void addWarning(String warningMessage) {
+        addWarning(WarningMessage.of(warningMessage));
+    }
+
     @Override public void setValidationStrategy(ValidationResultStrategy strategy) {
         this.resultStrategy = strategy;
+    }
+
+    /**
+     * Gets validation result strategy
+     * @return validation result strategy
+     */
+    public ValidationResultStrategy getResultStrategy() {
+        return resultStrategy;
     }
 
     /**

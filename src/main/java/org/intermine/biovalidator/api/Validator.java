@@ -32,16 +32,14 @@ public interface Validator
     /**
      * Validates a file
      * @return A detailed result of the validation
-     * @throws ValidationFailureException if validator failed to validateFasta a given file.
      */
-    @Nonnull ValidationResult validate() throws ValidationFailureException;
+    @Nonnull ValidationResult validate();
 
     /**
      * Validates a file and pass the result to a consumer
      * @param resultConsumer the consumer which will accept the result
-     * @throws ValidationFailureException if validation fails
      */
-    void validate(Consumer<ValidationResult> resultConsumer) throws ValidationFailureException;
+    void validate(Consumer<ValidationResult> resultConsumer);
 
     /**
      * Apply strategy for custom validation result

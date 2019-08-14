@@ -42,6 +42,14 @@ public interface ValidationResult
     List<Message> getErrorMessages();
 
     /**
+     * Returns a single error message as string describing the cause of validation failure,
+     * if there are more than one error message then it returns the first error message.
+     * if validator failed or else it returns an empty string
+     * @return string containing error message or empty string
+     */
+    String getErrorMessage();
+
+    /**
      * Return list of warning messages.
      *
      * @return Value of warning messages.
@@ -49,10 +57,16 @@ public interface ValidationResult
     List<Message> getWarningMessages();
 
     /**
-     * Return whether validator has valid result or not
-     * @return test result
+     * Test whether validator has valid result or not
+     * @return true if result is valid
      */
     boolean isValid();
+
+    /**
+     * Test whether is valid or not
+     * @return true if result is not valid
+     */
+    boolean isNotValid();
 
     /**
      * Add a error message
@@ -65,6 +79,18 @@ public interface ValidationResult
      * @param warningMessage message
      */
     void addWarning(WarningMessage warningMessage);
+
+    /**
+     * Add a error with string as the message
+     * @param errorMessage error
+     */
+    void addError(String errorMessage);
+
+    /**
+     * Add a warning with string as the message
+     * @param warningMessage warning
+     */
+    void addWarning(String warningMessage);
 
     /**
      * Sets validation result strategy

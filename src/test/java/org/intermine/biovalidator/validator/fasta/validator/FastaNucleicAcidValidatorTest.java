@@ -19,7 +19,8 @@ public class FastaNucleicAcidValidatorTest extends BaseValidatorTest {
     @Test
     public void testMultiSequenceValidFile() throws ValidationFailureException {
         String file = getFullPath("fasta/valid/dna_multiple.fa");
-        ValidationResult result = ValidatorHelper.validateFastaDna(file);
+        ValidationResult result = ValidatorHelper.validate(file,"Fasta", false);
+        System.out.println(result.getErrorMessage());
         assertTrue(result.isValid());
     }
 
