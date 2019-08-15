@@ -1,0 +1,7 @@
+##gff-version 3
+#!gff-spec-version 1.21
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606
+NC_000001.111	RefSeq	region	2	78	.	+	.	ID=id0;Dbxref=taxon:9606;Name=1;chromosome=1;gbkey=Src;genome=chromosome;gen_key=genomic DNA
+NC_000001.11	BestRefSeq	transcript	99	99	.	+	.	ID=gene0;Dbxref=;Name=DDX11L1
+NC_000001.12\>	BestRefSeq	transcript	10	99	.	+	.	ID=rna0;Parent=gene0;Dbxref=GeneID:100287102,Genbank:NR_046018.2,HGNC:HGNC:37102
+NC_000001.14\>	BestRefSeq	transcript	2	990	.	+	.	ID=rna0;Parent=gene0;Dbxref=GeneID:100287102,Genbank:NR_046018.2,HGNC:HGNC:37102;Name=NR_046018.2

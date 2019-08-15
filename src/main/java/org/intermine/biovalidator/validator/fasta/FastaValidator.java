@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.intermine.biovalidator.api.DefaultValidationResult;
 import org.intermine.biovalidator.api.ErrorMessage;
 import org.intermine.biovalidator.api.Parser;
-import org.intermine.biovalidator.api.ValidationFailureException;
 import org.intermine.biovalidator.api.ValidationResult;
 import org.intermine.biovalidator.api.WarningMessage;
 import org.intermine.biovalidator.parser.GenericLineByLineParser;
@@ -39,7 +38,7 @@ import java.util.Set;
  * 3. Warnings enabled by-default
  *
  *<b>Rules :</b>
- * 1. First Line must start with '>'
+ * 1. First Line must start with {@literal '>'}
  * 2. Allow multiple sequences in a file
  * 4. Strict checking for Nucleic-Acid and Amino-Acid sequences
  * 5. Sequences letters must follow 'IUB/IUPAC'
@@ -77,7 +76,7 @@ public class FastaValidator extends AbstractValidator
 
     @Nonnull
     @Override
-    public ValidationResult validate() throws ValidationFailureException {
+    public ValidationResult validate() {
         Set<String> uniqueSequenceIds = new HashSet<>();
         DefaultValidationResult defaultValidationResult =
                 (DefaultValidationResult) validationResult;
@@ -103,18 +102,7 @@ public class FastaValidator extends AbstractValidator
                             validationResult.addError(ErrorMessage.of(msg));
                         }
 
-                        String sequenceId = extractSequenceIdFromHeader(line);
-
-                        if (StringUtils.isBlank(sequenceId)) {
-                            String msg = "Invalid sequence id at line " + linesCount;
-                            validationResult.addError(ErrorMessage.of(msg));
-                        }
-                        else if (uniqueSequenceIds.contains(sequenceId)) {
-                            defaultValidationResult.addError(
-                                    ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
-                        } else {
-                            uniqueSequenceIds.add(sequenceId);
-                        }
+                        validateHeader(uniqueSequenceIds, line, linesCount);
                         seqLengthCount = 0;
                         lastHeaderLine = line;
                     }
@@ -147,9 +135,31 @@ public class FastaValidator extends AbstractValidator
                 validationResult.addError(ErrorMessage.of(msg));
             }
         } catch (IOException e) {
-            throw new ValidationFailureException(e.getMessage());
+            validationResult.addError(e.getMessage());
+            //throw new ValidationFailureException(e.getMessage());
         }
         return validationResult;
+    }
+
+    /**
+     * validates the header of a fasta file
+     * @param uniqueSequenceIds set of unique sequence Ids
+     * @param line current line to be validated
+     * @param linesCount current line count
+     */
+    private void validateHeader(Set<String> uniqueSequenceIds, String line, long linesCount) {
+        String sequenceId = extractSequenceIdFromHeader(line);
+
+        if (StringUtils.isBlank(sequenceId)) {
+            String msg = "Invalid sequence id at line " + linesCount;
+            validationResult.addError(ErrorMessage.of(msg));
+        }
+        else if (uniqueSequenceIds.contains(sequenceId)) {
+            validationResult.addError(
+                    ErrorMessage.of("Duplicate sequence-id at line " + linesCount));
+        } else {
+            uniqueSequenceIds.add(sequenceId);
+        }
     }
 
     /**
