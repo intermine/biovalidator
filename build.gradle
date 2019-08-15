@@ -19,7 +19,7 @@ plugins {
 }
 
 group 'org.intermine'
-version '0.1.0'
+version '0.1.2'
 
 sourceCompatibility = 1.8
 
@@ -39,6 +39,13 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+
+    // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
+    compile group: 'com.univocity', name: 'univocity-parsers', version: '2.8.2'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.7'
+
 }
 
 task myJavadocs(type: Javadoc) {
@@ -73,7 +80,7 @@ task createFatJar(type: Jar) {
     manifest {
         attributes 'Main-Class': 'org.intermine.biovalidator.CommandLineRunner'
     }
-    baseName = 'valid'
+    baseName = 'biovalidator-fat'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
@@ -118,3 +125,9 @@ bintray {
     configurations = ['archives']
 }
 
+// ------------------- For processing SequenceOntology Terms File 'so-simple.obo' ------------------------- \\
+task processSequenceOntologyTerms(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.intermine.biovalidator.utils.SequenceOntologyFileProcessor'
+}
+test.dependsOn(processSequenceOntologyTerms) // process GFF3 SO-Terms before running tests

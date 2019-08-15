@@ -1,4 +1,4 @@
-# BioValidator
+# BioValidator ![master build status](https://travis-ci.org/deepakkumar96/biovalidator.svg?branch=master)
 
 BioValidator is a schema validator that validates biological file format like Fasta, GFF, etc.
 Currently, it only supports Fasta file format
@@ -63,3 +63,35 @@ ValidationResult result = validator.validate();
 
 assertTrue(result.isValid());
 ```
+
+### Using biovalidator in your application
+
+Maven dependency
+```xml
+<dependency>
+  <groupId>org.intermine</groupId>
+  <artifactId>biovalidator</artifactId>
+  <version>0.1.2</version>
+  <type>pom</type>
+</dependency>
+```
+
+Gradle dependency
+```groovy
+compile 'org.intermine:biovalidator:0.1.2'
+```
+
+### Using biovalidator as a command line utility
+Step 1: Get biovalidator Fat-Jar(either build from source or dirctly download from bintray
+* Build from source : $ ./gradlew createFatJar
+    * this will generate a jar named 'biovalidator-fat-x.x.x.jar' in 'build/libs' directory
+
+* Or Download fat-jar version of biovalidator from [bintray](https://bintray.com/intermineorg/biovalidator/biovalidator#files/org%2Fintermine%2Fbiovalidator%2F0.1.0)
+
+Setp 2: run as an executable jar file
+```shell
+java -jar biovalidator-fat-0.1.2.jar --help
+```
+
+### BioValidator Documentation 
+Documentation about BioValidator uses and validation rules: [https://github.com/intermine/biovalidator/wiki](https://github.com/intermine/biovalidator/wiki)
