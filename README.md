@@ -1,7 +1,7 @@
 # BioValidator ![master build status](https://travis-ci.org/deepakkumar96/biovalidator.svg?branch=master)
 
 BioValidator is a schema validator that validates biological file format like Fasta, GFF, etc.
-Currently, it only supports Fasta file format
+Currently, it supports FASTA, GFF3, and CSV file formats
 
 ### Usage
 
@@ -93,5 +93,8 @@ Setp 2: run as an executable jar file
 java -jar biovalidator-fat-0.1.2.jar --help
 ```
 
-### BioValidator Documentation 
+### BioValidator Documentation
 Documentation about BioValidator uses and validation rules: [https://github.com/intermine/biovalidator/wiki](https://github.com/intermine/biovalidator/wiki)
+
+### BioValidator JavaDoc
+JavaDocs link : [http://intermine.org/biovalidator/javadoc](http://intermine.org/biovalidator/javadoc)
